@@ -2,7 +2,423 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+@* <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div> *@
+
+
+<!-- banner area -->
+<section class="rts__banner home__one__banner pt-260">
+    <div class="rts__banner__background">
+        <div class="shape__home__one __first d-none d-lg-block">
+            <img src="~/assets/img/home-1/banner/banner-shape.svg" alt="Shape 1">
+        </div>
+        <div class="shape__home__one __second d-none d-lg-block">
+            <img src="~/assets/img/home-1/banner/banner-shape-2.svg" alt="Shape 2">
+        </div>
+        <div class="shape__home__one __third"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="rts__banner__wrapper d-flex gap-4 justify-content-between">
+                <div class="rts__banner__content">
+                    <h1 class="rts__banner__title wow animated fadeInUp">
+                        Find Your Perfect
+                        Dream Job With
+                        <span>Jobpath</span>
+                    </h1>
+                    <p class="rts__banner__desc my-40 wow animated fadeInUp" data-wow-delay=".1s">
+                        Looking for a new job can be both exciting and daunting. Navigating the job market involves exploring various avenues, including online job boards.
+                    </p>
+                    <div class="rts__job__search wow animated fadeInUp" data-wow-delay=".2s">
+                        <form asp-controller="Jobs" asp-action="Search" class="d-flex align-items-center flex-wrap flex-md-nowrap flex-lg-wrap flex-xl-nowrap gap-4 gap-xl-0 justify-content-between">
+                            <div class="input-group flex-wrap d-flex gap-4">
+                                <div class="single__input d-flex flex-column">
+                                    <label for="location">Location</label>
+                                    <select name="location" class="select-nice" id="location">
+                                        <option value="1">Select Location</option>
+                                        <option value="2">Dhaka</option>
+                                        <option value="3">Barisal</option>
+                                        <option value="4">Chittagong</option>
+                                    </select>
+                                </div>
+                                <div class="vr d-none d-sm-block"></div>
+                                <div class="single__input d-flex flex-column">
+                                    <label for="job__type">Job Type</label>
+                                    <select name="job__type" class="select-nice" id="job__type">
+                                        <option value="1">Select Job Type</option>
+                                        <option value="2">Full Time</option>
+                                        <option value="3">Part Time</option>
+                                        <option value="4">Internship</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="rts__btn gap-2 fill__btn job__search" aria-label="Search">
+                                <i class="fa-light fa-magnifying-glass"></i> Search Job
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="rts__banner__image position-relative">
+                    <figure class="banner__image">
+                        <img src="~/assets/img/home-1/banner/image_2x.webp" alt="Banner">
+                    </figure>
+                    <div class="banner__image__shape">
+                        <div class="facebook">
+                            <i class="fab fa-facebook"></i>
+                        </div>
+                        <div class="twitter">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <div class="linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- banner area end -->
+<!-- work process area -->
+<section class="rts__section section__padding">
+    <div class="container">
+        <div class="row justify-content-center mb-60">
+            <div class="col-xl-6 col-lg-10">
+                <div class="rts__section__content text-center wow animated fadeInUp">
+                    <h3 class="rts__section__title section__mb">How Jobpath Works</h3>
+                    <p class="rts__section__desc">Our job board offers a wide range</p>
+                </div>
+            </div>
+        </div>
+        <div class="row g-30 justify-content-center">
+            <div class="col-lg-4 col-md-10 wow animated fadeInUp" data-wow-delay=".1s">
+                <div class="rts__workprocess__box">
+                    <div class="rts__icon">
+                        <img src="assets/img/home-1/process/icon-1.svg" alt="">
+                    </div>
+                    <span class="process__title h6 d-block">Create a Free Account</span>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="work__readmore mt-3">
+                        <a href="#">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-10 wow animated fadeInUp" data-wow-delay=".2s">
+                <div class="rts__workprocess__box">
+                    <div class="rts__icon">
+                        <img src="assets/img/home-1/process/icon-2.svg" alt="">
+                    </div>
+                    <span class="process__title h6 d-block">Make Your Resume Amazing</span>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="work__readmore mt-3">
+                        <a href="#">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-10 wow animated fadeInUp" data-wow-delay=".3s">
+                <div class="rts__workprocess__box">
+                    <div class="rts__icon">
+                        <img src="assets/img/home-1/process/icon-3.svg" alt="">
+                    </div>
+                    <span class="process__title h6 d-block">Apply Job</span>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="work__readmore mt-3">
+                        <a href="#">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- work process area end -->
+<!-- cat slider -->
+<div class="rts__section overflow-hidden cat__slider__bg pt-100 pb-100">
+    <div class="container">
+        <div class="row justify-content-between mb-50 gap-4 position-relative mtn-1">
+            <div class="col-xl-6 col-lg-10">
+                <div class="rts__section__content text-start wow animated fadeInUp">
+                    <h3 class="rts__section__title section__mb">Browse Job Category</h3>
+                    <p class="rts__section__desc">Looking for your next career opportunity. Look no further</p>
+                </div>
+            </div>
+            <div class="rts__slider__control align-items-end position-relative position-md-absolute right-md-0 bottom-md-0 z-3 d-flex gap-2 max-contnet">
+                <div class="rts__slide__next slider__btn"><i class="fa-sharp fa-solid fa-chevron-left"></i></div>
+                <div class="rts__slide__prev slider__btn"><i class="fa-sharp fa-solid fa-chevron-right"></i></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="cat__slider overflow-hidden swiper-data @@style" data-swiper='
+            {
+                "slidesPerView": 4,
+                "spaceBetween": 30,
+                "loop": true,
+                "speed": 1000,
+                "autoplay":{
+                    "delay":"7000"
+                },
+                "pagination": {
+                    "el": ".rts__pagination",
+                    "clickable": true
+                },
+                "navigation": {
+                    "nextEl": ".rts__slide__next",
+                    "prevEl": ".rts__slide__prev"
+                },
+                "breakpoints": {
+                    "0": {
+                        "slidesPerView": 1
+                    },
+                    "490": {
+                        "slidesPerView": 1.5
+                    },
+                    "768": {
+                        "slidesPerView": 2
+                    },
+                    "1024": {
+                        "slidesPerView": 3
+                    },
+                    "1200": {
+                        "slidesPerView": 3.5
+                    },
+                    "1400": {
+                        "slidesPerView": 4
+                    }
+                }
+            }'>
+                <div class="swiper-wrapper">
+
+                    <!-- Category 1 -->
+                    <div class="swiper-slide">
+                        <div class="single__cat d-flex gap-4">
+                            <div class="single__cat__icon color-1">
+                                <img src="assets/img/home-1/cat/1.svg" alt="">
+                            </div>
+                            <div class="single__cat__link d-flex flex-column">
+                                <a href="job-list-1.html" aria-label="cat__label">Development</a>
+                                <span>130+ Jobs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div class="swiper-slide">
+                        <div class="single__cat d-flex gap-4">
+                            <div class="single__cat__icon color-2">
+                                <img src="assets/img/home-1/cat/2.svg" alt="">
+                            </div>
+                            <div class="single__cat__link d-flex flex-column">
+                                <a href="job-list-1.html" aria-label="cat__label">Design & Arts</a>
+                                <span>130+ Jobs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div class="swiper-slide">
+                        <div class="single__cat d-flex gap-4">
+                            <div class="single__cat__icon color-3">
+                                <img src="assets/img/home-1/cat/3.svg" alt="">
+                            </div>
+                            <div class="single__cat__link d-flex flex-column">
+                                <a href="job-list-1.html" aria-label="cat__label">Accounting</a>
+                                <span>130+ Jobs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 4 -->
+                    <div class="swiper-slide">
+                        <div class="single__cat d-flex gap-4">
+                            <div class="single__cat__icon color-4">
+                                <img src="assets/img/home-1/cat/4.svg" alt="">
+                            </div>
+                            <div class="single__cat__link d-flex flex-column">
+                                <a href="job-list-1.html" aria-label="cat__label">Marketing</a>
+                                <span>130+ Jobs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+<!-- cat slider end -->
+<!-- Current Open Position -->
+<section class="rts__section section__padding">
+    <div class="container">
+        <div class="row justify-content-center mb-60">
+            <div class="col-xl-6 col-lg-10">
+                <div class="rts__section__content text-center wow animated fadeInUp">
+                    <h3 class="rts__section__title section__mb">There Are More Than 1000+ Jobs in Jobpath</h3>
+                    <p class="rts__section__desc">From entry-level positions to executive roles, browse through.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row g-30 wow animated fadeInUp" data-wow-delay=".0s">
+            <!-- Single Job -->
+            <div class="col-lg-6 col-xl-4 col-md-6">
+                <div class="rts__job__card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="company__icon">
+                            <img src="assets/img/home-1/company/apple.svg" alt="Apple">
+                        </div>
+                        <div class="featured__option">
+                            <span>Featured</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4 flex-wrap">
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-location-dot"></i> New York, USA
+                        </div>
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-briefcase"></i> Full Time
+                        </div>
+                    </div>
+                    <div class="h6 job__title my-3">
+                        <a href="job-details-1.html" aria-label="job">Senior UI Designer, Apple</a>
+                    </div>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
+                        <a href="#">Creative</a>
+                        <a href="#">User Interface</a>
+                        <a href="#">Web UI</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Single Job End -->
+            <!-- Single Job -->
+            <div class="col-lg-6 col-xl-4 col-md-6">
+                <div class="rts__job__card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="company__icon">
+                            <img src="assets/img/home-1/company/google.svg" alt="Google">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4 flex-wrap">
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-location-dot"></i> New York, USA
+                        </div>
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-briefcase"></i> Full Time
+                        </div>
+                    </div>
+                    <div class="h6 job__title my-3">
+                        <a href="job-details-1.html" aria-label="job">Senior UX Designer, Google</a>
+                    </div>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
+                        <a href="#">Creative</a>
+                        <a href="#">User Interface</a>
+                        <a href="#">Web UI</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Single Job End -->
+            <!-- Single Job -->
+            <div class="col-lg-6 col-xl-4 col-md-6">
+                <div class="rts__job__card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="company__icon">
+                            <img src="assets/img/home-1/company/microsoft.svg" alt="Microsoft">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4 flex-wrap">
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-location-dot"></i> New York, USA
+                        </div>
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-briefcase"></i> Full Time
+                        </div>
+                    </div>
+                    <div class="h6 job__title my-3">
+                        <a href="job-details-1.html" aria-label="job">Software Engineer, Microsoft</a>
+                    </div>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
+                        <a href="#">Creative</a>
+                        <a href="#">User Interface</a>
+                        <a href="#">Web UI</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Single Job End -->
+            <!-- Single Job -->
+            <div class="col-lg-6 col-xl-4 col-md-6">
+                <div class="rts__job__card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="company__icon">
+                            <img src="assets/img/home-1/company/upwork.svg" alt="Upwork">
+                        </div>
+                        <div class="featured__option">
+                            <span>Upcoming</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4 flex-wrap">
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-location-dot"></i> New York, USA
+                        </div>
+                        <div class="d-flex gap-1 align-items-center">
+                            <i class="fa-light fa-briefcase"></i> Full Time
+                        </div>
+                    </div>
+                    <div class="h6 job__title my-3">
+                        <a href="job-details-1.html" aria-label="job">Web Developer, Upwork</a>
+                    </div>
+                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
+                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
+                        <a href="#">Creative</a>
+                        <a href="#">User Interface</a>
+                        <a href="#">Web UI</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Single Job End -->
+            <!-- More job sections can be added here in the same format as above -->
+
+        </div>
+    </div>
+</section>
+<!-- Current Open Position End -->
+<!-- app download section -->
+<div class="rts__section pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="rts__appcenter">
+                <div class="rts__appcenter__shape">
+                    <img src="assets/img/home-1/app/shape.png" alt="">
+                </div>
+                <div class="rts__appcenter__content d-flex flex-wrap flex-xl-nowrap align-items-center justify-content-between justify-content-lg-center">
+                    <!-- App Image Section -->
+                    <div class="content__left align-items-end d-flex position-relative top-15px">
+                        <img src="assets/img/home-1/app/app_screen.png" alt="">
+                    </div>
+
+                    <!-- App Download Section -->
+                    <div class="content__right text-white text-center text-xl-start max-630">
+                        <h3 class="l--1 mb-4 text-white wow fadeInUp animated" data-wow-delay=".1s">Download The app Free!</h3>
+                        <p class="wow fadeInUp animated" data-wow-delay=".2s">Looking for a new job can be both exciting and daunting. Navigating the job market involves exploring various avenues.</p>
+
+                        <!-- App Store and Google Play Links -->
+                        <div class="d-flex gap-3 justify-content-center justify-content-xl-start flex-wrap mt-40 wow fadeInUp animated" data-wow-delay=".3s">
+                            <div class="link">
+                                <a href="../../../appstore.com/index.html" target="_blank" title="app store">
+                                    <img src="assets/img/home-1/app/app-store.svg" alt="App Store">
+                                </a>
+                            </div>
+                            <div class="link">
+                                <a href="../../../google.com/index.html" target="_blank" title="play store">
+                                    <img src="assets/img/home-1/app/play-store.svg" alt="Google Play">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- app download section end -->

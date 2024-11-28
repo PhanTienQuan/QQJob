@@ -1,0 +1,69 @@
+﻿    <!-- header area -->
+<header class="rts__section rts__header absolute__header">
+    <div class="container-none">
+        <div class="rts__menu__background">
+            <div class="row">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="rts__logo">
+                        <a asp-controller="Home" asp-action="Index">
+                            <img class="logo__image" src="~/assets/img/logo/header__one.svg" width="160" height="40" alt="logo" />
+                        </a>
+                    </div>
+                    <div class="rts__menu d-flex gap-5 gap-lg-4 gap-xl-5 align-items-center">
+                        <div class="navigation d-none d-lg-block">
+                            <nav class="navigation__menu" id="offcanvas__menu">
+                                <ul class="list-unstyled">
+                                    <li class="navigation__menu--item has-child has-arrow">
+                                        <a href="#" class="navigation__menu--item__link">Home</a>
+                                        <ul class="submenu sub__style" role="menu">
+                                            <li role="menuitem"><a asp-controller="Home" asp-action="Index">Home One</a></li>
+                                            <li role="menuitem"><a href="index-2.html">Home Two</a></li>
+                                            <!-- Other Home links -->
+                                        </ul>
+                                    </li>
+                                    <!-- Browse Jobs -->
+                                    <li class="navigation__menu--item has-child has-arrow">
+                                        <a href="#" class="navigation__menu--item__link">Browse Jobs</a>
+                                        <ul class="submenu sub__style" role="menu">
+                                            <li role="menuitem" class="has-child has-arrow">
+                                                <a href="#">Job List</a>
+                                                <ul class="sub__style" role="menu">
+                                                    <li role="menuitem"><a href="job-list-1.html">Job List One</a></li>
+                                                    <li role="menuitem"><a href="job-list-2.html">Job List Two</a></li>
+                                                    <!-- Other Job List links -->
+                                                </ul>
+                                            </li>
+                                            <!-- Job Details -->
+                                            <li role="menuitem" class="has-child has-arrow">
+                                                <a href="#">Job Details</a>
+                                                <ul class="sub__style" role="menu">
+                                                    <li role="menuitem"><a href="job-details-1.html">Job Details One</a></li>
+                                                    <li role="menuitem"><a href="job-details-2.html">Job Details Two</a></li>
+                                                    <!-- Other Job Details links -->
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <!-- Other Menus -->
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Header Buttons -->
+                        <div class="header__right__btn d-flex gap-3">
+                            <a href="#" class="small__btn d-none d-sm-flex no__fill__btn border-6 font-xs" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="rt-login"></i>Sign In
+                            </a>
+                            <a asp-controller="Employer" asp-action="PostJob" class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs">
+                                Add Job
+                            </a>
+                            <button class="d-md-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
+                                <i class="fa-sharp fa-regular fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- header area end --> 

@@ -1,49 +1,57 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - QQJob</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/QQJob.styles.css" asp-append-version="true" />
+    <meta name="description" content="Your Ultimate Job Template" />
+    <meta name="keywords" content="Job, Resume, Employer, Agency" />
+    <link rel="canonical" href="https://html.themewant.com/jobpath" />
+    <meta name="robots" content="index, follow" />
+    <!-- Open Graph Meta -->
+    <meta property="og:title" content="Your Ultimate Job Template" />
+    <meta property="og:description" content="Your Ultimate Job Template" />
+    <meta property="og:image" content="www.example.com/image.html" />
+    <meta property="og:url" content="https://html.themewant.com/jobpath/" />
+    <!-- Twitter Meta -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Your Ultimate Job Template" />
+    <meta name="twitter:description" content="Your Ultimate Job Template" />
+    <!-- Favicon -->
+    <link rel="icon" href="~/assets/img/favicon.ico" type="image/x-icon" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="~/assets/fonts/icon/css/rt-icons.css" />
+    <link rel="stylesheet" href="~/assets/fonts/fontawesome/fontawesome.min.css" />
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/assets/css/style.css" />
+    <title>@ViewData["Title"] - Jobpath</title>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">QQJob</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - QQJob - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+<body>
+
+    <partial name="_Header" />
+
+    @RenderBody()
+
+    <partial name="_Footer" />
+  
+    <!-- THEME PRELOADER START -->
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+    </div>
+    <!-- THEME PRELOADER END -->
+
+    <button type="button" class="rts__back__top" id="rts-back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- all plugin js -->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
