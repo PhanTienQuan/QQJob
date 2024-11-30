@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
+using QQJob.Models;
 
 namespace QQJob
 {
@@ -19,6 +21,8 @@ namespace QQJob
                 options.UseSqlServer(connectionString);
             });
 
+            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -36,6 +40,10 @@ namespace QQJob
 
             app.UseAuthorization();
 
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+            );
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
