@@ -29,6 +29,7 @@ namespace QQJob
             builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
             builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
