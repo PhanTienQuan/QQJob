@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
+using QQJob.Repositories.Implementations;
+using QQJob.Repositories.Interfaces;
 
 namespace QQJob
 {
@@ -18,6 +20,12 @@ namespace QQJob
                 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
                 options.UseSqlServer(connectionString);
             });
+
+
+            // Register repositories 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IJobRepository, JobRepository>();
+            builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
             var app = builder.Build();
 
