@@ -4,8 +4,19 @@
         <div class="modal-content">
             <div class="max-content similar__form form__padding">
 
+                <div class="d-flex mb-3 align-items-center justify-content-between">
+                    <h6 class="mb-0">Sign in</h6>
+                    <button type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-regular fa-xmark text-primary"></i>
+                    </button>
+                </div>
+                <div class="d-block has__line text-center mb-30">
+                    <p>Choose your Account Type</p>
+                </div>
+
                 <!-- Form for login -->
                 <form asp-action="Login" asp-controller="Account" method="post" class="d-flex flex-column gap-3">
+                    <divx asp-validation-summary="All" class="text-success"></divx>
                     <div class="form-group">
                         <label for="email" class="fw-medium text-dark mb-3">Your Email</label>
                         <div class="position-relative">
@@ -56,7 +67,7 @@
 
                 <span class="d-block text-center fw-medium">
                     Don’t have an account?
-                    <a href="#" data-bs-target="#signupModal" data-bs-toggle="modal" class="text-primary">Sign Up</a>
+                    <a href="#" onclick="showRegisterModal()" data-bs-dismiss="modal" class="text-primary">Sign Up</a>
                 </span>
             </div>
         </div>
