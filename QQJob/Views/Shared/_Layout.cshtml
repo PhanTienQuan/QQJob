@@ -37,8 +37,8 @@
 
     <partial name="_Footer" />
 
-    <partial name="_LoginModal" />
-    <partial name="_RegisterModal" />
+    <div id="modalPlaceholder"></div>
+
     <partial name="_ForgotPasswordModal" />
   
     <!-- THEME PRELOADER START -->
@@ -55,7 +55,10 @@
 
     <!-- all plugin js -->
     <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/assets/js/main.js"></script>
+    <script src="~/assets/js/app.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -22,6 +22,7 @@ namespace QQJob
             });
 
             builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
+            builder.Services.AddTransient<ISenderEmail, EmailSender>();
 
             var app = builder.Build();
 

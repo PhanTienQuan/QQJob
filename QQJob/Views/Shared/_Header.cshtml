@@ -50,7 +50,7 @@
                         </div>
                         <!-- Header Buttons -->
                         <div class="header__right__btn d-flex gap-3">
-                            <a href="#" class="small__btn d-none d-sm-flex no__fill__btn border-6 font-xs" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <a href="#" onclick="showLoginModal()" class="small__btn d-none d-sm-flex no__fill__btn border-6 font-xs">
                                 <i class="rt-login"></i>Sign In
                             </a>
                             <a asp-controller="Employer" asp-action="PostJob" class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs">
@@ -66,4 +66,3 @@
         </div>
     </div>
 </header>
-<!-- header area end --> 
