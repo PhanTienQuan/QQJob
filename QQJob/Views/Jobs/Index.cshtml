@@ -1,0 +1,268 @@
+﻿
+@* <!-- breadcrumb area -->
+<div class="rts__section breadcrumb__background">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 position-relative d-flex justify-content-between align-items-center">
+                <div class="breadcrumb__area max-content breadcrumb__padding z-2">
+                    <h1 class="breadcrumb-title h3 mb-3">Job List</h1>
+                    <nav>
+                        <ul class="breadcrumb m-0 lh-1">
+                            <li class="breadcrumb-item">
+                                <a asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Job List</li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
+                    <div class="shape__one common">
+                        <img src="~/assets/img/breadcrumb/shape-1.svg" alt="Shape 1">
+                    </div>
+                    <div class="shape__two common">
+                        <img src="~/assets/img/breadcrumb/shape-2.svg" alt="Shape 2">
+                    </div>
+                    <div class="shape__three common">
+                        <img src="~/assets/img/breadcrumb/shape-3.svg" alt="Shape 3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumb area end -->
+<!-- advance search -->
+<div class="rts__section">
+    <div class="container">
+        <div class="row">
+            <div class="advance__search__bg">
+                <form asp-controller="Job" asp-action="Search" method="get" class="advance__search__form">
+                    <div class="search__item">
+                        <div class="position-relative">
+                            <input type="text" id="search" name="jobType" placeholder="Enter Type Of job" required>
+                            <i class="fa-light fa-magnifying-glass"></i>
+                        </div>
+                    </div>
+                    <!-- job location -->
+                    <div class="search__item">
+                        <div class="position-relative d-flex">
+                            <i class="fa-light fa-location-dot"></i>
+                            <select name="location" class="nice-select">
+                                <option value="">Search Location</option>
+                                <option value="Dhaka">Dhaka</option>
+                                <option value="Barisal">Barisal</option>
+                                <option value="Chittagong">Chittagong</option>
+                                <option value="Rajshahi">Rajshahi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- job category -->
+                    <div class="search__item">
+                        <div class="position-relative d-flex">
+                            <i class="fa-light fa-briefcase"></i>
+                            <select name="category" class="nice-select">
+                                <option value="">Choose a Category</option>
+                                <option value="Government">Government</option>
+                                <option value="NGO">NGO</option>
+                                <option value="Private">Private</option>
+                                <option value="Freelancing">Freelancing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- job post time -->
+                    <div class="search__item">
+                        <div class="position-relative d-flex">
+                            <i class="fa-light fa-clock"></i>
+                            <select name="datePosted" class="nice-select">
+                                <option value="">Date Posted</option>
+                                <option value="2024-01-01">01 Jan 24</option>
+                                <option value="2024-02-05">05 Feb 24</option>
+                                <option value="2024-03-07">07 Mar 24</option>
+                                <option value="2024-03-10">10 Mar 24</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="rts__btn fill__btn be-1 job__search">Search Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- advance search end -->
+
+<div class="rts__section section__padding">
+    <div class="container">
+        <div class="row justify-content-center g-30">
+            <div class="col-lg-12 col-md-11">
+                <!-- Filter Bar -->
+                <div class="top__query mb-40 d-flex flex-wrap gap-4 gap-xl-0 justify-content-between align-items-center">
+                    <span class="text-dark font-20 fw-medium">Showing 1-9 of 19 results</span>
+                    <div class="d-flex flex-wrap align-items-center gap-4">
+                        <form action="#" class="category-select d-flex gap-3">
+                            <div class="position-relative">
+                                <select class="nice-select">
+                                    <option value="Nothing" selected>Job Type</option>
+                                    <option value="1">Part Time</option>
+                                    <option value="2">Full Time</option>
+                                    <option value="3">Government</option>
+                                    <option value="4">NGO</option>
+                                    <option value="5">Private</option>
+                                </select>
+                            </div>
+                            <div class="position-relative min-200">
+                                <select class="nice-select">
+                                    <option value="Nothing" selected>Experience Level</option>
+                                    <option value="1">5+ Years</option>
+                                    <option value="2">3-5 Years</option>
+                                    <option value="3">2-3 Years</option>
+                                    <option value="4">1-2 Years</option>
+                                    <option value="5">Fresher</option>
+                                </select>
+                            </div>
+                            <div class="position-relative">
+                                <select class="nice-select">
+                                    <option value="Nothing" selected>Offered Salary</option>
+                                    <option value="1">10000 - 20000</option>
+                                    <option value="2">20000 - 30000</option>
+                                    <option value="3">30000 - 40000</option>
+                                    <option value="4">40000 - 50000</option>
+                                    <option value="5">50000 - 60000</option>
+                                </select>
+                            </div>
+                            <div class="position-relative">
+                                <select class="nice-select">
+                                    <option value="Nothing" selected>All Category</option>
+                                    <option value="1">Part Time</option>
+                                    <option value="2">Full Time</option>
+                                    <option value="3">Government</option>
+                                    <option value="4">NGO</option>
+                                    <option value="5">Private</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Filter Bar -->
+
+                <div class="row justify-content-start g-30">
+                    <!-- single item -->
+                    <div class="col-xl-4 col-lg-6 col-md-11">
+                        <div class="rts__job__card">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="company__icon">
+                                    <img src="assets/img/home-1/company/apple.svg" alt="">
+                                </div>
+                                <div class="featured__option">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 flex-wrap mt-4">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-location-dot"></i> Newyork, USA
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-briefcase"></i> Full Time
+                                </div>
+                            </div>
+                            <div class="h6 job__title my-3">
+                                <a asp-controller="Jobs" asp-action="Detail" aria-label="job">
+                                    Senior UI Designer, Apple
+                                </a>
+                            </div>
+                            <p>
+                                Consectetur adipisicing elit. Possimus
+                                aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.
+                            </p>
+                            <div class="job__tags d-flex flex-wrap gap-2 mt-4">
+                                <a href="#">Creative</a>
+                                <a href="#">user interface</a>
+                                <a href="#">web ui</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- single item end -->
+                    <div class="col-xl-4 col-lg-6 col-md-11">
+                        <div class="rts__job__card">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="company__icon">
+                                    <img src="assets/img/home-1/company/google.svg" alt="">
+                                </div>
+                                <div class="featured__option">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 flex-wrap mt-4">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-location-dot"></i> Newyork, USA
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-briefcase"></i> Full Time
+                                </div>
+                            </div>
+                            <div class="h6 job__title my-3">
+                                <a href="#" aria-label="job">
+                                    Senior UX Designer, Google
+                                </a>
+                            </div>
+                            <p>
+                                Consectetur adipisicing elit. Possimus
+                                aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.
+                            </p>
+                            <div class="job__tags d-flex flex-wrap gap-2 mt-4">
+                                <a href="#">Creative</a>
+                                <a href="#">user interface</a>
+                                <a href="#">web ui</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- single item end -->
+                    <!-- single item -->
+                    <div class="col-xl-4 col-lg-6 col-md-11">
+                        <div class="rts__job__card">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="company__icon">
+                                    <img src="assets/img/home-1/company/apple.svg" alt="">
+                                </div>
+                                <div class="featured__option">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 flex-wrap mt-4">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-location-dot"></i> Newyork, USA
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-briefcase"></i> Full Time
+                                </div>
+                            </div>
+                            <div class="h6 job__title my-3">
+                                <a href="#" aria-label="job">
+                                    Senior UI Designer, Apple
+                                </a>
+                            </div>
+                            <p>
+                                Consectetur adipisicing elit. Possimus
+                                aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.
+                            </p>
+                            <div class="job__tags d-flex flex-wrap gap-2 mt-4">
+                                <a href="#">Creative</a>
+                                <a href="#">user interface</a>
+                                <a href="#">web ui</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- single item end -->
+                </div>
+                <!-- Pagingnation -->
+                <div class="rts__pagination d-block mx-auto pt-60 max-content">
+                    <ul class="d-flex gap-2">
+                        <li><a href="#" class="inactive"><i class="rt-chevron-left"></i></a></li>
+                        <li><a class="active" href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#"><i class="rt-chevron-right"></i></a></li>
+                    </ul>
+                </div>
+                <!-- Pagingnation end -->
+            </div>
+        </div>
+    </div>
+</div>
+ *@
