@@ -1,8 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<AppUser> SignInManager
-
-<!-- header area -->
-<header class="rts__section rts__header absolute__header">
+﻿    <!-- header area -->
+<header class="rts__section rts__dashboard__header position-fixed w-100">
     <div class="container-none">
         <div class="rts__menu__background">
             <div class="row">
@@ -16,31 +13,12 @@
                         <div class="navigation d-none d-lg-block">
                             <nav class="navigation__menu" id="offcanvas__menu">
                                 <ul class="list-unstyled">
-                                    <li class="navigation__menu--item">
+                                    <li class="navigation__menu--item has-child" role="menuitem">
                                         <a asp-controller="Home" asp-action="Index" class="navigation__menu--item__link">Home</a>
                                     </li>
                                     <!-- Browse Jobs -->
-                                    <li class="navigation__menu--item has-child has-arrow">
-                                        <a href="#" class="navigation__menu--item__link">Browse Jobs</a>
-                                        <ul class="submenu sub__style" role="menu">
-                                            <li role="menuitem" class="has-child has-arrow">
-                                                <a href="#">Job List</a>
-                                                <ul class="sub__style" role="menu">
-                                                    <li role="menuitem"><a href="job-list-1.html">Job List One</a></li>
-                                                    <li role="menuitem"><a href="job-list-2.html">Job List Two</a></li>
-                                                    <!-- Other Job List links -->
-                                                </ul>
-                                            </li>
-                                            <!-- Job Details -->
-                                            <li role="menuitem" class="has-child has-arrow">
-                                                <a href="#">Job Details</a>
-                                                <ul class="sub__style" role="menu">
-                                                    <li role="menuitem"><a href="job-details-1.html">Job Details One</a></li>
-                                                    <li role="menuitem"><a href="job-details-2.html">Job Details Two</a></li>
-                                                    <!-- Other Job Details links -->
-                                                </ul>
-                                            </li>
-                                        </ul>
+                                    <li class="navigation__menu--item has-child" role="menuitem">
+                                        <a asp-controller="Jobs" asp-action="Index" class="navigation__menu--item__link">Browse Jobs</a>
                                     </li>
                                     <!-- Other Menus -->
                                 </ul>

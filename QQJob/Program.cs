@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
-using QQJob.Models;
+using QQJob.Repositories.Implementations;
+using QQJob.Repositories.Interfaces;
 
 namespace QQJob
 {
@@ -21,8 +21,17 @@ namespace QQJob
                 options.UseSqlServer(connectionString);
             });
 
+
+            // Register repositories 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IJobRepository, JobRepository>();
+            builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
+            builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
+            builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
+
+
             builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
-            builder.Services.AddTransient<ISenderEmail, EmailSender>();
+
 
             var app = builder.Build();
 
@@ -41,10 +50,6 @@ namespace QQJob
 
             app.UseAuthorization();
 
-            app.MapControllerRoute(
-                name: "areas",
-                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-            );
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
