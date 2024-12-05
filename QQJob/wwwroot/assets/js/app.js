@@ -5,7 +5,6 @@ function showLoginModal() {
         contentType: 'application/json',
         success: function (response) {
             $("#modalPlaceholder").html(response);
-
             $("#loginModal").modal("show");
         },
         error: function () {
@@ -28,25 +27,53 @@ function showRegisterModal() {
         }
     });
 }
+function login() {
+    let formData = $('#loginForm').serialize();
+    $('span[data-valmsg-for]').text('');
+    $("divx").text("")
+    $.ajax({
+        url: '/Account/Login', // Update the URL as needed
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            // Clear previous validation messages
+            if (response.success) {
+                window.location.href = response.url
+            } else {
+                // Display validation errors
+                $.each(response.errors, function (key, messages) {
+                    if (key == "All") {
+                        $("divx").text(messages.join(', '))
+                    }
+                    let errorPlaceholder = $('span[data-valmsg-for="' + key + '"]');
+                    errorPlaceholder.text(messages.join(', '));
+                });
+            }
+        },
+        error: function () {
+            alert('An error occurred while processing your request.');
+        }
+    });
+}
 function register() {
     let formData = $('#registerForm').serialize(); // Serialize form data
     let a = $('input[name="AccountType"]').val()
-
+    // Clear previous validation messages
+    $('span[data-valmsg-for]').text('');
     $.ajax({
         url: '/Account/Register', // Update the URL as needed
         type: 'POST',
         data: formData,
         success: function (response) {
-            // Clear previous validation messages
-            $('span[data-valmsg-for]').text('');
             if (response.success) {
                 $("#signupModal").modal("hide");
                 showLoginModal();
+                $('span[data-valmsg-for]').text(respones.message);
             } else {
                 // Display validation errors
                 $.each(response.errors, function (key, messages) {
                     if (key == "ALL") {
-                        $("divx").val(messages.join(', '))
+                        $("divx").text(messages.join(', '))
                     }
                     let errorPlaceholder = $('span[data-valmsg-for="' + key + '"]');
                     errorPlaceholder.text(messages.join(', '));
@@ -55,7 +82,6 @@ function register() {
 
             $("button[data-account-type=" + a + "]").addClass('active');
             $('input[name="AccountType"]').val(a);
-
         },
         error: function () {
             alert('An error occurred while processing your request.');
