@@ -7,7 +7,7 @@ namespace QQJob.ViewModels
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Username is required")]
-        [Display(Name = "Your Username", Prompt = "Your Username")]
+        [Display(Name = "Your Username", Prompt = "Enter your Username")]
         public string UserName { get; set; }
 
         [Required]
@@ -16,16 +16,16 @@ namespace QQJob.ViewModels
 
         [EmailAddress]
         [Required(ErrorMessage = "Email is required")]
-        [Display(Name = "Your Email", Prompt = "Your Email")]
+        [Display(Name = "Your Email", Prompt = "Enter your Email")]
         public string Email { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Password", Prompt = "Password")]
+        [Display(Name = "Password", Prompt = "Enter password")]
         [Password]
         public string? Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password", Prompt = "Confirm password")]
+        [Display(Name = "Confirm password", Prompt = "Confirm your password")]
         [ConfirmPassword("Password")]
         public string? ConfirmPassword { get; set; }
     }

@@ -13,18 +13,13 @@ namespace QQJob.Controllers
         private readonly UserManager<AppUser> _userManager = userManager;
         private readonly SignInManager<AppUser> _signInManager = signInManager;
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-
         private readonly ISenderEmail _emailSender = senderEmail;
 
-        public IActionResult Index()
-        {
-            return View();
-        }
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
-            RegisterViewModel registerModel = new();
-            return PartialView("_RegisterModal", registerModel);
+            return PartialView("_RegisterModal", new RegisterViewModel());
         }
 
         [HttpPost]
@@ -38,39 +33,32 @@ namespace QQJob.Controllers
                     UserName = model.UserName.Trim(),
                     Email = model.Email,
                 };
+
                 string roleName = model.AccountType == true ? "Candidate" : "Employer";
-                bool roleExists = await _roleManager.RoleExistsAsync(roleName);
-                if (!roleExists)
+
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
                 {
-                    // Create the role
-                    // We just need to specify a unique role name to create a new role
-                    IdentityRole identityRole = new IdentityRole
+                    ModelState.AddModelError("Email", "This email is already in use.");
+                    return Json(new
                     {
-                        Name = roleName
-                    };
-                    // Saves the role in the underlying AspNetRoles table
-                    IdentityResult createRoleResult = await _roleManager.CreateAsync(identityRole);
-                    if (!createRoleResult.Succeeded)
+                        success = false,
+                        errors = GetModelStateErrors()
+                    });
+                }
+
+                if (await _userManager.FindByNameAsync(model.UserName) != null)
+                {
+                    ModelState.AddModelError("Username", "This Username is already in use.");
+                    return Json(new
                     {
-                        return Json(new
-                        {
-                            success = false,
-                            errors = createRoleResult.Errors.GroupBy(e => e.Code).ToDictionary(
-                                g => g.Key,
-                                g => g.Select(e => e.Description).ToList()
-                            ).Concat(new[] {
-                                new KeyValuePair<string, List<string>>("ALL", createRoleResult.Errors.Select(e => e.Description).ToList())
-                            })
-                            .ToDictionary(x => x.Key, x => x.Value)
-                        });
-                    }
+                        success = false,
+                        errors = GetModelStateErrors()
+                    });
                 }
 
                 // Store user data in AspNetUsers database table
                 var result = await _userManager.CreateAsync(user, model.Password);
 
-                // If user is successfully created, sign-in the user using
-                // SignInManager and redirect to index action of HomeController
                 if (result.Succeeded)
                 {
                     if (!await _userManager.IsInRoleAsync(user, roleName))
@@ -80,49 +68,24 @@ namespace QQJob.Controllers
                     //Then send the Confirmation Email to the User
                     await SendConfirmationEmail(model.Email, user);
 
-                    // If the user is signed in and in the Admin role, then it is
-                    // the Admin user that is creating a new user. 
-                    // So, redirect the Admin user to ListUsers action of Administration Controller
-                    //if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
-                    //{
-
-                    //    return RedirectToAction("ListUsers", "Administration");
-                    //}
-
-                    //If it is not Admin user, then redirect the user to RegistrationSuccessful View
-
-                    return Json(new { success = true, message = "A confirmation email was send to your mail!!", email = model.Email, password = model.Password });
+                    return Json(new { success = true, message = "A confirmation email was send to your mail!!" });
                 }
                 else
                 {
+                    ModelState.AddModelError("ALL", "Something went wrong went create your accoutn");
                     return Json(new
                     {
                         success = false,
-                        errors = result.Errors.GroupBy(e => e.Code).ToDictionary(
-                                g => g.Key,
-                                g => g.Select(e => e.Description).ToList()
-                            ).Concat([
-                                new KeyValuePair<string, List<string>>("ALL", result.Errors.Select(e => e.Description).ToList())
-                            ])
-                            .ToDictionary(x => x.Key, x => x.Value)
+                        errors = GetModelStateErrors()
                     });
                 }
             }
-            // Return validation errors
-            var errors = ModelState
-                .Where(x => x.Value.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
 
-            return Json(new { success = false, errors });
-        }
-
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return PartialView("_LoginModal");
+            return Json(new
+            {
+                success = false,
+                errors = GetModelStateErrors()
+            });
         }
 
         [NonAction]
@@ -173,6 +136,93 @@ namespace QQJob.Controllers
                 ViewBag.Message = "oppps";
                 return View("EmployerConfirmEmail");
             }
+        }
+
+        //Login
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return PartialView("_LoginModal", new LoginViewModel());
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user == null)
+                {
+                    // User not found
+                    ModelState.AddModelError("All", "User does not exist.");
+                    return Json(new
+                    {
+                        success = false,
+                        errors = GetModelStateErrors()
+                    });
+                }
+
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    // Email not confirmed
+                    ModelState.AddModelError("All", "Email is not confirmed.");
+                    return Json(new
+                    {
+                        success = false,
+                        errors = GetModelStateErrors()
+                    });
+                }
+                var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, url = Url.Action("index", "home") });
+                }
+                if (result.RequiresTwoFactor)
+                {
+                    // Handle two-factor authentication case
+                }
+                if (result.IsLockedOut)
+                {
+                    // Handle lockout scenario
+                }
+                else if (result.IsNotAllowed)
+                {
+                    ModelState.AddModelError("Password", "Sign-in is not allowed.");
+                }
+                else
+                {
+                    // Handle failure
+                    ModelState.AddModelError("Password", "Wrong password");
+                }
+                Console.WriteLine($"Login result: {result}");
+            }
+
+            return Json(new
+            {
+                success = false,
+                errors = GetModelStateErrors()
+            });
+        }
+        [NonAction]
+        private Dictionary<string, string[]> GetModelStateErrors()
+        {
+            return ModelState
+                .Where(x => x.Value.Errors.Count > 0) // Only select fields with errors
+                .ToDictionary(
+                    kvp => kvp.Key, // Field name
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Error messages for the field
+                );
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("index", "home");
         }
     }
 }
