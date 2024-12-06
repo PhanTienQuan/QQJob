@@ -1,4 +1,6 @@
-﻿    <!-- header area -->
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+<!-- header area -->
 <header class="rts__section rts__dashboard__header position-fixed w-100">
     <div class="container-none">
         <div class="rts__menu__background">
@@ -24,6 +26,11 @@
                                 </ul>
                             </nav>
                         </div>
+                        @if (User.IsInRole("Employer")){
+                            <a asp-controller="Job" asp-action="Index" class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs">
+                                Add Job
+                            </a>
+                        }
                         <!-- Header Buttons -->
                         <div class="header__right__btn d-flex gap-3">
                             @if (SignInManager.IsSignedIn(User))
@@ -82,9 +89,6 @@
                                             <li><a class="dropdown-item" href="employer-dash-deleteprofile.html">Delete Account</a></li>
                                         </ul>
                                     </div>
-                                    <a asp-controller="Job" asp-action="Index" class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs">
-                                        Add Job
-                                    </a>
                                 }
                             }
                             else{

@@ -265,6 +265,8 @@ namespace QQJob.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("UserName");
+
                     b.ToTable("AspNetUsers", (string)null);
                 });
 

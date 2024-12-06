@@ -28,4 +28,12 @@
     <Folder Include="ViewModels\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\phamq\Desktop\QQJob\QQJob\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\phamq\Desktop\QQJob\QQJob\.editorconfig" />
+  </ItemGroup>
+
 </Project>

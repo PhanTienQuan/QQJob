@@ -4,11 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
 using QQJob.ViewModels;
 using System.Data;
+using System.Globalization;
+using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
 {
-    public class AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ISenderEmail senderEmail, RoleManager<IdentityRole> roleManager) : Controller
+    public class AccountController ( UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ISenderEmail senderEmail, RoleManager<IdentityRole> roleManager ) : Controller
     {
         private readonly UserManager<AppUser> _userManager = userManager;
         private readonly SignInManager<AppUser> _signInManager = signInManager;
@@ -17,14 +20,14 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register()
+        public IActionResult Register ()
         {
             return PartialView("_RegisterModal", new RegisterViewModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register ( RegisterViewModel model )
         {
             if (ModelState.IsValid)
             {
@@ -32,6 +35,8 @@ namespace QQJob.Controllers
                 {
                     UserName = model.UserName.Trim(),
                     Email = model.Email,
+                    CreatedAt = DateTime.UtcNow,
+                    Slug = GenerateSlug(model.UserName),
                 };
 
                 string roleName = model.AccountType == true ? "Candidate" : "Employer";
@@ -89,7 +94,7 @@ namespace QQJob.Controllers
         }
 
         [NonAction]
-        private async Task SendConfirmationEmail(string? email, AppUser? user)
+        private async Task SendConfirmationEmail ( string? email, AppUser? user )
         {
             //Generate the Token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -103,7 +108,7 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string UserId, string Token)
+        public async Task<IActionResult> ConfirmEmail ( string UserId, string Token )
         {
             Console.WriteLine("Hello this is confirm email");
             if (UserId == null || Token == null)
@@ -142,14 +147,14 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
+        public IActionResult Login ()
         {
             return PartialView("_LoginModal", new LoginViewModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login ( LoginViewModel model )
         {
             if (ModelState.IsValid)
             {
@@ -209,7 +214,7 @@ namespace QQJob.Controllers
             });
         }
         [NonAction]
-        private Dictionary<string, string[]> GetModelStateErrors()
+        private Dictionary<string, string[]> GetModelStateErrors ()
         {
             return ModelState
                 .Where(x => x.Value.Errors.Count > 0) // Only select fields with errors
@@ -219,10 +224,38 @@ namespace QQJob.Controllers
                 );
         }
 
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout ()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
+        }
+
+        [NonAction]
+        private string GenerateSlug ( string input )
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            // Normalize the string to handle Unicode characters
+            string normalized = input.Normalize(NormalizationForm.FormD);
+
+            // Remove diacritical marks (e.g., accents)
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (char c in normalized)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    stringBuilder.Append(c);
+            }
+
+            string cleaned = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+
+            // Convert to lowercase and remove invalid characters
+            cleaned = cleaned.ToLowerInvariant();
+            cleaned = Regex.Replace(cleaned, @"[^a-z0-9\s-]", ""); // Remove invalid characters
+            cleaned = Regex.Replace(cleaned, @"\s+", " ").Trim();  // Replace multiple spaces with a single space
+
+            // Replace spaces with hyphens
+            return Regex.Replace(cleaned, @"\s", "-");
         }
     }
 }

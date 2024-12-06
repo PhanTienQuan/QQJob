@@ -1,8 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model UsersViewModel
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -105,7 +101,39 @@
                 <!-- /.box -->
             </div>
         </div>
+        <div class="card mb-4 mt-4">
+            <div class="table-responsive">
+                @(
+                    Html.Grid(Model.Users).Build(columns =>
+                    {
+                        columns.Add(model => model.Id).Titled("ID");
+                        columns.Add(model => model.UserName).Titled("Name");
+                        columns.Add(model => model.Email).Titled("Email");
+                        columns.Add(model => model.Slug).Titled("Slug");
+
+                        columns.Add(m => m.IsVerified).Titled("Verified").RenderedAs(model =>
+                        Html.Raw(
+                            $"<span class='label {(model.EmailConfirmed ? "label-success" : "label-warning")}'>{(model.EmailConfirmed ? "Confirm" : "Pending")}</span>"
+                        )).Css("text-center");
+
+                        columns.Add(model => model.CreatedAt).Titled("Create Date");
+
+                        // Add more columns as needed
+                    })
+                    .Filterable(GridFilterCase.Lower)
+                    .Using(GridFilterMode.Header)
+                    .Empty("No data found")
+                    .Pageable(pager =>
+                    {
+                        pager.RowsPerPage = 4;
+                    })
+                    .Sortable()
+                    )
+            </div>
+        </div>
+
     </section>
     <!-- /.content -->
+    
 </div>
 <!-- /.content-wrapper -->
