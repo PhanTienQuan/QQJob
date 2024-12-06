@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="~/lib/bower_components/bootstrap-daterangepicker/daterangepicker.css">
     <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="~/adminAssets/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    <!-- Mvc grid CSS -->
+    <link href="~/css/mvc-grid/mvc-grid.css" rel="stylesheet" />
     <!-- Pace style -->
     @* <link rel="stylesheet" href="~/assets/plugins/pace/pace.min.css"> *@
 
@@ -92,6 +94,11 @@
     <script src="~/adminAssets/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="~/adminAssets/js/demo.js"></script>
+    <!-- mvc-grid.js -->
+    <script src="~/js/mvc-grid/mvc-grid.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -18,17 +18,17 @@ namespace QQJob.Data
         public DbSet<SavedJob> SavedJobs { get; set; }
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
 
-        public QQJobContext(DbContextOptions<QQJobContext> options)
+        public QQJobContext ( DbContextOptions<QQJobContext> options )
             : base(options)
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring ( DbContextOptionsBuilder optionsBuilder )
         {
             base.OnConfiguring(optionsBuilder);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating ( ModelBuilder modelBuilder )
         {
             base.OnModelCreating(modelBuilder);
 

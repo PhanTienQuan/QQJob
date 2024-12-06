@@ -2,7 +2,7 @@
 
 namespace QQJob.Models
 {
-    public class AppUser : IdentityUser 
+    public class AppUser : IdentityUser
     {
         public string? Avatar { get; set; }
         public string? Slug { get; set; }
@@ -13,6 +13,7 @@ namespace QQJob.Models
 
         // Navigation Properties
         public Employer? Employer { get; set; }
+
         public Candidate? Candidate { get; set; }
     }
 }

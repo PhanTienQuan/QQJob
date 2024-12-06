@@ -12,7 +12,7 @@ using QQJob.Data;
 namespace QQJob.Migrations
 {
     [DbContext(typeof(QQJobContext))]
-    [Migration("20241130072431_V1")]
+    [Migration("20241205171407_V1")]
     partial class V1
     {
         /// <inheritdoc />
@@ -267,6 +267,8 @@ namespace QQJob.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("UserName");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
