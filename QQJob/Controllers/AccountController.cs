@@ -39,8 +39,18 @@ namespace QQJob.Controllers
                     CreatedAt = DateTime.UtcNow,
                 };
 
-                string roleName;
-                if(model.AccountType)
+                string roleName = model.AccountType == true ? "Candidate" : "Employer";
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    IdentityRole identityRole = new IdentityRole
+                    {
+                        Name = roleName
+                    };
+
+                    // Saves the role in the underlying AspNetRoles table
+                    await _roleManager.CreateAsync(identityRole);
+                }
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
                 {
                     roleName = "Candidate";
                     user.Candidate = new Candidate();

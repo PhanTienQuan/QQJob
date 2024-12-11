@@ -1,0 +1,68 @@
+﻿    <!-- content area -->
+<div class="dashboard__content d-flex">
+    <partial name="_LeftMenu" />
+    <div class="dashboard__right">
+        <div class="dash__content" id="content-area">
+            <!-- sidebar menu -->
+            <div class="sidebar__menu d-md-block d-lg-none">
+                <div class="sidebar__action"><i class="fa-sharp fa-regular fa-bars"></i>Sidebar</div>
+            </div>
+            <!-- sidebar menu end -->
+            <!-- submit form -->
+            <div class="my__profile__tab radius-16 bg-white">
+                <div class="my__details" id="info">
+                    <div class="info__field">
+                        <div class="row row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="jt">Job Title</label>
+                                <input type="text" id="jt" placeholder="Enter title" required>
+                            </div>
+                        </div>
+                        <div class="row row-cols-1">
+                            <div class="rt-input-group">
+                                <label for="jd">Job Description</label>
+                                <textarea id="jd" placeholder="Enter description" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="location">Location</label>
+                                <select name="location" id="Location" class="form-select">
+                                    <option value="1">Ha Noi</option>
+                                    <option value="1">Da Nang</option>
+                                    <option value="1">Ho CHi Minh City</option>
+                                    <option value="1">Remote</option>
+                                    <option value="1">Others</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="ep">Experience</label>
+                                <select name="ep" id="hp" class="form-select">
+                                    <option value="1">Monthly</option>
+                                    <option value="2">Yearly</option>
+                                    <option value="1">Monthly</option>
+                                    <option value="2">Yearly</option> 
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="qf">Qualification</label>
+                                <input type="text" id="qf" placeholder="Enter Qualification" required>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="experience">Experience</label>
+                                <input type="text" id="experience" placeholder="Enter Experience" required>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- submit form end -->
+        </div>
+    </div>
+</div>
+<!-- content area end -->

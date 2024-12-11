@@ -2,8 +2,8 @@
 @inject SignInManager<AppUser> SignInManager
 <!-- header area -->
 <header class="rts__section rts__dashboard__header position-fixed w-100">
-    <div class="container-none">
-        <div class="rts__menu__background">
+    <div class="container-fluid g-0">
+        <div class="rts__menu__background mw-100 px-20 mobile__padding rounded-0">
             <div class="row">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="rts__logo">
@@ -26,13 +26,9 @@
                                 </ul>
                             </nav>
                         </div>
-                        @if (User.IsInRole("Employer")){
-                            <a asp-controller="Job" asp-action="Index" class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs">
-                                Add Job
-                            </a>
-                        }
+                        
                         <!-- Header Buttons -->
-                        <div class="header__right__btn d-flex gap-3">
+                        <div class="header__right__btn d-flex align-items-center gap-30">
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 if (User.IsInRole("Candidate"))
@@ -51,7 +47,7 @@
                                             </div>
                                         </div>
                                         <ul class="rts__dropdown dropdown-menu top-25">
-                                            <li><a class="dropdown-item" href="candidate-dashboard.html">Dashboard</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Employer" asp-action="Index">Dashboard</a></li>
                                             <li><a class="dropdown-item" href="candidate-profile.html">Profile</a></li>
                                             <li><a class="dropdown-item" href="candidate-resume.html">Resume</a></li>
                                             <li><a class="dropdown-item" href="candidate-shortlist.html">Shortlist Job</a></li>
@@ -61,6 +57,11 @@
                                             <li><a class="dropdown-item" href="candidate-deleteprofile.html">Delete Account</a></li>
                                         </ul>
                                     </div>
+                                    <a asp-controller="Candidate" asp-action="ManageCV"
+                                       class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs"
+                                       aria-label="Job Posting Button">
+                                        Manage CV
+                                    </a>
                                 }
                                 else if (User.IsInRole("Employer"))
                                 {
@@ -78,7 +79,7 @@
                                             </div>
                                         </div>
                                         <ul class="rts__dropdown dropdown-menu top-25">
-                                            <li><a class="dropdown-item" href="employer-dashboard.html">Dashboard</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Employer" asp-action="Index">Dashboard</a></li>
                                             <li><a class="dropdown-item" href="employer-dash-profile.html">Profile</a></li>
                                             <li><a class="dropdown-item" href="employer-dash-alert.html">Job Alert</a></li>
                                             <li><a class="dropdown-item" href="employer-dash-shortlist.html">Shortlist Job</a></li>
@@ -89,6 +90,10 @@
                                             <li><a class="dropdown-item" href="employer-dash-deleteprofile.html">Delete Account</a></li>
                                         </ul>
                                     </div>
+                                    <a asp-controller="Employer" asp-action="PostJob" 
+                                       class="small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs"
+                                       aria-label="Job Posting Button">Add A Job
+                                   </a>
                                 }
                             }
                             else{
