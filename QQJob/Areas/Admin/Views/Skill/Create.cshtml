@@ -1,0 +1,58 @@
+﻿@model QQJob.Models.Skill
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            All User
+            @* <small>preview of simple tables</small> *@
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a asp-action ="Index" asp-controller="Skill" asp-area="Admin">Manage Skill</a></li>
+            <li class="active">Create skill</li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="SkillName" class="control-label"></label>
+                        <input asp-for="SkillName" class="form-control" />
+                        <span asp-validation-for="SkillName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

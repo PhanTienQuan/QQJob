@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QQJob.Models
 {
@@ -8,10 +8,8 @@ namespace QQJob.Models
         [Key]
         [Column("EmployerId")] // Đổi tên UserId thành EmployerId
         public string EmployerId { get; set; } // Đây vẫn ánh xạ với UserId của AspNetUsers
-
-        public string EmployerName { get; set; }
         public string? Website { get; set; }
-        public string? CompanyFiled { get; set; }
+        public string? CompanyField { get; set; }
         public string? Description { get; set; }
         public DateTime FoundedDate { get; set; }
         public string? CompanySize { get; set; }

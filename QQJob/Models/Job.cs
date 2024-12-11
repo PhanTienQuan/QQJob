@@ -1,4 +1,6 @@
-﻿namespace QQJob.Models
+﻿using QQJob.Models.Enum;
+
+namespace QQJob.Models
 {
     public class Job
     {
@@ -12,7 +14,7 @@
         public string? Benefits { get; set; }
         public DateTime PostDate { get; set; }
         public DateTime CloseDate { get; set; }
-        public bool Status { get; set; }
+        public Status Status { get; set; }
         public string? Slug { get; set; }
         public int OpenPosition { get; set; }
         public long ViewCount { get; set; }

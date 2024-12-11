@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using QQJob.Models.Enum;
 
 namespace QQJob.Models
 {
     public class AppUser : IdentityUser
     {
+
+        public string? Name { get; set; }
         public string? Avatar { get; set; }
         public string? Slug { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool IsVerified { get; set; }
+        public Status IsVerified { get; set; }
         public bool IsPremium { get; set; }
         public DateTime? LastLogin { get; set; }
 
