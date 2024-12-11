@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Employer>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Verification request
+            @* <small>preview of simple tables</small> *@
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a href="#">Manage User</a></li>
+            <li class="active">Verification request</li>
+        </ol>
+    </section>
+    <form asp-area="Admin" asp-action="Evidential" asp-controller="User" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" id="file" />
+        <button type="submit">Submit</button>
+    </form>
+    <!-- Main content -->
+    <section class="content">
+        @Html.Partial("_VerificationRequestTable", Model)
+    </section>
+    <!-- /.content -->
+</div>

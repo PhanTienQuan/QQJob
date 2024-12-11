@@ -7,7 +7,7 @@
         public string? Description { get; set; }
 
         // Navigation Properties
-        public ICollection<Candidate> Candidates { get; set; } // Quan hệ N:N với Candidate
-        public ICollection<Job> Jobs { get; set; }
+        public ICollection<Candidate>? Candidates { get; set; } // Quan hệ N:N với Candidate
+        public ICollection<Job>? Jobs { get; set; }
     }
 }

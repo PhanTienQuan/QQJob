@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
+using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using System.Data;
 using System.Globalization;
@@ -11,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
 {
-    public class AccountController ( UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ISenderEmail senderEmail, RoleManager<IdentityRole> roleManager ) : Controller
+    public class AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ISenderEmail senderEmail, RoleManager<IdentityRole> roleManager) : Controller
     {
         private readonly UserManager<AppUser> _userManager = userManager;
         private readonly SignInManager<AppUser> _signInManager = signInManager;
@@ -20,40 +21,39 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register ()
+        public IActionResult Register()
         {
             return PartialView("_RegisterModal", new RegisterViewModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Register ( RegisterViewModel model )
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
                 var user = new AppUser
                 {
-                    UserName = model.UserName.Trim(),
+                    UserName = model.Email,
                     Email = model.Email,
                     CreatedAt = DateTime.UtcNow,
-                    Slug = GenerateSlug(model.UserName),
                 };
 
-                string roleName = model.AccountType == true ? "Candidate" : "Employer";
-
-                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                string roleName;
+                if(model.AccountType)
                 {
-                    ModelState.AddModelError("Email", "This email is already in use.");
-                    return Json(new
-                    {
-                        success = false,
-                        errors = GetModelStateErrors()
-                    });
+                    roleName = "Candidate";
+                    user.Candidate = new Candidate();
+                }
+                else
+                {
+                    roleName = "Employer";
+                    user.Employer = new Employer();
                 }
 
-                if (await _userManager.FindByNameAsync(model.UserName) != null)
+                if(await _userManager.FindByEmailAsync(model.Email) != null)
                 {
-                    ModelState.AddModelError("Username", "This Username is already in use.");
+                    ModelState.AddModelError("Email", "This email is already in use.");
                     return Json(new
                     {
                         success = false,
@@ -64,9 +64,9 @@ namespace QQJob.Controllers
                 // Store user data in AspNetUsers database table
                 var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Succeeded)
+                if(result.Succeeded)
                 {
-                    if (!await _userManager.IsInRoleAsync(user, roleName))
+                    if(!await _userManager.IsInRoleAsync(user, roleName))
                     {
                         await _userManager.AddToRoleAsync(user, roleName);
                     }
@@ -77,7 +77,7 @@ namespace QQJob.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("ALL", "Something went wrong went create your accoutn");
+                    ModelState.AddModelError("ALL", "Something went wrong went create your account");
                     return Json(new
                     {
                         success = false,
@@ -94,7 +94,7 @@ namespace QQJob.Controllers
         }
 
         [NonAction]
-        private async Task SendConfirmationEmail ( string? email, AppUser? user )
+        private async Task SendConfirmationEmail(string? email, AppUser? user)
         {
             //Generate the Token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -108,29 +108,29 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail ( string UserId, string Token )
+        public async Task<IActionResult> ConfirmEmail(string UserId, string Token)
         {
             Console.WriteLine("Hello this is confirm email");
-            if (UserId == null || Token == null)
+            if(UserId == null || Token == null)
             {
                 ViewBag.Message = "The link is Invalid or Expired";
             }
 
             //Find the User By Id
             var user = await _userManager.FindByIdAsync(UserId);
-            if (user == null)
+            if(user == null)
             {
                 ViewBag.ErrorMessage = $"The User ID {UserId} is Invalid";
                 return View("NotFound");
             }
 
-            if (await _userManager.IsInRoleAsync(user, "Candidate"))
+            if(await _userManager.IsInRoleAsync(user, "Candidate"))
             {
                 ViewBag.Message = "Hello candidate";
                 await _userManager.ConfirmEmailAsync(user, Token);
                 return View("~/Views/Account/CandidateConfirmEmail.cshtml");
             }
-            else if (await _userManager.IsInRoleAsync(user, "Employer"))
+            else if(await _userManager.IsInRoleAsync(user, "Employer"))
             {
                 ViewBag.Message = "Heloo employer";
                 await _userManager.ConfirmEmailAsync(user, Token);
@@ -147,20 +147,20 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login ()
+        public IActionResult Login()
         {
             return PartialView("_LoginModal", new LoginViewModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login ( LoginViewModel model )
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
 
-                if (user == null)
+                if(user == null)
                 {
                     // User not found
                     ModelState.AddModelError("All", "User does not exist.");
@@ -171,7 +171,7 @@ namespace QQJob.Controllers
                     });
                 }
 
-                if (!await _userManager.IsEmailConfirmedAsync(user))
+                if(!await _userManager.IsEmailConfirmedAsync(user))
                 {
                     // Email not confirmed
                     ModelState.AddModelError("All", "Email is not confirmed.");
@@ -183,19 +183,19 @@ namespace QQJob.Controllers
                 }
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-                if (result.Succeeded)
+                if(result.Succeeded)
                 {
                     return Json(new { success = true, url = Url.Action("index", "home") });
                 }
-                if (result.RequiresTwoFactor)
+                if(result.RequiresTwoFactor)
                 {
                     // Handle two-factor authentication case
                 }
-                if (result.IsLockedOut)
+                if(result.IsLockedOut)
                 {
                     // Handle lockout scenario
                 }
-                else if (result.IsNotAllowed)
+                else if(result.IsNotAllowed)
                 {
                     ModelState.AddModelError("Password", "Sign-in is not allowed.");
                 }
@@ -213,8 +213,16 @@ namespace QQJob.Controllers
                 errors = GetModelStateErrors()
             });
         }
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("index", "home");
+        }
+
+
+
         [NonAction]
-        private Dictionary<string, string[]> GetModelStateErrors ()
+        private Dictionary<string, string[]> GetModelStateErrors()
         {
             return ModelState
                 .Where(x => x.Value.Errors.Count > 0) // Only select fields with errors
@@ -224,16 +232,11 @@ namespace QQJob.Controllers
                 );
         }
 
-        public async Task<IActionResult> Logout ()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("index", "home");
-        }
 
         [NonAction]
-        private string GenerateSlug ( string input )
+        private string GenerateSlug(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            if(string.IsNullOrWhiteSpace(input))
                 return string.Empty;
 
             // Normalize the string to handle Unicode characters
@@ -241,9 +244,9 @@ namespace QQJob.Controllers
 
             // Remove diacritical marks (e.g., accents)
             StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in normalized)
+            foreach(char c in normalized)
             {
-                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                if(CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                     stringBuilder.Append(c);
             }
 

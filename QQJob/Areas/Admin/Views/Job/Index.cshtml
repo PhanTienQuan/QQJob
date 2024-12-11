@@ -1,0 +1,139 @@
+﻿@model IEnumerable<Job>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Job List
+            @* <small>preview of simple tables</small> *@
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a href="#">Manage Job</a></li>
+            <li class="active">Job List</li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Job List</h3>
+
+                        <div class="box-tools">
+                            <div class="input-group input-group-sm"
+                                 style="width: 150px">
+                                <input type="text"
+                                       name="table_search"
+                                       class="form-control pull-right"
+                                       placeholder="Search" />
+
+                                <div class="input-group-btn">
+                                    <button type="submit" class="btn btn-default">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover table-bordered">
+                            <tr>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.JobId)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EmployerId)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Title)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.PostDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CloseDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                   #
+                                </th>
+                            </tr>
+
+                            @foreach (var item in Model)
+                            {
+                                var Date = item.CloseDate.ToShortDateString() == "1/1/0001" ? "Not set" : item.CloseDate.ToShortDateString();
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.JobId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EmployerId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Title)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PostDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Date)
+                                    </td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case Status.Pending:
+                                                <span class="label label-warning">Pending</span>
+                                                break;
+                                            case Status.Approved:
+                                                <span class="label label-success">Approved</span>
+                                                break;
+                                            case Status.Denied:
+                                                <span class="label label-danger">Denied</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td><a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a></td>
+                                    <td><a href='#' class='btn btn-sm btn-success'>Approve</a></td>
+                                    <td><a href='#' class='btn btn-sm btn-danger'>Deny</a></td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix">
+                        <a asp-area="Admin" asp-controller="Job" asp-action="Create" class='btn btn-sm btn-primary pull-left'>Create new job</a>
+                        <ul class="pagination pagination-sm no-margin pull-right">
+                            <li><a href="#">&laquo;</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">&raquo;</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
+</div>

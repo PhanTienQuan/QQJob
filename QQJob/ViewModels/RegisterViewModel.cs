@@ -6,10 +6,6 @@ namespace QQJob.ViewModels
 {
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "Username is required")]
-        [Display(Name = "Your Username", Prompt = "Enter your Username")]
-        public string UserName { get; set; }
-
         [Required]
         [HiddenInput]
         public bool AccountType { get; set; } = true;

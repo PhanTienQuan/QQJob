@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
 
-namespace QQJob.Models
+namespace QQJob.Repositories.Interfaces
 {
     public interface ISenderEmail
     {
