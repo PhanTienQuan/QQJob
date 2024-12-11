@@ -1,0 +1,57 @@
+﻿<div class="dashboard__left">
+    <div class="dash__menu">
+        <ul>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="Index" class="nav-link active">
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Employer" asp-action="EmployerProfile">
+                    Company Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="JobsPosted" class="nav-link">
+                    Jobs Posted
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="PostJob" class="nav-link">
+                    Post New Job
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="CandidateList" class="nav-link">
+                    Candidate list
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="Message" class="nav-link">
+                    Message
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="Pakage" class="nav-link">
+                    Package
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="ChangePassword" class="nav-link">
+                    Change Password
+                </a>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Employer" asp-action="DeleteProfile" class="nav-link">
+                    Delete Profile
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="dash__logout">
+        <figure class="logout__image">
+            <img src="assets/img/dashboard/logout.png" alt="">
+        </figure>
+        <a class="logout__btn" asp-action="Logout" asp-controller="Account"><i class="rt-login"></i> Logout</a>
+    </div>
+</div>

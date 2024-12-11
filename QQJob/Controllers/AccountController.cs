@@ -34,13 +34,20 @@ namespace QQJob.Controllers
                 var user = new AppUser
                 {
                     UserName = model.UserName.Trim(),
-                    Email = model.Email,
-                    CreatedAt = DateTime.UtcNow,
-                    Slug = GenerateSlug(model.UserName),
+                    Email = model.Email
                 };
 
                 string roleName = model.AccountType == true ? "Candidate" : "Employer";
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    IdentityRole identityRole = new IdentityRole
+                    {
+                        Name = roleName
+                    };
 
+                    // Saves the role in the underlying AspNetRoles table
+                    await _roleManager.CreateAsync(identityRole);
+                }
                 if (await _userManager.FindByEmailAsync(model.Email) != null)
                 {
                     ModelState.AddModelError("Email", "This email is already in use.");
@@ -77,7 +84,11 @@ namespace QQJob.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("ALL", "Something went wrong went create your accoutn");
+                    foreach(var e in result.Errors)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    ModelState.AddModelError("ALL", "Something went wrong went create your account");
                     return Json(new
                     {
                         success = false,

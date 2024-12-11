@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Appseting
+appsettings.json
+/QQJob/appsettings.json
+/QQJob/appsettings.json
