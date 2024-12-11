@@ -78,9 +78,11 @@
                                         break;
                                 }
                             </td>
-                            <td><a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a></td>
-                            <td><a href='#' class='btn btn-sm btn-success  @(item.User.IsVerified == Status.Approved ? "disabled" : "")'>Approve</a></td>
-                            <td><a href='#' class='btn btn-sm btn-danger'> @(item.User.IsVerified == Status.Approved ? "Cancel" : "Deny") </a></td>
+                            <td>
+                                <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
+                                <a href='#' class='btn btn-sm btn-success  @(item.User.IsVerified == Status.Approved ? "disabled" : "")'>Approve</a>
+                                <a href='#' class='btn btn-sm btn-danger'> @(item.User.IsVerified == Status.Approved ? "Cancel" : "Deny") </a>
+                            </td>
                         </tr>
                     }
                 </table>
