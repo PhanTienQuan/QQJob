@@ -11,6 +11,16 @@ namespace QQJob.Repositories.Implementations
         {
         }
 
+        public async Task<IEnumerable<Job>> GetJobsAsync(int page = 1, int pageSize = 10)
+        {
+            int skip = (page - 1) * pageSize;
+            return await _context.Set<Job>()
+                .OrderBy(j => j.Title)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Job>> GetJobsByEmployerIdAsync(string employerId)
         {
             return await _context.Set<Job>()
@@ -24,5 +34,6 @@ namespace QQJob.Repositories.Implementations
                 .Where(j => j.Title.Contains(keyword) || j.JobDescription.Contains(keyword))
                 .ToListAsync();
         }
+
     }
 }

@@ -1,8 +1,8 @@
 ﻿@functions {
     public string IsActive(string controller, string action = "")
     {
-        var currentController = ViewContext.RouteData.Values["controller"].ToString();
-        var currentAction = ViewContext.RouteData.Values["action"].ToString();
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
         return (controller == currentController && (string.IsNullOrEmpty(action) || action == currentAction)) ? "active" : "";
     }

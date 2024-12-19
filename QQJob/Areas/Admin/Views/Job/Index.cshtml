@@ -66,15 +66,6 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.Status)
                                 </th>
-                                <th>
-                                    #
-                                </th>
-                                <th>
-                                    #
-                                </th>
-                                <th>
-                                   #
-                                </th>
                             </tr>
 
                             @foreach (var item in Model)
@@ -96,7 +87,7 @@
                                     <td>
                                         @Html.DisplayFor(modelItem => Date)
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @switch (item.Status)
                                         {
                                             case Status.Pending:
@@ -110,9 +101,12 @@
                                                 break;
                                         }
                                     </td>
-                                    <td><a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a></td>
-                                    <td><a href='#' class='btn btn-sm btn-success'>Approve</a></td>
-                                    <td><a href='#' class='btn btn-sm btn-danger'>Deny</a></td>
+                                    <td class="text-center">
+                                        <a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a>
+                                        <a href='#' class='btn btn-sm btn-success'>Approve</a>
+                                        <a href='#' class='btn btn-sm btn-danger'>Deny</a>
+                                    </td>
+                                    
                                 </tr>
                             }
                         </table>

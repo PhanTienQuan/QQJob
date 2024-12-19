@@ -18,7 +18,7 @@
                             </svg>
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">20</h5>
+                            <h5 class="lh-sm">@ViewBag.JobCount</h5>
                             <p class="font-20">Job Posted</p>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
 
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">30</h5>
+                            <h5 class="lh-sm">@ViewBag.ApplicantCount</h5>
                             <p class="font-20">Application</p>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
 
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">700</h5>
+                            <h5 class="lh-sm">@ViewBag.JobView</h5>
                             <p class="font-20">Views</p>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                             </svg>
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">24</h5>
+                            <h5 class="lh-sm">@ViewBag.Follows</h5>
                             <p class="font-20">Followers</p>
                         </div>
                     </div>
@@ -289,7 +289,17 @@
                         </div>
                     </div>
                     <!-- single item end -->
-
+                    @if (ViewBag.Application != null && (ViewBag.Application as List<Application>).Any())
+                    {
+                        foreach (var application in ViewBag.Application as List<Application>)
+                        {
+                            
+                        }
+                    }
+                    else
+                    {
+                        <p>No applications have been received yet.</p>
+                    }
                 </div>
             </div>
             <!-- Applied Jobs end -->

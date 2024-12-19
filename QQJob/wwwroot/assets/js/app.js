@@ -1,4 +1,5 @@
-function showLoginModal() {
+function showLoginModal(message) {
+    $("divx2").text('');
     $.ajax({
         url: '/Account/Login', // Replace 'YourController' with the actual controller name
         method: 'GET',
@@ -6,6 +7,7 @@ function showLoginModal() {
         success: function (response) {
             $("#modalPlaceholder").html(response);
             $("#loginModal").modal("show");
+            $("divx2").text(message);
         },
         error: function () {
             alert("An error occurred while processing your request.");
@@ -19,7 +21,6 @@ function showRegisterModal() {
         contentType: 'application/json',
         success: function (response) {
             $("#modalPlaceholder").html(response);
-
             $("#signupModal").modal("show");
         },
         error: function () {
@@ -67,8 +68,7 @@ function register() {
         success: function (response) {
             if (response.success) {
                 $("#signupModal").modal("hide");
-                showLoginModal();
-                $('span[data-valmsg-for]').text(respones.message);
+                showLoginModal(response.message);
             } else {
                 // Display validation errors
                 $.each(response.errors, function (key, messages) {

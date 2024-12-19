@@ -13,7 +13,7 @@ namespace QQJob.Areas.Admin.Controllers
         private readonly IEmployerRepository _employerRepository = employerRepository;
         public async Task<IActionResult> Index()
         {
-            var jobs = await _jobRepository.GetAllAsync();
+            var jobs = await _jobRepository.GetJobsAsync();
             return View(jobs);
         }
         public async Task<IActionResult> Detail(string id)

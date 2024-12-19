@@ -30,78 +30,55 @@ namespace QQJob.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if(ModelState.IsValid)
+            if(model.AccountType == null)
             {
-                var user = new AppUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    CreatedAt = DateTime.UtcNow,
-                };
-
-                string roleName = model.AccountType == true ? "Candidate" : "Employer";
-                if (!await _roleManager.RoleExistsAsync(roleName))
-                {
-                    IdentityRole identityRole = new IdentityRole
-                    {
-                        Name = roleName
-                    };
-
-                    // Saves the role in the underlying AspNetRoles table
-                    await _roleManager.CreateAsync(identityRole);
-                }
-                if (await _userManager.FindByEmailAsync(model.Email) != null)
-                {
-                    roleName = "Candidate";
-                    user.Candidate = new Candidate();
-                }
-                else
-                {
-                    roleName = "Employer";
-                    user.Employer = new Employer();
-                }
-
-                if(await _userManager.FindByEmailAsync(model.Email) != null)
-                {
-                    ModelState.AddModelError("Email", "This email is already in use.");
-                    return Json(new
-                    {
-                        success = false,
-                        errors = GetModelStateErrors()
-                    });
-                }
-
-                // Store user data in AspNetUsers database table
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if(result.Succeeded)
-                {
-                    if(!await _userManager.IsInRoleAsync(user, roleName))
-                    {
-                        await _userManager.AddToRoleAsync(user, roleName);
-                    }
-                    //Then send the Confirmation Email to the User
-                    await SendConfirmationEmail(model.Email, user);
-
-                    return Json(new { success = true, message = "A confirmation email was send to your mail!!" });
-                }
-                else
-                {
-                    ModelState.AddModelError("ALL", "Something went wrong went create your account");
-                    return Json(new
-                    {
-                        success = false,
-                        errors = GetModelStateErrors()
-                    });
-                }
+                ModelState.AddModelError("ALL", "Please select an account type");
             }
 
-            return Json(new
+            if(!ModelState.IsValid)
             {
-                success = false,
-                errors = GetModelStateErrors()
-            });
+                return Json(new { success = false, errors = GetModelStateErrors() });
+            }
+
+            if(await _userManager.FindByEmailAsync(model.Email) != null)
+            {
+                return Json(new { success = false, errors = new Dictionary<string, string[]> { { "Email", new[] { "This email is already in use." } } } });
+            }
+
+            var user = new AppUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                CreatedAt = DateTime.UtcNow,
+                Candidate = model.AccountType == true ? new Candidate() : null,
+                Employer = model.AccountType == false ? new Employer() : null
+            };
+
+            string roleName = model.AccountType == true ? "Candidate" : "Employer";
+            if(!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
+            }
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if(!result.Succeeded)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = result.Errors.Select(e => e.Description)
+                });
+            }
+
+            if(!await _userManager.IsInRoleAsync(user, roleName))
+            {
+                await _userManager.AddToRoleAsync(user, roleName);
+            }
+
+            await SendConfirmationEmail(model.Email, user);
+            return Json(new { success = true, message = "A confirmation email was sent to your email!" });
         }
+
 
         [NonAction]
         private async Task SendConfirmationEmail(string? email, AppUser? user)
@@ -191,6 +168,7 @@ namespace QQJob.Controllers
                         errors = GetModelStateErrors()
                     });
                 }
+
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if(result.Succeeded)
