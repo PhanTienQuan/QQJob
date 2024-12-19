@@ -17,18 +17,20 @@ namespace QQJob.Data
         public DbSet<Follow> Follows { get; set; }
         public DbSet<SavedJob> SavedJobs { get; set; }
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
+        public DbSet<Notification> NotificationHistories { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
-        public QQJobContext ( DbContextOptions<QQJobContext> options )
+        public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
         {
         }
 
-        protected override void OnConfiguring ( DbContextOptionsBuilder optionsBuilder )
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
         }
 
-        protected override void OnModelCreating ( ModelBuilder modelBuilder )
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -91,6 +93,18 @@ namespace QQJob.Data
                 .Property(j => j.Title)
                 .IsRequired()
                 .HasMaxLength(255);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);  // This prevents cascading deletes on Sender
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -32,6 +32,7 @@ namespace QQJob
             builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
             builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
             builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+            builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
             builder.Services.AddTransient<ISenderEmail, EmailSender>();
             builder.Services.AddTransient<ICloudinaryService, CloudinaryService>();
 

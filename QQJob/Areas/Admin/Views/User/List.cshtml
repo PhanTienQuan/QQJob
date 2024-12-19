@@ -1,4 +1,4 @@
-﻿@model UsersViewModel
+﻿@model IEnumerable<AppUser>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -20,155 +20,8 @@
     </section>
     <!-- Main content -->
     <section class="content">
-        @*
-        <!-- /.row -->
-         <div class="row">
-             <div class="col-xs-12">
-                 <div class="box">
-                     <div class="box-header">
-                         <h3 class="box-title">Responsive Hover Table</h3>
-
-                         <div class="box-tools">
-                             <div class="input-group input-group-sm"
-                                  style="width: 150px">
-                                 <input type="text"
-                                        name="table_search"
-                                        class="form-control pull-right"
-                                        placeholder="Search" />
-
-                                 <div class="input-group-btn">
-                                     <button type="submit" class="btn btn-default">
-                                         <i class="fa fa-search"></i>
-                                     </button>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                     <!-- /.box-header -->
-                     <div class="box-body table-responsive no-padding">
-                         <table class="table table-hover">
-                             <tr>
-                                 <th>ID</th>
-                                 <th>User</th>
-                                 <th>Date</th>
-                                 <th>Status</th>
-                                 <th>Reason</th>
-                             </tr>
-                             <tr>
-                                 <td>183</td>
-                                 <td>John Doe</td>
-                                 <td>11-7-2014</td>
-                                 <td><span class="label label-success">Approved</span></td>
-                                 <td>
-                                     Bacon ipsum dolor sit amet salami venison chicken flank
-                                     fatback doner.
-                                 </td>
-                             </tr>
-                             <tr>
-                                 <td>219</td>
-                                 <td>Alexander Pierce</td>
-                                 <td>11-7-2014</td>
-                                 <td><span class="label label-warning">Pending</span></td>
-                                 <td>
-                                     Bacon ipsum dolor sit amet salami venison chicken flank
-                                     fatback doner.
-                                 </td>
-                             </tr>
-                             <tr>
-                                 <td>657</td>
-                                 <td>Bob Doe</td>
-                                 <td>11-7-2014</td>
-                                 <td><span class="label label-primary">Approved</span></td>
-                                 <td>
-                                     Bacon ipsum dolor sit amet salami venison chicken flank
-                                     fatback doner.
-                                 </td>
-                             </tr>
-                             <tr>
-                                 <td>175</td>
-                                 <td>Mike Doe</td>
-                                 <td>11-7-2014</td>
-                                 <td><span class="label label-danger">Denied</span></td>
-                                 <td>
-                                     Bacon ipsum dolor sit amet salami venison chicken flank
-                                     fatback doner.
-                                 </td>
-                             </tr>
-                         </table>
-                     </div>
-                     <!-- /.box-body -->
-                 </div>
-                 <!-- /.box -->
-             </div>
-         </div>
-
-         <div class="row">
-             <div class="col-xs-12">
-                 <div class="box">
-                     <div class="box-header">
-                         <h3 class="box-title">Responsive Hover Table</h3>
-
-                         <div class="box-tools">
-                             <div class="input-group input-group-sm"
-                                  style="width: 150px">
-                                 <input type="text"
-                                        name="table_search"
-                                        class="form-control pull-right"
-                                        placeholder="Search" />
-
-                                 <div class="input-group-btn">
-                                     <button type="submit" class="btn btn-default">
-                                         <i class="fa fa-search"></i>
-                                     </button>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                     <!-- /.box-header -->
-                     <div class="box-body table-responsive no-padding">
-
-                         <table class="table table-hover">
-                             <tr>
-                                 <th>ID</th>
-                                 <th>User</th>
-                                 <th>Date</th>
-                                 <th>Verified</th>
-                             </tr>
-                             @foreach (var record in Model.Users)
-                             {
-                                 <tr>
-                                     <td>@record.Id</td>
-                                     <td>@record.UserName</td>
-                                     <td>@record.CreatedAt.ToString("MM-dd-yyyy")</td>
-                                     <td>
-                                         @Html.Raw(record.EmailConfirmed
-                                                  ? "<span class='label label-success'>Verified</span>"
-                                                  : "<span class='label label-warning'>Not Verified</span>")
-                                     </td>
-                                     <td><a href='#' class='btn btn-sm btn-primary'>Edit</a></td>
-                                     <td><a href='#' class='btn btn-sm btn-primary'>Detail</a></td>
-                                     <td><a href='#' class='btn btn-sm btn-danger'>Delete</a></td>
-                                 </tr>
-                             }
-                         </table>
-                     </div>
-                     <!-- /.box-body -->
-                     <div class="box-footer clearfix">
-                         <ul class="pagination pagination-sm no-margin pull-right">
-                             <li><a href="#">&laquo;</a></li>
-                             <li><a href="#">1</a></li>
-                             <li><a href="#">2</a></li>
-                             <li><a href="#">3</a></li>
-                             <li><a href="#">&raquo;</a></li>
-                         </ul>
-                     </div>
-                 </div>
-                 <!-- /.box -->
-             </div>
-         </div> 
-         *@
-
-    <div class="row">
+       
+        <div class="row">
         <!-- Left col -->
         <div class="col-md-8">
             <!-- MAP & BOX PANE -->
@@ -247,7 +100,7 @@
 
                 <div class="info-box-content">
                     <span class="info-box-text">Inventory</span>
-                    <span class="info-box-number">5,200</span>
+                        <span class="info-box-number">@ViewBag.Count</span>
 
                     <div class="progress">
                         <div class="progress-bar" style="width: 50%"></div>
@@ -320,27 +173,104 @@
         </div>
         <!-- /.col -->
     </div>
-        <div class="card mb-4 mt-4">
-            <div class="table-responsive">
-                @(
-                    Html.Grid(Model.Users).Build(columns =>
-                    {
-                        columns.Add(model => model.Id).Titled("ID");
-                        columns.Add(model => model.UserName).Titled("Name");
-                        columns.Add(model => model.Email).Titled("Email");
-                        columns.Add(model => model.Slug).Titled("Slug");
-                        columns.Add(model => model.CreatedAt).Titled("Create Date");
-                        // Add more columns as needed
-                    })
-                    .Filterable(GridFilterCase.Lower)
-                    .Using(GridFilterMode.Header)
-                    .Empty("No data found")
-                    .Pageable(pager =>
-                    {
-                        pager.RowsPerPage = 4;
-                    })
-                    .Sortable()
-                    )
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Skill List</h3>
+
+                        <div class="box-tools">
+                            <div class="input-group input-group-sm"
+                                 style="width: 150px">
+                                <input type="text"
+                                       name="table_search"
+                                       class="form-control pull-right"
+                                       placeholder="Search" />
+
+                                <div class="input-group-btn">
+                                    <button type="submit" class="btn btn-default">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover table-bordered">
+                            <tr>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Id)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.FullName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Email)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CreatedAt)
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+                            </tr>
+
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Id)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UserName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CreatedAt)
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (item.IsVerified)
+                                        {
+                                            case Status.Pending:
+                                                <span class="label label-warning">Pending</span>
+                                                break;
+                                            case Status.Approved:
+                                                <span class="label label-success">Approved</span>
+                                                break;
+                                            case Status.Denied:
+                                                <span class="label label-danger">Denied</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
+                                        <a href='#' class='btn btn-sm btn-success  @(item.IsVerified == Status.Approved ? "disabled" : "")'>Approve</a>
+                                        <a href='#' class='btn btn-sm btn-danger'> @(item.IsVerified == Status.Approved ? "Cancel" : "Deny") </a>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix">
+                        <a asp-area="Admin" asp-controller="Skill" asp-action="Create" class='btn btn-sm btn-primary pull-left'>Create new skill</a>
+                        <ul class="pagination pagination-sm no-margin pull-right">
+                            <li><a href="#">&laquo;</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">&raquo;</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.box -->
             </div>
         </div>
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using QQJob.Areas.Admin.ViewModels;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
@@ -14,19 +13,16 @@ namespace QQJob.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userRepository.GetAllAsync();
-            // Populate the ViewModel
-            var viewModel = new UsersViewModel
-            {
-                Users = user.AsQueryable(),
-            };
-            return View("List", viewModel);
+            var user = await _userRepository.GetUsersAsync();
+            var count = await _userRepository.GetCount();
+            ViewBag.Count = count;
+            return View("List", user);
         }
 
         [HttpGet]
         public async Task<IActionResult> VerificationRequestList()
         {
-            var user = await _employerRepository.GetAllEmployerAsync();
+            var user = await _employerRepository.GetAllRQEmployerAsync();
             return View(user);
         }
 

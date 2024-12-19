@@ -11,9 +11,9 @@ namespace QQJob.Repositories.Implementations
         {
             var cloudinary = configuration.GetSection("Cloudinary");
             var cloudinaryConfig = new Account(
-                cloudinary["CloudName"],
-                cloudinary["ApiKey"],
-                cloudinary["ApiSecret"]
+                cloudinary["name"],
+                cloudinary["key"],
+                cloudinary["secret"]
                 );
 
             if(string.IsNullOrEmpty(cloudinaryConfig.Cloud) || string.IsNullOrEmpty(cloudinaryConfig.ApiKey) || string.IsNullOrEmpty(cloudinaryConfig.ApiSecret))
@@ -43,7 +43,7 @@ namespace QQJob.Repositories.Implementations
 
             if(uploadResult == null || uploadResult.SecureUrl == null)
             {
-                throw new Exception($"Upload to Cloudinary failed: {uploadResult.Error.Message}");
+                throw new Exception($"Upload to Cloudinary failed: {uploadResult?.Error.Message}");
             }
 
             var url = uploadResult.Eager?.FirstOrDefault()?.SecureUrl.AbsoluteUri;

@@ -5,8 +5,7 @@ namespace QQJob.Models
 {
     public class AppUser : IdentityUser
     {
-
-        public string? Name { get; set; }
+        public string? FullName { get; set; }
         public string? Avatar { get; set; }
         public string? Slug { get; set; }
         public DateTime CreatedAt { get; set; }

@@ -25,5 +25,19 @@ namespace QQJob.Repositories.Implementations
                 .Where(u => u.IsPremium)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<AppUser>> GetUsersAsync(int page, int per)
+        {
+            int skip = (page - 1) * per;
+            return await _context.Set<AppUser>()
+                                 .OrderBy(u => u.FullName)
+                                 .Skip(skip)
+                                 .Take(per)
+                                 .ToListAsync();
+        }
+        public async Task<int> GetCount()
+        {
+            return await _context.Set<AppUser>().CountAsync();
+        }
     }
 }

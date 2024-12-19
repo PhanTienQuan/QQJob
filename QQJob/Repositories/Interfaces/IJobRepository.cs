@@ -6,5 +6,6 @@ namespace QQJob.Repositories.Interfaces
     {
         Task<IEnumerable<Job>> GetJobsByEmployerIdAsync(string employerId);
         Task<IEnumerable<Job>> SearchJobsAsync(string keyword);
+        Task<IEnumerable<Job>> GetJobsAsync(int page = 1, int pageSize = 10);
     }
 }
