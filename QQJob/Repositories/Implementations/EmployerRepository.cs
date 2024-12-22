@@ -44,9 +44,14 @@ namespace QQJob.Repositories.Implementations
                 .Where(e => e.User.UserName == name)
                 .Include(e => e.User)
                 .Include(e => e.Jobs)
-                .ThenInclude(j => j.Applications)
+                    .ThenInclude(j => j.Applications)
                 .Include(e => e.Follows)
+                .AsSplitQuery()  // This will split the query into separate ones for better performance
                 .FirstOrDefaultAsync();
+        }
+        public async Task<Employer> GetByIdAsync(string id)
+        {
+            return await _context.Set<Employer>().Include(e => e.User).Where(e => e.EmployerId == id).FirstOrDefaultAsync();
         }
     }
 }

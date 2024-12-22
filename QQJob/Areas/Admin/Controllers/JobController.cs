@@ -21,6 +21,17 @@ namespace QQJob.Areas.Admin.Controllers
             var jobs = await _jobRepository.GetByIdAsync(id);
             return View(jobs);
         }
+
+        public async Task<IActionResult> UpdateJobStatus(int id, Status status)
+        {
+            Job job = await _jobRepository.GetByIdAsync(id);
+            job.Status = status;
+            _jobRepository.Update(job);
+            await _jobRepository.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -81,7 +92,6 @@ namespace QQJob.Areas.Admin.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View(job);
             }
-
         }
     }
 }

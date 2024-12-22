@@ -8,6 +8,7 @@ namespace QQJob.Repositories.Interfaces
         Task<IEnumerable<Employer?>> GetAllRQEmployerAsync(int page = 1, int per = 10);
         Task<IEnumerable<string>> GetAllEmployerIdAsync();
         Task<Employer?> GetEmployerByName(string username);
+        Task<Employer> GetByIdAsync(string id);
     }
 }
 

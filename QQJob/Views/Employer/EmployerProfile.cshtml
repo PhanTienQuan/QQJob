@@ -1,4 +1,5 @@
-﻿    <!-- content area -->
+﻿@model Employer
+    <!-- content area -->
 <div class="dashboard__content d-flex">
     <partial name="_LeftMenu" />
     <div class="dashboard__right">
@@ -27,44 +28,45 @@
                         <div class="info__field">
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
                                 <div class="rt-input-group">
-                                    <label for="name">Employer name</label>
-                                    <input type="text" id="name" name="Name" placeholder="PTQ Tech" required />
+                                    <label asp-for="User.FullName">Employer name</label>
+                                    <input asp-for="User.FullName" placeholder="PTQ Tech" class="mb-3" required />
+                                    <span asp-validation-for="User.FullName" class="text-danger"></span>
                                 </div>
                                 <div class="rt-input-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" name="Email" placeholder="ptqtech@gmail.com" required />
-                                </div>
-                            </div>
-                            <div class="row row-cols-sm-2 row-cols-1 g-3">
-                                <div class="rt-input-group">
-                                    <label for="phone">Phone</label>
-                                    <input type="text" id="phone" name="Phone" placeholder="+880171234567" required />
-                                </div>
-                                <div class="rt-input-group">
-                                    <label for="url">Website</label>
-                                    <input type="url" id="url" name="Website" placeholder="jobpath.com" required />
+                                    <label asp-for="User.Email">Email</label>
+                                    <input type="email" asp-for="User.Email" placeholder="ptqtech@gmail.com" class="mb-3" required />
+                                    <span asp-validation-for="User.Email" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
                                 <div class="rt-input-group">
-                                    <label for="fd">Founded Date</label>
-                                    <input type="text" placeholder="DD/MM/YY" id="fd" name="FoundedDate" required />
+                                    <label asp-for="User.PhoneNumber">Phone</label>
+                                    <input asp-for="User.PhoneNumber" placeholder="+880171234567" class="mb-3" required />
+                                    <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
                                 </div>
                                 <div class="rt-input-group">
-                                    <label for="cs">Company Size</label>
-                                    <select name="CompanySize" id="cs" class="form-select">
-                                        <option value="18">10-20</option>
-                                        <option value="19">20-30</option>
-                                    </select>
+                                    <label asp-for="Website">Website</label>
+                                    <input type="url" asp-for="Website" placeholder="jobpath.com" class="mb-3" required />
+                                    <span asp-validation-for="Website" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
                                 <div class="rt-input-group">
-                                    <label for="cc">Company categories</label>
-                                    <select name="CompanyCategory" id="cc" class="form-select">
-                                        <option value="18">Design & Development</option>
-                                        <option value="19">Digital Marketing</option>
-                                    </select>
+                                    <label asp-for="FoundedDate">Founded Date</label>
+                                    <input type="date" placeholder="DD/MM/YY" asp-for="FoundedDate" class="mb-3" required />
+                                    <span asp-validation-for="FoundedDate" class="text-danger"></span>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="CompanySize">Company Size</label>
+                                    <input type="text" asp-for="CompanySize" class="mb-3" placeholder="10 - 20" required />
+                                    <span asp-validation-for="CompanySize" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="rt-input-group">
+                                    <label asp-for="CompanyField">Company Field</label>
+                                    <input asp-for="CompanyField" class="mb-3" placeholder="Marketing" required />
+                                    <span asp-validation-for="CompanyField" class="text-danger"></span>
                                 </div>
                                 <div class="rt-input-group">
                                     <label for="pv">Public For Profile View</label>
