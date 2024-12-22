@@ -19,5 +19,6 @@ namespace QQJob.ViewModels
         public float Experience { get; set; }
         public string Qualification { get; set; }
         public string Benifits { get; set; }
+        public string ImgUrl { get; set; }
     }
 }
