@@ -44,10 +44,10 @@
                             <div class="single__applied__job">
                                 <div class="single__applied__job__content">
                                     <div class="icon">
-                                        <img src="~/assets/img/icon/apple.svg" alt="">
+                                        <img src="~/assets/img/avatars/default" alt="">
                                     </div>
                                     <div class="content">
-                                        <a href="#">
+                                        <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id">
                                             <h6>@job.Title</h6>
                                         </a>
                                         <div class="content__info">
