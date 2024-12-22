@@ -1,0 +1,483 @@
+﻿    <!-- content area -->
+<div class="dashboard__content d-flex template-dashboard ">
+    <partial name="_LeftMenu" />
+    <div class="dashboard__right">
+        <div class="dash__content ">
+            <!-- sidebar menu -->
+            <div class="sidebar__menu d-md-block d-lg-none">
+                <div class="sidebar__action"><i class="fa-sharp fa-regular fa-bars"></i> Sidebar</div>
+            </div>
+            <!-- sidebar menu end -->
+            <div class="my__profile__tab radius-16 bg-white">
+                <nav>
+                    <div class="nav nav-tabs">
+                        <a class="nav-link active" href="#info">CV File</a>
+                        <a class="nav-link " href="#social">Education</a>
+                        <a class="nav-link" href="#address">Skills & Experience</a>
+                        <a class="nav-link" href="#address">Portfolio </a>
+                        <a class="nav-link" href="#address">Award</a>
+                    </div>
+                </nav>
+                <div class="my__details" id="info">
+                    <div class="info__top align-items-start flex-column">
+
+                        <div class="select__image">
+                            <label for="file" class="file-upload__label__two">
+                                <span>
+                                    <i class="fa-light fa-file-arrow-up"></i>
+                                    <b><u>Click To Upload</u></b> Or Drag and Drop
+                                    <br>
+                                    Meximum File Size 10 Mb
+                                </span>
+                            </label>
+                            <input type="file" class="file-upload__input__two" id="file" required>
+                        </div>
+                        <div class="cv__included d-flex gap-30">
+                            <div class="single__item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Resume</span>
+                                    <span><i class="fa-regular fa-xmark"></i></span>
+                                </div>
+                                <div class="file__type font-20 mt-2 fw-semibold">
+                                    PDF
+                                </div>
+                            </div>
+                            <div class="single__item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Cover Letter</span>
+                                    <span><i class="fa-regular fa-xmark"></i></span>
+                                </div>
+                                <div class="file__type font-20 mt-2 fw-semibold">
+                                    PDF
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- education -->
+            <h6 class="fw-medium mt-30 mb-20">Education</h6>
+            <div class="my__education radius-16 p-30 bg-white" id="education">
+                <div class="accordion" id="rts-accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c8" aria-expanded="false" aria-controls="c8">
+                            SSC
+                        </button>
+                        <div id="c8" class="accordion-collapse collapse" data-bs-parent="#rts-accordion">
+                            <div class="accordion-body p-0 mt-3 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title">Title</label>
+                                            <select name="Title" id="title" class="form-select">
+                                                <option value="*" selected>SSC</option>
+                                                <option value="1">SSC</option>
+                                                <option value="2">HSC</option>
+                                                <option value="3">Diploma</option>
+                                                <option value="4">Graduation</option>
+                                                <option value="5">Post Graduation</option>
+                                            </select>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="std">Start date</label>
+                                            <input type="text" id="std" placeholder="05/08/2021" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="ltd">End Date</label>
+                                            <input type="text" id="ltd" placeholder="05/09/2021" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="un">University Name</label>
+                                            <input type="text" id="un" placeholder="Massachusetts Institute of Technology" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="grade">GPA 5</label>
+                                            <input type="text" id="grade" placeholder="GPA-5" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc">Description</label>
+                                        <textarea name="desc" id="desc" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove Education</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c6" aria-expanded="false" aria-controls="c6">
+                            HSC
+                        </button>
+                        <div id="c6" class="accordion-collapse collapse" data-bs-parent="#rts-accordion">
+                            <div class="accordion-body mt-3 p-0 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-2">Title</label>
+                                            <select name="Title" id="title-2" class="form-select">
+                                                <option value="*" selected>SSC</option>
+                                                <option value="1">SSC</option>
+                                                <option value="2">HSC</option>
+                                                <option value="3">Diploma</option>
+                                                <option value="4">Graduation</option>
+                                                <option value="5">Post Graduation</option>
+                                            </select>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="std-2">Start date</label>
+                                            <input type="text" id="std-2" placeholder="05/08/2021" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="ltd-2">End Date</label>
+                                            <input type="text" id="ltd-2" placeholder="05/09/2021" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="un-2">University Name</label>
+                                            <input type="text" id="un-2" placeholder="Massachusetts Institute of Technology" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="grade-2">GPA 5</label>
+                                            <input type="text" id="grade-2" placeholder="GPA-5" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-2">Description</label>
+                                        <textarea name="desc" id="desc-2" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove Education</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Diploma
+                        </button>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#rts-accordion">
+                            <div class="accordion-body p-0 mt-3">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-3">Title</label>
+                                            <select name="Title" id="title-3" class="form-select">
+                                                <option value="*" selected>SSC</option>
+                                                <option value="1">SSC</option>
+                                                <option value="2">HSC</option>
+                                                <option value="3">Diploma</option>
+                                                <option value="4">Graduation</option>
+                                                <option value="5">Post Graduation</option>
+                                            </select>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="std-3">Start date</label>
+                                            <input type="text" id="std-3" placeholder="05/08/2021" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="ltd-3">End Date</label>
+                                            <input type="text" id="ltd-3" placeholder="05/09/2021" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="un-3">University Name</label>
+                                            <input type="text" id="un-3" placeholder="Massachusetts Institute of Technology" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="grade-3">GPA 5</label>
+                                            <input type="text" id="grade-3" placeholder="GPA-5" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-3">Description</label>
+                                        <textarea name="desc" id="desc-3" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove Education</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-start">
+                        <a href="#" class="added__social__link">Remove Education</a>
+                    </div>
+                </div>
+            </div>
+            <!-- education end -->
+            <!-- education -->
+            <h6 class="fw-medium mt-30 mb-20">Skill & Experience</h6>
+            <div class="my__education radius-16 p-30 bg-white" id="education-1">
+                <div class="my__skillset">
+                    <ul class="skill__tags">
+                        <li><span class="skill__item">HTML</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">C++</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">Wordpress</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">JQuery</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">Website Development</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">Figma</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item">CSS</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
+                        <li><span class="skill__item__add"><i class="fa-regular fa-plus"></i></span></li>
+                    </ul>
+                </div>
+                <div class="accordion" id="rts-accordion-2">
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="false" aria-controls="c1">
+                            Software Engineer
+                        </button>
+                        <div id="c1" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-2">
+                            <div class="accordion-body p-0 mt-3 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-4">Title</label>
+                                            <input type="text" id="title-4" placeholder="Software Engineer" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="cm-4">Company</label>
+                                            <input type="text" id="cm-4" placeholder="Reactheme" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="de-4">end date</label>
+                                            <input type="text" id="de-4" placeholder="DD/ MM/ YY" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="sd-4">Start Date</label>
+                                            <input type="text" id="sd-4" placeholder="DD/MM/YY" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-4">Description</label>
+                                        <textarea name="desc" id="desc-4" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove EXperience</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="false" aria-controls="c2">
+                            Django Developer
+                        </button>
+                        <div id="c2" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-2">
+                            <div class="accordion-body p-0 mt-3 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-5">Title</label>
+                                            <input type="text" id="title-5" placeholder="Software Engineer" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="cm-5">Company</label>
+                                            <input type="text" id="cm-5" placeholder="Reactheme" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="de-5">end date</label>
+                                            <input type="text" id="de-5" placeholder="DD/ MM/ YY" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="sd-5">Start Date</label>
+                                            <input type="text" id="sd-5" placeholder="DD/MM/YY" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-5">Description</label>
+                                        <textarea name="desc" id="desc-5" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove EXperience</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="false" aria-controls="collapseThree">
+                            Wordpress Developer
+                        </button>
+                        <div id="c3" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-2">
+                            <div class="accordion-body p-0 mt-3 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-6">Title</label>
+                                            <input type="text" id="title-6" placeholder="Software Engineer" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="cm-6">Company</label>
+                                            <input type="text" id="cm-6" placeholder="Reactheme" required>
+                                        </div>
+                                    </div>
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="de-6">end date</label>
+                                            <input type="text" id="de-6" placeholder="DD/ MM/ YY" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="sd-6">Start Date</label>
+                                            <input type="text" id="sd-6" placeholder="DD/MM/YY" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-6">Description</label>
+                                        <textarea name="desc" id="desc-6" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove EXperience</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-start">
+                        <a href="#" class="added__social__link">Add Skill</a>
+                    </div>
+                </div>
+            </div>
+            <!-- education end -->
+            <!-- Portfolio -->
+            <h6 class="fw-medium mt-30 mb-20">My Portfolio</h6>
+            <div class="my__education radius-16 p-30 bg-white" id="education-2">
+                <div class="my__portfolio">
+                    <div class="row row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 g-30">
+                        <div class="single__portfolio">
+                            <div class="delete__icon">
+                                <button type="button">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <figure class="portfolio__thumb">
+                                <img src="assets/img/dashboard/p-1.webp" alt="">
+                            </figure>
+                        </div>
+                        <div class="single__portfolio">
+                            <div class="delete__icon">
+                                <button type="button">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <figure class="portfolio__thumb">
+                                <img src="assets/img/dashboard/p-2.webp" alt="">
+                            </figure>
+                        </div>
+                        <div class="single__portfolio">
+                            <div class="delete__icon">
+                                <button type="button">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <figure class="portfolio__thumb">
+                                <img src="assets/img/dashboard/p-3.webp" alt="">
+                            </figure>
+                        </div>
+                        <div class="single__portfolio">
+                            <div class="delete__icon">
+                                <button type="button">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <figure class="portfolio__thumb">
+                                <img src="assets/img/dashboard/p-4.webp" alt="">
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-start mt-30">
+                        <a href="#" class="added__social__link">Add Portfolio</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Portfolio end -->
+            <!-- Award -->
+            <h6 class="fw-medium mt-30 mb-20">Award</h6>
+            <div class="my__education radius-16 p-30 bg-white" id="education-3">
+                <div class="accordion" id="rts-accordion-3">
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4" aria-expanded="false" aria-controls="c4">
+                            Best Employee Award
+                        </button>
+                        <div id="c4" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-3">
+                            <div class="accordion-body p-0 mt-3 mb-20">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="titlea">Title</label>
+                                            <input type="text" id="titlea" placeholder="McMaster Center for Software Certification" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="ye-7">Year</label>
+                                            <input type="text" id="ye-7" placeholder="dd/mm/yy" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-7">Description</label>
+                                        <textarea name="desc" id="desc-7" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove Award</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c5" aria-expanded="false" aria-controls="c5">
+                            Best Candidate
+                        </button>
+                        <div id="c5" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-3">
+                            <div class="accordion-body p-0 mt-3">
+                                <div class="info__field">
+                                    <div class="row row-cols-sm-2 row-cols-1">
+                                        <div class="rt-input-group">
+                                            <label for="title-8">Title</label>
+                                            <input type="text" id="title-8" placeholder="McMaster Center for Software Certification" required>
+                                        </div>
+                                        <div class="rt-input-group">
+                                            <label for="ye-8">Year</label>
+                                            <input type="text" id="ye-8" placeholder="dd/mm/yy" required>
+                                        </div>
+                                    </div>
+                                    <div class="rt-input-group">
+                                        <label for="desc-8">Description</label>
+                                        <textarea name="desc" id="desc-8" cols="30" rows="5" placeholder="Description"></textarea>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-30">
+                                    <a href="#" class="added__social__link">Remove Award</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-start mt-20">
+                        <a href="#" class="added__social__link">Add Award</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Award end -->
+
+        </div>
+        <div class="d-flex justify-content-center mt-30">
+            <p class="copyright">Copyright © 2024 All Rights Reserved by jobpath</p>
+
+        </div>
+    </div>
+</div>
+<!-- content area end -->

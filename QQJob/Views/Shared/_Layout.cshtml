@@ -8,13 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Your Ultimate Job Template" />
     <meta name="keywords" content="Job, Resume, Employer, Agency" />
-    <link rel="canonical" href="https://html.themewant.com/jobpath" />
+    <link rel="canonical" href="https://html.themewant.com/QQJob" />
     <meta name="robots" content="index, follow" />
     <!-- Open Graph Meta -->
     <meta property="og:title" content="Your Ultimate Job Template" />
     <meta property="og:description" content="Your Ultimate Job Template" />
     <meta property="og:image" content="www.example.com/image.html" />
-    <meta property="og:url" content="https://html.themewant.com/jobpath/" />
+    <meta property="og:url" content="https://html.themewant.com/QQJob/" />
     <!-- Twitter Meta -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Your Ultimate Job Template" />
@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/assets/css/style.css" />
     <link rel="stylesheet" href="~/assets/css/client/client.css" />
-    <title>@ViewData["Title"] - Jobpath</title>
+    <title>@ViewData["Title"] - QQJob</title>
 </head>
 
 
@@ -38,7 +38,7 @@
     <partial name="_Header" />
 
     @RenderBody()
-    @if (currentController != "Employer")
+    @if (currentController != "Employer" && currentController != "Candidate")
     {
         <partial name="_Footer" />
     }
