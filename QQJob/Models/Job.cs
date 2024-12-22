@@ -7,7 +7,7 @@ namespace QQJob.Models
         public int JobId { get; set; }
         public string? Title { get; set; }
         public string? Address { get; set; }
-        public int Experience { get; set; }
+        public float Experience { get; set; }
         public string? Salary { get; set; }
         public string? JobDescription { get; set; }
         public string? Qualification { get; set; }
@@ -24,7 +24,7 @@ namespace QQJob.Models
         public Employer? Employer { get; set; }
 
         // Navigation Properties
-        public ICollection<Skill>? Skills { get; set; }
-        public ICollection<Application>? Applications { get; set; }
+        public IEnumerable<Skill>? Skills { get; set; }
+        public IEnumerable<Application>? Applications { get; set; }
     }
 }

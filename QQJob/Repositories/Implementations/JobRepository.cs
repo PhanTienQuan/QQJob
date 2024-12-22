@@ -18,6 +18,7 @@ namespace QQJob.Repositories.Implementations
                 .OrderBy(j => j.Title)
                 .Skip(skip)
                 .Take(pageSize)
+                .Include(j => j.Skills)
                 .ToListAsync();
         }
 
@@ -34,6 +35,9 @@ namespace QQJob.Repositories.Implementations
                 .Where(j => j.Title.Contains(keyword) || j.JobDescription.Contains(keyword))
                 .ToListAsync();
         }
-
+        public async Task<Job> GetByIdAsync(int id)
+        {
+            return await _context.Set<Job>().Include(j => j.Skills).Include(j => j.Applications).FirstOrDefaultAsync(j => j.JobId == id);
+        }
     }
 }

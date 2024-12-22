@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -35,8 +38,10 @@
     <partial name="_Header" />
 
     @RenderBody()
-
-    <partial name="_Footer" />
+    @if (currentController != "Employer")
+    {
+        <partial name="_Footer" />
+    }
 
     <div id="modalPlaceholder"></div>
 

@@ -1,4 +1,6 @@
-﻿    <!-- breadcrumb area -->
+﻿@{
+    var job = ViewBag.Job as JobDetailViewModel;
+}<!-- breadcrumb area -->
 <div class="rts__section breadcrumb__background">
     <div class="container">
         <div class="row">
@@ -11,32 +13,36 @@
                             </div>
                             <div class="job__meta w-100 d-flex text-center text-md-start flex-column gap-2">
                                 <div class="">
-                                    <h3 class="job__title h3 mb-0">Senior UI Designer, Apple</h3>
+                                    <h3 class="job__title h3 mb-0">@job.Title</h3>
                                 </div>
                                 <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
                                     <div class="d-flex gap-2 align-items-center">
-                                        <i class="fa-light fa-location-dot"></i> Newyork, USA
+                                        <i class="fa-light fa-location-dot"></i> @job.Address
                                     </div>
                                     <div class="d-flex gap-2 align-items-center">
-                                        <i class="fa-light rt-briefcase"></i> Full Time
+                                        <i class="fa-light rt-briefcase"></i> @job.JobDes.WorkingSche
                                     </div>
                                     <div class="d-flex gap-2 align-items-center">
                                         <i class="fa-light fa-clock"></i> 1 Years Ago
                                     </div>
                                     <div class="d-flex gap-2 fw-medium align-items-center">
-                                        <i class="fa-light rt-price-tag"></i> $1000 - $2000 Monthly
+                                        <i class="fa-light rt-price-tag"></i> @job.Salary Monthly
                                     </div>
                                 </div>
                                 <div class="job__tags d-flex justify-content-center justify-content-md-start flex-wrap gap-3">
-                                    <a href="#">Creative</a>
-                                    <a href="#">user interface</a>
-                                    <a href="#">web ui</a>
+                                    @foreach (var skill in job.Skills)
+                                    {
+                                        <a href="#">@skill.SkillName</a>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="breadcrumb__apply max-content">
-                        <a href="#" class="rts__btn apply__btn be-1 fill__btn">Apply This Possition</a>
+                        @if (User.IsInRole("Candidate"))
+                        {
+                            <a href="#" class="rts__btn apply__btn be-1 fill__btn">Apply This Possition</a>
+                        }
                     </div>
                 </div>
                 <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
@@ -65,35 +71,35 @@
                         <ul>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-calender"></i> Date Posted</span>
-                                <span class="text">: 10 July 2023</span>
+                                <span class="text">@job.Open</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-user"></i> Vacancy</span>
-                                <span class="text">: 5</span>
+                                <span class="text">@(job.Opening - job.AppliedCount)</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-experience"></i> Experience</span>
-                                <span class="text">: 5 Years</span>
+                                <span class="text">@job.Experience Year</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-price-tag"></i> Offered Salary</span>
-                                <span class="text">: $2000 - $3000</span>
+                                <span class="text">@job.Salary</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-loading"></i> Job Deadline</span>
-                                <span class="text">: 01 July 2024</span>
+                                <span class="text">@job.Close</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-qualification"></i> Qualification</span>
-                                <span class="text">: Bachelor Degree</span>
+                                <span class="text">@job.Qualification</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="fa-solid fa-location-dot"></i> Location</span>
-                                <span class="text">: New York, USA</span>
+                                <span class="text">@job.Address</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-user"></i> Gender</span>
-                                <span class="text">: Both</span>
+                                <span class="text">Both</span>
                             </li>
                         </ul>
                     </div>
@@ -105,7 +111,10 @@
                     </div>
                     <h5 class="company__name mt-20">Google.com</h5>
                     <a href="#" class="company__link d-block mt-20" aria-label="Visit Company Website" target="_blank">Visit Website</a>
-                    <a href="#" class="rts__btn apply__btn mt-40">Apply This Position</a>
+                    @if (User.IsInRole("Candidate"))
+                    {
+                        <a href="#" class="rts__btn apply__btn mt-40">Apply This Position</a>
+                    }
                 </div>
 
             </div>
@@ -113,38 +122,42 @@
                 <div class="rts__job__details">
                     <!-- Tabs (nếu cần sử dụng sau này) -->
                     <div class="rts__tab active__link mb-30">
-                        @*
-                        <nav>
-                        <div class="nav nav-tabs">
-                        <a class="nav-link active" href="#all">All</a>
-                        <a class="nav-link" href="#description">Job Description</a>
-                        <a class="nav-link" href="#responsibility">Responsibilities</a>
-                        <a class="nav-link" href="#requirements">Requirements</a>
-                        <a class="nav-link" href="#skill">Skill & Experience</a>
-                        <a class="nav-link" href="#salary">Salary & Benefits</a>
-                        </div>
-                        </nav>
-                        *@
+                         
+                         <nav>
+                         <div class="nav nav-tabs">
+                         <a class="nav-link active" href="#all">All</a>
+                         <a class="nav-link" href="#description">Job Description</a>
+                         <a class="nav-link" href="#responsibility">Responsibilities</a>
+                         <a class="nav-link" href="#requirements">Requirements</a>
+                         <a class="nav-link" href="#skill">Skill & Experience</a>
+                         <a class="nav-link" href="#salary">Salary & Benefits</a>
+                         </div>
+                         </nav>
+                        
                     </div>
 
                     <!-- Job Description -->
                     <div id="description" class="mb-30">
                         <h6 class="fw-semibold mb-20">Job Description</h6>
-                        <p>We are seeking a skilled Part-Time Software Engineer to join our team, specializing in social media content creation for lead generation purposes...</p>
+                        <p>@job.JobDes.Descriptions</p>
                     </div>
 
                     <!-- Responsibilities -->
                     <div id="responsibility" class="mb-30">
                         <h6 class="fw-semibold mb-20">Responsibilities</h6>
                         <ul class="list-style-dot">
-                            <li>Design and build web and enterprise applications using ReactJS/Next JS/.Net Core</li>
-                            <li>Collaborate with cross-functional teams to analyze, design, and implement new features</li>
-                            <li>Follow defined coding rules/conventions defined by the company</li>
-                            <li>Perform Unit tests and ensure proper test coverage as per organizational standards</li>
-                            <li>Prepare basic design, detail design, and execute basic acceptance testing</li>
-                            <li>Follow the peer review process for code delivery</li>
-                            <li>Participate in meetings as per company policy</li>
-                            <li>Ability to lead a small team (for senior software engineers)</li>
+                            @if (!string.IsNullOrEmpty(job.JobDes.Responsibilities))
+                            {
+                                var responsibilities = job.JobDes.Responsibilities.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                                @foreach (var responsibility in responsibilities)
+                                {
+                                    <li>@responsibility.Trim()</li>
+                                }
+                            }
+                            else
+                            {
+                                <p>No responsibilities listed.</p>
+                            }
                         </ul>
                     </div>
 
@@ -152,14 +165,18 @@
                     <div id="requirements" class="mb-30">
                         <h6 class="fw-semibold mb-20">Requirements</h6>
                         <ul class="list-style-dot">
-                            <li>Excellent knowledge of Relational Databases MYSQL and ORM technologies (JPA, Hibernate)</li>
-                            <li>Strong understanding of Object-Oriented analysis and design using common design patterns</li>
-                            <li>Proficiency in ReactJS/Next JS/.Net Core</li>
-                            <li>Practical experience with REST & RESTful web services</li>
-                            <li>Commanding knowledge of Maven and Gradle build tools</li>
-                            <li>Follow the peer review process for code delivery</li>
-                            <li>Participate in meetings as per company policy</li>
-                            <li>Ability to lead a small team (for senior software engineers)</li>
+                            @if (!string.IsNullOrEmpty(job.JobDes.Requirements))
+                            {
+                                var requirements = job.JobDes.Requirements.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                                @foreach (var requirement in requirements)
+                                {
+                                    <li>@requirement.Trim()</li>
+                                }
+                            }
+                            else
+                            {
+                                <p>No requirements listed.</p>
+                            }
                         </ul>
                     </div>
 
@@ -167,9 +184,10 @@
                     <div id="skill" class="mb-30">
                         <h6 class="fw-semibold mb-20">Skills and Experience</h6>
                         <div class="job__tags job__details__tags">
-                            <a href="#" class="job__tag">Javascript</a>
-                            <a href="#" class="job__tag">User Interface</a>
-                            <a href="#" class="job__tag">Problem Solving</a>
+                            @foreach(var skill in job.Skills)
+                            {
+                                <a href="#" class="job__tag">@skill.SkillName</a>
+                            }
                         </div>
                     </div>
 
@@ -177,14 +195,19 @@
                     <div id="salary" class="mb-30">
                         <h6 class="fw-semibold mb-20">Salary and Benefits</h6>
                         <ul class="list-style-dot">
-                            <li>Lunch Facilities: Full Subsidize</li>
-                            <li>Salary Review: Yearly</li>
-                            <li>Festival Bonus: 2</li>
-                            <li>Night Shift Timing: 11.00 PM to 07.00 AM</li>
-                            <li>Weekend: Two Days</li>
-                            <li>Monthly on-time guaranteed payment</li>
-                            <li>Leave facilities (Earned, Sick, Casual)</li>
-                            <li>Salary: $1000 - $2000 Monthly</li>
+                            @if (!string.IsNullOrEmpty(job.Benifits))
+                            {
+                                var benifits = job.Benifits.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                                @foreach (var benifit in benifits)
+                                {
+                                    <li>@benifit.Trim()</li>
+                                }
+                            }
+                            else
+                            {
+                                <p>No benefits listed.</p>
+                            }
+                            <li>Salary: @job.Salary Monthly</li>
                         </ul>
                     </div>
 

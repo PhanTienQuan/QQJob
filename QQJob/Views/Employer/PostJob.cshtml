@@ -1,5 +1,23 @@
-﻿    <!-- content area -->
-<div class="dashboard__content d-flex">
+﻿@model PostJobViewModel
+@{
+    ViewBag.Title = "Post Job";
+}
+<style>
+    #skillRecommendations {
+        max-height: 150px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.5em 0.75em;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+    }
+</style>
+ <!-- content area -->
+<div class="dashboard__content d-flex template-dashboard ">
     <partial name="_LeftMenu" />
     <div class="dashboard__right">
         <div class="dash__content" id="content-area">
@@ -9,60 +27,186 @@
             </div>
             <!-- sidebar menu end -->
             <!-- submit form -->
-            <div class="my__profile__tab radius-16 bg-white">
-                <div class="my__details" id="info">
-                    <div class="info__field">
-                        <div class="row row-cols-1 g-3">
-                            <div class="rt-input-group">
-                                <label for="jt">Job Title</label>
-                                <input type="text" id="jt" placeholder="Enter title" required>
+            <form asp-controller="employer" asp-action="postjob" id="postjobform">
+                <div class="my__profile__tab radius-16 bg-white">
+                    <nav>
+                        <div class="nav nav-tabs">
+                            <a class="nav-link active" href="#info">Company Details</a>
+                            <a class="nav-link" href="#jobdetail">Job Detail</a>
+                        </div>
+                    </nav>
+                    <div class="my__details" id="info">
+                        <div class="info__top">
+                            <div class="author__image">
+                                <img class="p-4" src="assets/img/icon/google.svg" alt="" />
+                            </div>
+                            <div class="select__image">
+                                <label for="file" class="file-upload__label">
+                                    Upload New Photo
+                                </label>
+                                @* <input type="file"
+                                       class="file-upload__input"
+                                       id="file"
+                                       required /> *@
+                            </div>
+                            <div class="delete__data">
+                                <i class="fa-light fa-trash-can"></i>
                             </div>
                         </div>
-                        <div class="row row-cols-1">
-                            <div class="rt-input-group">
-                                <label for="jd">Job Description</label>
-                                <textarea id="jd" placeholder="Enter description" required></textarea>
+                        <div class="info__field">
+                            <div class="row row-cols-1 g-3">
+                                <div class="rt-input-group">
+                                    <label asp-for="Title">Job Title</label>
+                                    <input asp-for="Title" placeholder="Enter title" data-val-required="Post title is required">
+                                </div>
+                                <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
+                            <div class="row row-cols-1">
+                                <div class="rt-input-group">
+                                    <label asp-for="Description">Job Description</label>
+                                    <textarea asp-for="Description" placeholder="Enter description"></textarea>
+                                </div>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="row row-cols-1">
+                                <div class="rt-input-group">
+                                    <label asp-for="Responsibilities">Responsibilities</label>
+                                    <textarea asp-for="Responsibilities" placeholder="Enter responsibilities"></textarea>
+                                </div>
+                                <span asp-validation-for="Responsibilities" class="text-danger"></span>
+                            </div>
+                            <div class="row row-cols-1">
+                                <div class="rt-input-group">
+                                    <label asp-for="Requirements">Requirements</label>
+                                    <textarea asp-for="Requirements" placeholder="Enter requirements"></textarea>
+                                </div>
+                                <span asp-validation-for="Requirements" class="text-danger"></span>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="skills">Skills</label>
+                                <input type="text" id="skillInput" class="form-control" placeholder="Type a skill" oninput="showRecommendations()" />
+                                <ul id="skillRecommendations" class="list-group" style="display: none; position: absolute; z-index: 1000; width: auto;"></ul>
+                            </div>
+                            <div id="skillTags" class="mt-3">
+                                <!-- Tags will appear here -->
+                            </div>
+                            <input asp-for="SelectedSkill" type="hidden"/>
+                            <span asp-validation-for="SelectedSkill" class="text-danger"></span>
                         </div>
-
-                        <div class="row row-cols-sm-2 row-cols-1 g-3">
-                            <div class="rt-input-group">
-                                <label for="location">Location</label>
-                                <select name="location" id="Location" class="form-select">
-                                    <option value="1">Ha Noi</option>
-                                    <option value="1">Da Nang</option>
-                                    <option value="1">Ho CHi Minh City</option>
-                                    <option value="1">Remote</option>
-                                    <option value="1">Others</option>
-                                </select>
-                            </div>
-                            <div class="rt-input-group">
-                                <label for="ep">Experience</label>
-                                <select name="ep" id="hp" class="form-select">
-                                    <option value="1">Monthly</option>
-                                    <option value="2">Yearly</option>
-                                    <option value="1">Monthly</option>
-                                    <option value="2">Yearly</option> 
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row row-cols-sm-2 row-cols-1 g-3">
-                            <div class="rt-input-group">
-                                <label for="qf">Qualification</label>
-                                <input type="text" id="qf" placeholder="Enter Qualification" required>
-                            </div>
-                            <div class="rt-input-group">
-                                <label for="experience">Experience</label>
-                                <input type="text" id="experience" placeholder="Enter Experience" required>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-            </div>
+                <!-- address area -->
+                <h6 class="fw-medium mt-30 mb-20" id="jobdetail">Job Detail</h6>
+                <div class="social__links radius-16 p-30 bg-white">
+                    <div class="info__field">
+                        <div class="row row-cols-sm-1 row-cols-1 g-3">
+                            <div class="info__field">
+                                <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                    <div>
+                                        <div class="rt-input-group">
+                                            <label asp-for="Location">Location</label>
+                                            <select asp-for="Location" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
+                                                <option value="Ha Noi">Ha Noi</option>
+                                                <option value="Da Nang">Da Nang</option>
+                                                <option value="Ho Chi Minh City">Ho Chi Minh City</option>
+                                                <option value="Remote">Remote</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div id="customLocationInput" class="rt-input-group" style="display: none;">
+                                            <label asp-for="CustomLocation">Custom Location</label>
+                                            <input asp-for="CustomLocation" class="form-control" placeholder="Enter your location" />
+                                        </div>
+                                        <span asp-validation-for="CustomLocation" class="text-danger"></span>
+                                    </div>
+                                    <div>
+                                        <div class="rt-input-group">
+                                            <label asp-for="Experience">Experience</label>
+                                            <select asp-for="Experience" class="form-select" onchange="toggleCustomField(this, '#customExp')">
+                                                <option value="1">1 Year</option>
+                                                <option value="2">2 Years</option>
+                                                <option value="1">3 Years</option>
+                                                <option value="2">4 Years</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div id="customExp" class="rt-input-group" style="display: none;">
+                                            <label asp-for="CusExperience">Custom Experience</label>
+                                            <input asp-for="CusExperience" class="form-control" placeholder="Enter your required experience" />
+                                        </div>
+                                        <span asp-validation-for="CusExperience" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                    <!-- Salary Input -->
+                                    <div class="rt-input-group">
+                                        <label asp-for="Salary">Salary</label>
+                                        <input asp-for="Salary" placeholder="Enter salary" required>
+                                    </div>
+                                    <!-- Job Schedule Input -->
+                                    <div class="rt-input-group">
+                                        <label for="schedule">Working Schedule</label>
+                                        <select asp-for="WorkingSche" class="form-select" onchange="toggleCustomField(this, '#customScheduleGroup')">
+                                            <option value="" disabled selected>Select working schedule</option>
+                                            <option value="Full-time">Full-time</option>
+                                            <option value="Part-time">Part-time</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <!-- Custom Schedule Input (Initially Hidden) -->
+                                    <div>
+                                        <div class="rt-input-group" id="customScheduleGroup" style="display: none;">
+                                            <label asp-for="CusWorkingSche">Custom Working Schedule</label>
+                                            <input asp-for="CusWorkingSche" placeholder="Enter custom schedule (e.g., 3 days a week)">
+                                        </div>
+                                        <span asp-validation-for="CusWorkingSche" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="Opening">Opening</label>
+                                    <input asp-for="Opening" placeholder="Enter number of opening" required>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="Qualification">Benefits</label>
+                                    <input asp-for="Qualification" placeholder="Qualification" required>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="Benefits">Benefits</label>
+                                    <textarea asp-for="Benefits" placeholder="Enter benefits" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-medium mt-30 mb-20" id="posttime">Post time</h6>
+                <div class="social__links radius-16 p-30 bg-white">
+                    <div class="info__field">
+                        <div class="row row-cols-sm-1 row-cols-1 g-3">
+                            <div class="info__field">
+                                <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                    <!-- End Time -->
+                                    <div class="rt-input-group">
+                                        <label asp-for="Close">End Time</label>
+                                        <input type="date" asp-for="Close" class="form-control" required />
+                                    </div>
+                                </div>
+
+                            </div>
+                            <button type="submit" class="rts__btn fill__btn">
+                                Post Job
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
             <!-- submit form end -->
         </div>
     </div>
 </div>
 <!-- content area end -->
+<script>const skillList = @Html.Raw(Json.Serialize(ViewBag.SkillList));</script>
+<script src="~/assets/js/employer.js"></script>
