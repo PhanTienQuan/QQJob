@@ -1,0 +1,276 @@
+﻿    <!-- content area -->
+<div class="dashboard__content d-flex template-dashboard ">
+    <partial name="_LeftMenu" />
+    <div class="dashboard__right">
+        <div class="dash__content ">
+            <!-- sidebar menu -->
+            <div class="sidebar__menu d-md-block d-lg-none">
+                <div class="sidebar__action"><i class="fa-sharp fa-regular fa-bars"></i> Sidebar</div>
+            </div>
+            <!-- sidebar menu end -->
+
+            <div class="my__profile__tab radius-16 bg-white">
+                <nav>
+                    <div class="nav nav-tabs">
+                        <a class="nav-link active" href="#info">My Details</a>
+                        <a class="nav-link " href="#social">Social Links</a>
+                        <a class="nav-link" href="#address">Contact Information</a>
+                    </div>
+                </nav>
+                <div class="my__details" id="info">
+                    <div class="info__top">
+                        <div class="author__image">
+                            <img src="assets/img/dashboard/proifle.svg" alt="">
+                        </div>
+                        <div class="select__image">
+                            <label for="file" class="file-upload__label">Upload New Photo</label>
+                            <input type="file" class="file-upload__input" id="file" required>
+                        </div>
+                        <div class="delete__data">
+                            <i class="fa-light fa-trash-can"></i>
+                        </div>
+                    </div>
+                    <div class="info__field">
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" placeholder="Full Name" required>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" placeholder="jobpath@gmqail.com" required>
+                            </div>
+                        </div>
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="phone">Phone</label>
+                                <input type="text" id="phone" placeholder="+880171234567" required>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" id="dob" required>
+                            </div>
+                        </div>
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="gender">Gender</label>
+                                <select name="gender" id="gender" class="form-select">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="age">Age</label>
+                                <select name="age" id="age" class="form-select">
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                    <option value="32">32</option>
+                                    <option value="33">33</option>
+                                    <option value="34">34</option>
+                                    <option value="35">35</option>
+                                    <option value="36">36</option>
+                                    <option value="37">37</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- salary type -->
+                        <div class="row row-cols-sm-3 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="salary">Salary Type</label>
+                                <select name="salary" id="salary" class="form-select">
+                                    <option value="hourly">Hourly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="jobcat">Job Category</label>
+                                <select name="jobcat" id="jobcat" class="form-select">
+                                    <option value="1">Select Job Category</option>
+                                    <option value="2">it consultancy</option>
+                                    <option value="3">Job Category 2</option>
+                                    <option value="4">Job Category 3</option>
+                                    <option value="5">Job Category 4</option>
+                                    <option value="6">Job Category 5</option>
+                                    <option value="7">Job Category 6</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="jobtitle">Job Title</label>
+                                <input type="text" id="jobtitle" placeholder="Enter Job Title" required>
+                            </div>
+                        </div>
+                        <!-- salary type end -->
+                        <!-- qualification -->
+                        <div class="row row-cols-sm-3 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="qualification">qualification</label>
+                                <select name="qualification" id="qualification" class="form-select">
+                                    <option value="1">Select Qualification</option>
+                                    <option value="2">SSC</option>
+                                    <option value="3">HSC</option>
+                                    <option value="4">Diploma</option>
+                                    <option value="5">Graduation</option>
+                                    <option value="6">Post Graduation</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="lang">Language</label>
+                                <select name="lang" id="lang" class="form-select">
+                                    <option value="1">Select Language</option>
+                                    <option value="2">English</option>
+                                    <option value="3">Hindi</option>
+                                    <option value="4">French</option>
+                                    <option value="5">Spanish</option>
+                                    <option value="6">Chinese</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="tags">Tags</label>
+                                <input type="text" id="tags" placeholder="Enter Tags" required>
+                            </div>
+                        </div>
+                        <!-- qualification end -->
+                        <!-- experience -->
+                        <div class="row row-cols-sm-2 row-cols-1 g-3">
+                            <div class="rt-input-group">
+                                <label for="experience">experience</label>
+                                <select name="experience" id="experience" class="form-select">
+                                    <option value="1">Experience</option>
+                                    <option value="2">1 Year</option>
+                                    <option value="3">2 Year</option>
+                                    <option value="4">3 Year</option>
+                                    <option value="5">4 Year</option>
+                                </select>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="show">Show my profile</label>
+                                <select name="show" id="show" class="form-select">
+                                    <option value="1">Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <!-- experience end -->
+                        <!-- editor area -->
+                        <div class="rt-input-group">
+                            <label for="editor">Candidate Description</label>
+                            <textarea name="editor" id="editor" class="form-control" placeholder="Enter Description" cols="10" rows="5"></textarea>
+                        </div>
+                        <!-- editor area end -->
+                    </div>
+                </div>
+            </div>
+            <h6 class="fw-medium mt-4 mb-4">Social Links</h6>
+            <div class="social__links p-30 radius-16 bg-white" id="social">
+                <div class="info__field">
+                    <div class="row row-cols-sm-2 row-cols-1 g-3">
+                        <div class="rt-input-group">
+                            <label for="Facebook">Facebook</label>
+                            <input type="url" id="Facebook" placeholder="WWW.facebook.com/jobpath" required>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="Linkedin">Linkedin</label>
+                            <input type="url" id="Linkedin" placeholder="WWW.Linkedin.com/jobpath" required>
+                        </div>
+                    </div>
+                    <div class="row row-cols-sm-2 row-cols-1 g-3">
+                        <div class="rt-input-group">
+                            <label for="Behance">Behance</label>
+                            <input type="url" id="Behance" placeholder="WWW.behance.com/jobpath" required>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="Dribbble">Dribbble</label>
+                            <input type="url" id="Dribbble" placeholder="WWW.dribbble.com/jobpath" required>
+                        </div>
+                        <div class="d-block mt-30">
+                            <a href="#" class="added__social__link">Add Another Network</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- address area -->
+            <h6 class="fw-medium mt-4 mb-4">Address / Location</h6>
+            <div class="social__links radius-16 p-30 bg-white" id="address">
+                <div class="row row-cols-md-2 row-cols-lg-2 row-cols-1 g-30">
+                    <div class="info__field">
+                        <div class="rt-input-group">
+                            <label for="Country">Country</label>
+                            <select name="Country" id="Country" class="form-select">
+                                <option value="1">Select Country</option>
+                                <option value="2">Bangladesh</option>
+                                <option value="3">India</option>
+                                <option value="4">Pakistan</option>
+                                <option value="5">Nepal</option>
+                                <option value="6">Srilanka</option>
+                                <option value="7">China</option>
+                                <option value="8">USA</option>
+                            </select>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="State">State</label>
+                            <select name="State" id="State" class="form-select">
+                                <option value="1">Select State</option>
+                                <option value="2">Dhaka</option>
+                                <option value="3">Chittagong</option>
+                                <option value="4">Sylhet</option>
+                                <option value="5">Rajshahi</option>
+                                <option value="6">Khulna</option>
+                                <option value="7">Barishal</option>
+                                <option value="8">Mymensingh</option>
+                            </select>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="pr">Present Address</label>
+                            <input type="text" id="pr" placeholder="2715 Ash Dr. San Jose,USA" required>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="ps">Postal Code</label>
+                            <input type="text" id="ps" placeholder="8340" required>
+                        </div>
+                        <div class="rt-input-group">
+                            <label for="lt">latitude</label>
+                            <input type="text" id="lt" placeholder="0.000000" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info__field">
+                            <h6 class="font-20 fw-medium mb-2 mt-4 mt-md-0">My location</h6>
+                            <div class="gmap">
+                                <div class="user__location">
+                                    <iframe src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=reacthemes+(reacthemes)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+                                </div>
+                            </div>
+                            <div class="rt-input-group">
+                                <label for="longitude">longitude</label>
+                                <input type="text" id="longitude" placeholder="0.00.000.0000" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info__field">
+                    <button type="submit" class="rts__btn fill__btn mx-0">Save Profile</button>
+                </div>
+            </div>
+            <!-- address area end -->
+        </div>
+        <div class="d-flex justify-content-center mt-30">
+            <p class="copyright">Copyright © 2024 All Rights Reserved by jobpath</p>
+        </div>
+    </div>
+</div>
+<!-- content area end -->
