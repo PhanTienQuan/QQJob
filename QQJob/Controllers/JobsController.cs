@@ -22,7 +22,7 @@ namespace QQJob.Controllers
                     Close = job.CloseDate,
                     AppliedCount = job.Applications != null ? job.Applications.Count() : 0, // Avoid .ToList() here for better performance
                     Status = job.Status,
-                    Skills = job.Skills
+                    Skills = job.Skills.Take(3).ToList()
                 })
                 .ToList();
 

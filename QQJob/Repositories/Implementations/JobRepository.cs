@@ -39,5 +39,18 @@ namespace QQJob.Repositories.Implementations
         {
             return await _context.Set<Job>().Include(j => j.Skills).Include(j => j.Applications).FirstOrDefaultAsync(j => j.JobId == id);
         }
+
+        public async Task<IEnumerable<Job>> FindJobs(string query)
+        {
+            var skills = query.Replace("find jobs", "").Trim().Split(',');
+
+            // Query the database for jobs with matching skills
+            var jobs = await _context.Jobs
+                .Include(j => j.Skills) // Ensure skills are included in the query
+                .Where(j => j.Skills.Any(s => skills.Any(skill => s.SkillName.Contains(skill.Trim()))))
+                .ToListAsync();
+
+            return jobs;
+        }
     }
 }

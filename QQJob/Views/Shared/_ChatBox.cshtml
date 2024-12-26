@@ -1,0 +1,132 @@
+﻿<style>
+    /* Chat Button Styling */
+    .chat-button {
+        position: fixed;
+        bottom: 20px;
+        right: 80px;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 50px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1050; /* Ensure it's above other elements */
+    }
+
+    /* Chatbox Styling */
+    .chatbox {
+        display: flex;
+        flex-direction: column;
+        height: 300px;
+        background-color: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .chat-history {
+        overflow-y: auto;
+        flex-grow: 1;
+        padding: 10px;
+        height: 200px;
+        background-color: #fff;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .chat-input {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+    }
+
+        .chat-input input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            padding: 6px 12px;
+        }
+
+    /* Scrollbar for chat history */
+    .chat-history::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-history::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+    /* Modal z-index */
+    #chatModal {
+        z-index: 1051; /* Ensure it's above the chat button */
+    }
+</style>
+
+<!-- Chat Button -->
+<button type="button" class="btn btn-primary chat-button" data-bs-toggle="modal" data-bs-target="#chatModal">
+    <i class="fas fa-comments"></i> Chat with Us
+</button>
+
+<!-- Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Chat Support</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Chatbox -->
+                <div id="chatbox" class="chatbox">
+                    <div class="chat-history" id="chatHistory">
+                        <!-- Chat history will go here -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="userMessage" class="form-control" placeholder="Type your message...">
+                        <button class="btn btn-primary" id="sendMessage">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sendMessageButton = document.getElementById("sendMessage");
+        const userMessageInput = document.getElementById("userMessage");
+        const chatHistory = document.getElementById("chatHistory");
+
+        sendMessageButton.addEventListener("click", function () {
+            const userMessage = userMessageInput.value.trim();
+
+            if (userMessage !== "") {
+                // Add the user message to the chat history
+                const userMessageElement = document.createElement("div");
+                userMessageElement.classList.add("user-message");
+                userMessageElement.innerText = userMessage;
+                chatHistory.appendChild(userMessageElement);
+
+                // Clear the input field
+                userMessageInput.value = "";
+
+                // Simulate bot response (replace with your bot's API or logic)
+                setTimeout(function () {
+                    const botMessageElement = document.createElement("div");
+                    botMessageElement.classList.add("bot-message");
+                    botMessageElement.innerText = "Thank you for your message, we will get back to you soon.";
+                    chatHistory.appendChild(botMessageElement);
+
+                    // Scroll to the bottom
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }, 1000);
+            }
+        });
+
+        // Auto-scroll chat history to the bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    });
+</script>
