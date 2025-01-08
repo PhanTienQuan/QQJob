@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Email Confirmation";
+    var error = ViewBag.ErrorMessage as string;
+    var success = ViewBag.Message as string;
+}
+<section class="rts__section section__padding">
+    <div class="container">
+        @if (!string.IsNullOrEmpty(success))
+        {
+            <div class="alert alert-success" role="alert">
+                <strong>Success!</strong> @success
+            </div>
+            <p>
+                You can now
+                <strong>
+                    <a href="#" onclick="showLoginModal()" class="font-weight-bold">Login</a>
+                </strong>
+                and start using all the features of <strong>QQJob</strong>.
+                We’re excited to have you onboard!
+            </p>
+        }
+        else if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" role="alert">
+                <strong>Oops!</strong> @error
+            </div>
+            <p>
+                If the link has expired or you never received one, you can
+                <a href="@Url.Action("ResendConfirmationEmail", "Account")" class="font-weight-bold">
+                    request a new confirmation email
+                </a>
+                at any time.
+            </p>
+        }
+    </div>
+</section>

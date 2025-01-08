@@ -19,10 +19,19 @@ namespace QQJob.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var username = User.Identity.Name;
-            var user = await _employerRepository.GetEmployerByName(username);
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _employerRepository.GetByIdAsync(id);
+            if(user.Jobs == null)
+            {
+                ViewBag.JobCount = 0;
+                ViewBag.ApplicantCount = 0;
+                ViewBag.JobView = 0;
+                ViewBag.Follows = 0;
+                return View();
+            }
+
             ViewBag.JobCount = user.Jobs.Count();
-            ViewBag.ApplicantCount = user.Jobs.Sum(j => j.Applications.ToList().Count);
+            ViewBag.ApplicantCount = user.Jobs.Sum(j => j.Applications.Count());
             ViewBag.JobView = user.Jobs.Sum(j => j.ViewCount);
             ViewBag.Follows = user.Follows.Count();
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
+using QQJob.Helper;
 using QQJob.Models;
 
 using QQJob.Repositories.Implementations;
@@ -26,22 +27,23 @@ namespace QQJob
 
 
             // Register repositories 
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IJobRepository, JobRepository>();
-            builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
-            builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
-            builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
-            builder.Services.AddScoped<ISkillRepository, SkillRepository>();
-            builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
-            builder.Services.AddTransient<ISenderEmail, EmailSender>();
-            builder.Services.AddTransient<ICloudinaryService, CloudinaryService>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+            builder.Services.AddScoped<IJobRepository,JobRepository>();
+            builder.Services.AddScoped<IAppUserRepository,AppUserRepository>();
+            builder.Services.AddScoped<ICandidateRepository,CandidateRepository>();
+            builder.Services.AddScoped<IEmployerRepository,EmployerRepository>();
+            builder.Services.AddScoped<ISkillRepository,SkillRepository>();
+            builder.Services.AddScoped<IApplicationRepository,ApplicationRepository>();
+            builder.Services.AddTransient<ISenderEmail,EmailSender>();
+            builder.Services.AddTransient<ICloudinaryService,CloudinaryService>();
 
 
-            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
+            builder.Services.AddIdentity<AppUser,IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
 
 
             var app = builder.Build();
 
+            TagHelper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
             if(!app.Environment.IsDevelopment())
             {

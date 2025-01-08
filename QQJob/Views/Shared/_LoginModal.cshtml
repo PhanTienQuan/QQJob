@@ -4,15 +4,14 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="max-content similar__form form__padding">
-
                 <div class="d-flex mb-3 align-items-center justify-content-between">
                     <h6 class="mb-0">Sign in</h6>
                     <button type="button" data-bs-dismiss="modal" aria-label="Close" >
                         <i class="fa-regular fa-xmark text-primary"></i>
                     </button>
                 </div>
-                <div class="d-block has__line text-center mb-30">
-                    <p>Choose your Account Type</p>
+                <div class="d-block has__line text-center mb-20">
+                    <p>Sign in to your account</p>
                 </div>
 
                 <!-- Form for login -->
@@ -46,7 +45,10 @@
                         </a>
                     </div>
                     <div class="form-group my-3">
-                        <button type="button" onclick="login()" class="rts__btn w-100 fill__btn">Login</button>
+                        <button class="rts__btn w-100 fill__btn" type="button" onclick="login(this)">
+                            <span id="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                            Sign In
+                        </button>
                     </div>
                 </form>
 

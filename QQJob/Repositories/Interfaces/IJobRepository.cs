@@ -8,5 +8,6 @@ namespace QQJob.Repositories.Interfaces
         Task<IEnumerable<Job>> SearchJobsAsync(string keyword);
         Task<IEnumerable<Job>> GetJobsAsync(int page = 1, int pageSize = 10);
         Task<Job> GetByIdAsync(int id);
+        Task<IEnumerable<Job>> FindJobs(string query);
     }
 }

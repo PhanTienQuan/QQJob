@@ -14,11 +14,11 @@
                     <p>Choose your Account Type</p>
                 </div>
 
-                <div class="tab__switch flex-wrap flex-sm-nowrap nav-tab mt-30 mb-30">
-                    <button class="rts__btn nav-link active" data-account-type="True">
+                <div class="tab__switch flex-wrap flex-sm-nowrap nav-tab mt-30">
+                    <button class="rts__btn nav-link active" type="button" onclick="setAccountType(this,true)">
                         <i class="fa-light fa-user"></i> Candidate
                     </button>
-                    <button class="rts__btn nav-link" data-account-type="false">
+                    <button class="rts__btn nav-link" type="button" onclick="setAccountType(this,false)">
                         <i class="rt-briefcase"></i> Employer
                     </button>
                 </div>
@@ -27,6 +27,14 @@
                 <form class="d-flex flex-column gap-3" id="registerForm">
                     <divx asp-validation-summary="All" class="text-success"></divx>
                     <input type="hidden" asp-for="AccountType" class="form-control" />
+                    <div class="form-group">
+                        <label asp-for="Fullname" class="fw-medium text-dark mb-3"></label>
+                        <div class="position-relative">
+                            <input asp-for="Fullname" class="form-control" />
+                            <i class="fa-sharp fa-light fa-envelope icon"></i>
+                        </div>
+                        <span asp-validation-for="Fullname" class="text-danger"></span>
+                    </div>
 
                     <div class="form-group">
                         <label asp-for="Email" class="fw-medium text-dark mb-3"></label>
@@ -56,7 +64,10 @@
                     </div>
 
                     <div class="form-group my-3">
-                        <button type="button" onclick="register()" class="rts__btn w-100 fill__btn">Sign Up</button>
+                        <button class="rts__btn w-100 fill__btn" type="button" onclick="register(this)">
+                            <span id="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                            Sign Up
+                        </button>
                     </div>
                 </form>
 
@@ -86,17 +97,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $('.rts__btn').on('click', function () {
-        // Get the account type from the data attribute
-        var accountType = $(this).data('account-type');
-
-        // Update the hidden input value
-        $('input[name="AccountType"]').val(accountType);
-
-        // Optionally, toggle the active class for styling
-        $('.nav-link').removeClass('active');
-        $(this).addClass('active');
-    });
-</script>

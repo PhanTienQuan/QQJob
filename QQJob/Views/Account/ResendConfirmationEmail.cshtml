@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = ViewBag.Message ?? "Resend Confirmation Email";
+}
+
+<section class="rts__section section__padding">
+    <div class="container">
+        <div class="col-md-6 offset-md-3">
+            <!-- Display the Page Message -->
+            <h2 class="text-center mb-4">@ViewBag.Message</h2>
+
+            <!-- Card for the Resend Confirmation Form -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <p class="lead">
+                        If you haven't received your confirmation email, please enter
+                        your email address below. We'll send you another link to verify
+                        your account.
+                    </p>
+                    <p class="text-success">@(ViewBag.SuccessMessage ?? "")</p>
+                    <form asp-action="ResendConfirmationEmail" asp-controller="Account" method="post">
+                        <div class="form-group mb-3">
+                            <label for="emailInput" class="form-label">Email Address</label>
+                            <input type="email"
+                                   id="emailInput"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="yourname@example.com"
+                                   required />
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">@ViewBag.Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
