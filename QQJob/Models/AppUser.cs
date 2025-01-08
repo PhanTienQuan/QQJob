@@ -3,7 +3,7 @@ using QQJob.Models.Enum;
 
 namespace QQJob.Models
 {
-    public class AppUser : IdentityUser
+    public class AppUser:IdentityUser
     {
         public string? FullName { get; set; }
         public string? Avatar { get; set; }

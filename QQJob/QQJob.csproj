@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>bee52842-d79b-489f-af1b-fdd33ebdb716</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,15 +37,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\phamq\Desktop\QQJob\QQJob\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\phamq\Desktop\QQJob\QQJob\.editorconfig" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
 {
-    public class AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ISenderEmail senderEmail, RoleManager<IdentityRole> roleManager) : Controller
+    public class AccountController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager,ISenderEmail senderEmail,RoleManager<IdentityRole> roleManager):Controller
     {
         private readonly UserManager<AppUser> _userManager = userManager;
         private readonly SignInManager<AppUser> _signInManager = signInManager;
@@ -23,30 +23,26 @@ namespace QQJob.Controllers
         [AllowAnonymous]
         public IActionResult Register()
         {
-            return PartialView("_RegisterModal", new RegisterViewModel());
+            return PartialView("_RegisterModal",new RegisterViewModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if(model.AccountType == null)
-            {
-                ModelState.AddModelError("ALL", "Please select an account type");
-            }
-
             if(!ModelState.IsValid)
             {
-                return Json(new { success = false, errors = GetModelStateErrors() });
+                return Json(new { success = false,errors = GetModelStateErrors() });
             }
 
             if(await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Json(new { success = false, errors = new Dictionary<string, string[]> { { "Email", new[] { "This email is already in use." } } } });
+                return Json(new { success = false,errors = new Dictionary<string,string[]> { { "Email",new[] { "This email is already in use." } } } });
             }
 
             var user = new AppUser
             {
+                FullName = model.Fullname,
                 UserName = model.Email,
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow,
@@ -60,7 +56,7 @@ namespace QQJob.Controllers
                 await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
             }
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user,model.Password);
             if(!result.Succeeded)
             {
                 return Json(new
@@ -70,73 +66,119 @@ namespace QQJob.Controllers
                 });
             }
 
-            if(!await _userManager.IsInRoleAsync(user, roleName))
+            if(!await _userManager.IsInRoleAsync(user,roleName))
             {
-                await _userManager.AddToRoleAsync(user, roleName);
+                await _userManager.AddToRoleAsync(user,roleName);
             }
-
-            await SendConfirmationEmail(model.Email, user);
-            return Json(new { success = true, message = "A confirmation email was sent to your email!" });
+            var resendLink = Url.Action("ResendConfirmationEmail","Account");
+            var resendMessage = $@"A verification email was send to your email. Didn't receive an email? <a href=""{resendLink}"">Click here</a>";
+            await SendConfirmationEmail(model.Email,user);
+            return Json(new { success = true,message = resendMessage,email = model.Email,password = model.Password });
         }
 
 
         [NonAction]
-        private async Task SendConfirmationEmail(string? email, AppUser? user)
+        private async Task SendConfirmationEmail(string? email,AppUser? user)
         {
-            //Generate the Token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Action("ConfirmEmail","Account",new { UserId = user.Id,Token = token },protocol: HttpContext.Request.Scheme);
 
-            //Build the Email Confirmation Link which must include the Callback URL
-            var ConfirmationLink = Url.Action("ConfirmEmail", "Account", new { UserId = user.Id, Token = token }, protocol: HttpContext.Request.Scheme);
+            var safeLink = HtmlEncoder.Default.Encode(confirmationLink);
 
+            var subject = "Welcome to QQJob jobfinding platform! Please Confirm Your Email";
+
+            var messageBody = $@"
+                <div style=""font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#333;"">
+                    <p>Hi {user.FullName},</p>
+                    <p>Thank you for creating an account at <strong>QQJob</strong>.
+                    To start enjoying all of our features, please confirm your email address by clicking the button below:</p>
+                    <p>
+                        <a href=""{safeLink}"" 
+                            style=""background-color:#007bff;color:#fff;padding:10px 20px;text-decoration:none;
+                                    font-weight:bold;border-radius:5px;display:inline-block;"">
+                            Confirm Email
+                        </a>
+                    </p>
+                    <p>If the button doesn’t work for you, copy and paste the following URL into your browser:
+                        <br />
+                        <a href=""{safeLink}"" style=""color:#007bff;text-decoration:none;"">{safeLink}</a>
+                    </p>
+                    <p>If you did not sign up for this account, please ignore this email.</p>
+                    <p>Thanks,<br />
+                    The QQJob Team</p>
+                </div>
+            ";
             //Send the Confirmation Email to the User Email Id
-            await _emailSender.SendEmailAsync(email, "Confirm Your Email", $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(ConfirmationLink)}'>clicking here</a>.", true);
+            await _emailSender.SendEmailAsync(email,subject,messageBody,true);
+            //Build the Email Confirmation Link which must include the Callback URL
+            var ConfirmationLink = Url.Action("ConfirmEmail","Account",new { UserId = user.Id,Token = token },protocol: HttpContext.Request.Scheme);
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string UserId, string Token)
+        public async Task<IActionResult> ConfirmEmail(string UserId,string Token)
         {
-            Console.WriteLine("Hello this is confirm email");
-            if(UserId == null || Token == null)
+            if(string.IsNullOrEmpty(UserId) || string.IsNullOrEmpty(Token))
             {
-                ViewBag.Message = "The link is Invalid or Expired";
+                ViewBag.ErrorMessage = "The link is invalid or has expired. Please request a new one if needed.";
+                return View();
             }
 
-            //Find the User By Id
-            var user = await _userManager.FindByIdAsync(UserId);
+            var user = await userManager.FindByIdAsync(UserId);
             if(user == null)
             {
-                ViewBag.ErrorMessage = $"The User ID {UserId} is Invalid";
-                return View("NotFound");
+                ViewBag.ErrorMessage = "We could not find a user associated with the given link.";
+                return View();
             }
 
-            if(await _userManager.IsInRoleAsync(user, "Candidate"))
+            var result = await userManager.ConfirmEmailAsync(user,Token);
+            if(result.Succeeded)
             {
-                ViewBag.Message = "Hello candidate";
-                await _userManager.ConfirmEmailAsync(user, Token);
-                return View("~/Views/Account/CandidateConfirmEmail.cshtml");
+                ViewBag.Message = "Thank you for confirming your email address. Your account is now verified!";
+                return View();
             }
-            else if(await _userManager.IsInRoleAsync(user, "Employer"))
+
+            ViewBag.ErrorMessage = "We were unable to confirm your email address. Please try again or request a new link.";
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResendConfirmationEmail(bool IsResend = true)
+        {
+            if(IsResend)
             {
-                ViewBag.Message = "Heloo employer";
-                await _userManager.ConfirmEmailAsync(user, Token);
-                return View("~/Views/Account/EmployerConfirmEmail.cshtml");
+                ViewBag.Message = "Resend Confirmation Email";
             }
             else
             {
-                ViewBag.Message = "oppps";
-                return View("EmployerConfirmEmail");
+                ViewBag.Message = "Send Confirmation Email";
             }
+            return View();
         }
 
-        //Login
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmationEmail(string Email)
+        {
+            ViewBag.SuccessMessage = "A confirmation email is sended to your email!";
+            ViewBag.Message = "Send Confirmation Email";
+            var user = await userManager.FindByEmailAsync(Email);
+            if(user == null || await userManager.IsEmailConfirmedAsync(user))
+            {
+                return View();
+            }
+
+            await SendConfirmationEmail(Email,user);
+            return View();
+        }
 
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
         {
-            return PartialView("_LoginModal", new LoginViewModel());
+            return PartialView("_LoginModal",new LoginViewModel());
         }
 
         [HttpPost]
@@ -150,7 +192,7 @@ namespace QQJob.Controllers
                 if(user == null)
                 {
                     // User not found
-                    ModelState.AddModelError("All", "User does not exist.");
+                    ModelState.AddModelError("All","User does not exist.");
                     return Json(new
                     {
                         success = false,
@@ -161,7 +203,7 @@ namespace QQJob.Controllers
                 if(!await _userManager.IsEmailConfirmedAsync(user))
                 {
                     // Email not confirmed
-                    ModelState.AddModelError("All", "Email is not confirmed.");
+                    ModelState.AddModelError("All","Email is not confirmed.");
                     return Json(new
                     {
                         success = false,
@@ -169,11 +211,11 @@ namespace QQJob.Controllers
                     });
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(user.UserName,model.Password,model.RememberMe,lockoutOnFailure: false);
 
                 if(result.Succeeded)
                 {
-                    return Json(new { success = true, url = Url.Action("index", "home") });
+                    return Json(new { success = true,url = Url.Action("index","home") });
                 }
                 if(result.RequiresTwoFactor)
                 {
@@ -185,14 +227,13 @@ namespace QQJob.Controllers
                 }
                 else if(result.IsNotAllowed)
                 {
-                    ModelState.AddModelError("Password", "Sign-in is not allowed.");
+                    ModelState.AddModelError("Password","Sign-in is not allowed.");
                 }
                 else
                 {
                     // Handle failure
-                    ModelState.AddModelError("Password", "Wrong password");
+                    ModelState.AddModelError("All","Wrong password");
                 }
-                Console.WriteLine($"Login result: {result}");
             }
 
             return Json(new
@@ -204,13 +245,11 @@ namespace QQJob.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("index", "home");
+            return RedirectToAction("index","home");
         }
 
-
-
         [NonAction]
-        private Dictionary<string, string[]> GetModelStateErrors()
+        private Dictionary<string,string[]> GetModelStateErrors()
         {
             return ModelState
                 .Where(x => x.Value.Errors.Count > 0) // Only select fields with errors
@@ -219,7 +258,6 @@ namespace QQJob.Controllers
                     kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray() // Error messages for the field
                 );
         }
-
 
         [NonAction]
         private string GenerateSlug(string input)
@@ -242,11 +280,11 @@ namespace QQJob.Controllers
 
             // Convert to lowercase and remove invalid characters
             cleaned = cleaned.ToLowerInvariant();
-            cleaned = Regex.Replace(cleaned, @"[^a-z0-9\s-]", ""); // Remove invalid characters
-            cleaned = Regex.Replace(cleaned, @"\s+", " ").Trim();  // Replace multiple spaces with a single space
+            cleaned = Regex.Replace(cleaned,@"[^a-z0-9\s-]",""); // Remove invalid characters
+            cleaned = Regex.Replace(cleaned,@"\s+"," ").Trim();  // Replace multiple spaces with a single space
 
             // Replace spaces with hyphens
-            return Regex.Replace(cleaned, @"\s", "-");
+            return Regex.Replace(cleaned,@"\s","-");
         }
     }
 }
