@@ -63,11 +63,11 @@
                                 </div>
                             </div>
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
-                                <div class="rt-input-group">
-                                    <label asp-for="CompanyField">Company Field</label>
-                                    <input asp-for="CompanyField" class="mb-3" placeholder="Marketing" required />
-                                    <span asp-validation-for="CompanyField" class="text-danger"></span>
-                                </div>
+                                @* <div class="rt-input-group"> *@
+                                @*     <label asp-for="CompanyField">Company Field</label> *@
+                                @*     <input asp-for="CompanyField" class="mb-3" placeholder="Marketing" required /> *@
+                                @*     <span asp-validation-for="CompanyField" class="text-danger"></span> *@
+                                @* </div> *@
                                 <div class="rt-input-group">
                                     <label for="pv">Public For Profile View</label>
                                     <select name="PublicProfile" id="pv" class="form-select">
@@ -92,4 +92,4 @@
         </div>
     </div>
 </div>
-<!-- content area end -->
+<script src="~/assets/js/employer.js"></script>

@@ -79,9 +79,9 @@
             <div class="applied__jobs">
                 <h6 class="fw-medium mb-30">Recent Applicants</h6>
                 <div class="short__list__candidate">
-                    @if (ViewBag.Application != null && (ViewBag.Application as List<Application>).Any())
+                    @if (ViewBag.Application is List<Application> applications && applications.Any())
                     {
-                        foreach (var application in ViewBag.Application as List<Application>)
+                        foreach (var application in applications)
                         {
                             <div class="single__shortlist__item">
                                 <div class="author__info">

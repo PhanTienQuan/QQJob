@@ -12,12 +12,12 @@ namespace QQJob.ViewModels
 
         [Required(ErrorMessage = "Full name is required")]
         [Display(Name = "Full name",Prompt = "Enter your full name")]
-        public string Fullname { get; set; }
+        public string? Fullname { get; set; }
 
         [EmailAddress]
         [Required(ErrorMessage = "Email is required")]
         [Display(Name = "Your email",Prompt = "Enter your Email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Password",Prompt = "Enter password")]

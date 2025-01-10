@@ -1,6 +1,6 @@
-﻿namespace QQJob.ViewModels
+﻿namespace QQJob.Models.Enum
 {
-    public class JobDes
+    public class JobDescription
     {
         public string Descriptions { get; set; }
         public string Responsibilities { get; set; }

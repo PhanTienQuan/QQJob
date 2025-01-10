@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 
@@ -17,7 +18,7 @@ namespace QQJob.Controllers
                     Id = job.JobId,
                     Title = job.Title,
                     Address = job.Address,
-                    JobDes = JsonConvert.DeserializeObject<JobDes>(job.JobDescription),
+                    JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
                     Open = job.PostDate,
                     Close = job.CloseDate,
                     AppliedCount = job.Applications != null ? job.Applications.Count() : 0, // Avoid .ToList() here for better performance
@@ -39,7 +40,7 @@ namespace QQJob.Controllers
                 Id = job.JobId,
                 Title = job.Title,
                 Address = job.Address,
-                JobDes = JsonConvert.DeserializeObject<JobDes>(job.JobDescription),
+                JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
                 Open = job.PostDate,
                 Close = job.CloseDate,
                 AppliedCount = job.Applications != null ? job.Applications.Count() : 0,

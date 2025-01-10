@@ -51,25 +51,31 @@
                         </button>
                     </div>
                 </form>
-
-                <div class="d-block has__line text-center">
-                    <p>Or</p>
-                </div>
-
-                <!-- Social Login -->
-                <div class="d-flex gap-4 flex-wrap justify-content-center mt-20 mb-20">
-                    <div class="is__social google">
-                        <button>
-                            <img src="assets/img/icon/google-small.svg" alt="" /> Continue with Google
-                        </button>
+                 @if (Model.ExternalLogins != null || Model.ExternalLogins?.Count != 0){
+                    var google = Model.ExternalLogins?.Where(p => p.DisplayName == "Google").FirstOrDefault();
+                    var facebook = Model.ExternalLogins?.Where(p => p.DisplayName == "Facebook").FirstOrDefault();
+                    <div class="d-block has__line text-center">
+                        <p>Or</p>
                     </div>
-                    <div class="is__social facebook">
-                        <button>
-                            <img src="assets/img/icon/facebook-small.svg" alt="" /> Continue with Facebook
-                        </button>
+                        
+                    <!-- Social Login -->
+                    <div class="d-flex gap-4 flex-wrap justify-content-center mt-20 mb-20">
+                        @if(google!=null){
+                            <div class="is__social google">
+                                <button onclick="handleExternalLoginClick(this)" data-provider="@google?.Name" data-url="@Url.Action("ExternalLogin", "Account", new { provider = google?.Name, returnUrl = Model.ReturnUrl })">
+                                    <img src="assets/img/icon/google-small.svg" alt="" /> Continue with @google?.DisplayName
+                                </button>
+                            </div>
+                        }
+                        @if (facebook!=null){
+                            <div class="is__social facebook">
+                                <button onclick="handleExternalLoginClick(this)" data-provider="@facebook?.Name" data-url="@Url.Action("ExternalLogin", "Account", new { provider = facebook?.Name, returnUrl = Model.ReturnUrl })">
+                                    <img src="assets/img/icon/facebook-small.svg" alt="" /> Continue with @facebook?.DisplayName
+                                </button>
+                            </div>
+                        }
                     </div>
-                </div>
-
+                }
                 <span class="d-block text-center fw-medium">
                     Don’t have an account?
                     <a href="#" onclick="showRegisterModal()" data-bs-dismiss="modal" class="text-primary">Sign Up</a>

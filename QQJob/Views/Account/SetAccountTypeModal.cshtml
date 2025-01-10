@@ -1,0 +1,47 @@
+﻿@model AccountTypeViewModel
+@using Microsoft.AspNetCore.Identity
+<!-- set account Modal -->
+<div class="modal similar__modal fade" id="setAccountModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="max-content similar__form form__padding">
+                <div class="d-flex mb-3 align-items-center justify-content-between">
+                    <h6 class="mb-0">Set Up Your Account</h6>
+                    <button type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-regular fa-xmark text-primary"></i>
+                    </button>
+                </div>
+                <div class="d-block has__line text-center">
+                    <p>Choose your Account Type</p>
+                </div>
+
+                <div class="tab__switch flex-wrap flex-sm-nowrap nav-tab mt-30">
+                    <button class="rts__btn nav-link active" type="button" onclick="setAccountType(this,true)">
+                        <i class="fa-light fa-user"></i> Candidate
+                    </button>
+                    <button class="rts__btn nav-link" type="button" onclick="setAccountType(this,false)">
+                        <i class="rt-briefcase"></i> Employer
+                    </button>
+                </div>
+
+                <!-- Signup Form -->
+                <form class="d-flex flex-column gap-3" id="setupAccount" asp-action="SetAccountType" asp-controller="Account" method="post">
+                    <divx asp-validation-summary="All" class="text-success"></divx>
+                    <input type="hidden" asp-for="AccountType" class="form-control" />
+                    <input type="hidden" asp-for="Email" class="form-control" value="@User.Identity.Name" />
+                    <div class="form-group my-3">
+                        <button class="rts__btn w-100 fill__btn" type="submit">
+                            <span id="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                            Sign Up
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#setAccountModal').on('hidden.bs.modal', function () {
+        location.reload();
+    });
+</script>

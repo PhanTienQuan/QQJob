@@ -36,9 +36,9 @@
                 </div>
 
                 <div class="applied__job__list">
-                    @if (ViewBag.PostedJobs != null && (ViewBag.PostedJobs as List<PostedJobViewModel>).Any())
+                    @if (ViewBag.Jobs is List<JobListViewModel> jobs && jobs.Any())
                     {
-                        foreach (var job in ViewBag.PostedJobs as List<PostedJobViewModel>)
+                        foreach (var job in jobs)
                         {
 
                             <div class="single__applied__job">

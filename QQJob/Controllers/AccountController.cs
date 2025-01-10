@@ -6,19 +6,15 @@ using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using System.Data;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
 {
-    public class AccountController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager,ISenderEmail senderEmail,RoleManager<IdentityRole> roleManager):Controller
+    public class AccountController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager,ISenderEmail emailSender,RoleManager<IdentityRole> roleManager,IAppUserRepository appUserRepository):Controller
     {
-        private readonly UserManager<AppUser> _userManager = userManager;
-        private readonly SignInManager<AppUser> _signInManager = signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-        private readonly ISenderEmail _emailSender = senderEmail;
-
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register()
@@ -35,7 +31,7 @@ namespace QQJob.Controllers
                 return Json(new { success = false,errors = GetModelStateErrors() });
             }
 
-            if(await _userManager.FindByEmailAsync(model.Email) != null)
+            if(await userManager.FindByEmailAsync(model.Email) != null)
             {
                 return Json(new { success = false,errors = new Dictionary<string,string[]> { { "Email",new[] { "This email is already in use." } } } });
             }
@@ -51,12 +47,12 @@ namespace QQJob.Controllers
             };
 
             string roleName = model.AccountType == true ? "Candidate" : "Employer";
-            if(!await _roleManager.RoleExistsAsync(roleName))
+            if(!await roleManager.RoleExistsAsync(roleName))
             {
-                await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
+                await roleManager.CreateAsync(new IdentityRole { Name = roleName });
             }
 
-            var result = await _userManager.CreateAsync(user,model.Password);
+            var result = await userManager.CreateAsync(user,model.Password);
             if(!result.Succeeded)
             {
                 return Json(new
@@ -66,9 +62,9 @@ namespace QQJob.Controllers
                 });
             }
 
-            if(!await _userManager.IsInRoleAsync(user,roleName))
+            if(!await userManager.IsInRoleAsync(user,roleName))
             {
-                await _userManager.AddToRoleAsync(user,roleName);
+                await userManager.AddToRoleAsync(user,roleName);
             }
             var resendLink = Url.Action("ResendConfirmationEmail","Account");
             var resendMessage = $@"A verification email was send to your email. Didn't receive an email? <a href=""{resendLink}"">Click here</a>";
@@ -76,11 +72,10 @@ namespace QQJob.Controllers
             return Json(new { success = true,message = resendMessage,email = model.Email,password = model.Password });
         }
 
-
         [NonAction]
         private async Task SendConfirmationEmail(string? email,AppUser? user)
         {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmationLink = Url.Action("ConfirmEmail","Account",new { UserId = user.Id,Token = token },protocol: HttpContext.Request.Scheme);
 
             var safeLink = HtmlEncoder.Default.Encode(confirmationLink);
@@ -109,7 +104,7 @@ namespace QQJob.Controllers
                 </div>
             ";
             //Send the Confirmation Email to the User Email Id
-            await _emailSender.SendEmailAsync(email,subject,messageBody,true);
+            await emailSender.SendEmailAsync(email,subject,messageBody,true);
             //Build the Email Confirmation Link which must include the Callback URL
             var ConfirmationLink = Url.Action("ConfirmEmail","Account",new { UserId = user.Id,Token = token },protocol: HttpContext.Request.Scheme);
         }
@@ -176,9 +171,14 @@ namespace QQJob.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
+        public async Task<IActionResult> Login(string? ReturnUrl = null)
         {
-            return PartialView("_LoginModal",new LoginViewModel());
+            LoginViewModel model = new LoginViewModel
+            {
+                ReturnUrl = ReturnUrl,
+                ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+            return PartialView("_LoginModal",model);
         }
 
         [HttpPost]
@@ -187,11 +187,10 @@ namespace QQJob.Controllers
         {
             if(ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await userManager.FindByEmailAsync(model.Email);
 
                 if(user == null)
                 {
-                    // User not found
                     ModelState.AddModelError("All","User does not exist.");
                     return Json(new
                     {
@@ -200,9 +199,8 @@ namespace QQJob.Controllers
                     });
                 }
 
-                if(!await _userManager.IsEmailConfirmedAsync(user))
+                if(!await userManager.IsEmailConfirmedAsync(user))
                 {
-                    // Email not confirmed
                     ModelState.AddModelError("All","Email is not confirmed.");
                     return Json(new
                     {
@@ -211,7 +209,7 @@ namespace QQJob.Controllers
                     });
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(user.UserName,model.Password,model.RememberMe,lockoutOnFailure: false);
+                var result = await signInManager.PasswordSignInAsync(user.UserName,model.Password,model.RememberMe,lockoutOnFailure: false);
 
                 if(result.Succeeded)
                 {
@@ -231,11 +229,11 @@ namespace QQJob.Controllers
                 }
                 else
                 {
-                    // Handle failure
                     ModelState.AddModelError("All","Wrong password");
                 }
             }
 
+            model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             return Json(new
             {
                 success = false,
@@ -244,8 +242,149 @@ namespace QQJob.Controllers
         }
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
             return RedirectToAction("index","home");
+        }
+
+        [HttpGet]
+        public IActionResult SetAccountType()
+        {
+            var model = new AccountTypeViewModel
+            {
+                AccountType = true,
+            };
+            return PartialView("SetAccountTypeModal",model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetAccountType(AccountTypeViewModel model)
+        {
+            if(!ModelState.IsValid) { return RedirectToAction("SetAccountType"); }
+
+            var user = (await appUserRepository.GetUserAsync(u => u.Email == model.Email)).FirstOrDefault();
+            if(user == null)
+            {
+                return RedirectToAction("SetAccountType");
+            }
+
+            if(model.AccountType == true)
+            {
+                user.Candidate = new Candidate();
+                await userManager.AddToRoleAsync(user,"Candidate");
+            }
+            else
+            {
+                user.Employer = new Employer();
+                await userManager.AddToRoleAsync(user,"Employer");
+            }
+
+            appUserRepository.Update(user);
+            await appUserRepository.SaveChangesAsync();
+
+            // Sign in the user locally after linking their external login.
+            await signInManager.SignInAsync(user,isPersistent: false);
+
+            return RedirectToAction("Index",new { controller = "Home" });
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ExternalLogin(string provider,string? returnUrl)
+        {
+            var redirectUrl = Url.Action(
+                action: "ExternalLoginCallback",
+                controller: "Account",
+                values: new { ReturnUrl = returnUrl ?? Url.Content("~/") }
+            );
+
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider,redirectUrl);
+
+            return new ChallengeResult(provider,properties);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl,string? remoteError)
+        {
+            // Check if an error occurred during the external authentication process.
+            // If so, display an alert to the user and close the popup window.
+            if(remoteError != null)
+            {
+                return Content($"<script>alert('Error from external provider: {remoteError}'); window.close();</script>","text/html");
+            }
+
+            // Retrieve login information about the user from the external login provider (e.g., Google, Facebook).
+            // This includes details like the provider's name and the user's identifier within that provider.
+            var info = await signInManager.GetExternalLoginInfoAsync();
+
+            // If the login information could not be retrieved, display an error message
+            // and close the popup window.
+            if(info == null)
+            {
+                return Content($"<script>alert('Error loading external login information.'); window.close();</script>","text/html");
+            }
+
+            // Attempt to sign in the user using their external login details.
+            // If a corresponding record exists in the AspNetUserLogins table, the user will be logged in.
+            var signInResult = await signInManager.ExternalLoginSignInAsync(
+                info.LoginProvider,    // The name of the external login provider (e.g., Google, Facebook).
+                info.ProviderKey,      // The unique identifier of the user within the external provider.
+                isPersistent: false,   // Indicates whether the login session should persist across browser restarts.
+                bypassTwoFactor: true  // Bypass two-factor authentication if enabled.
+            );
+
+            // If the external login succeeds, redirect the parent window to the returnUrl
+            // and close the popup window.
+            if(signInResult.Succeeded)
+            {
+                return Content($"<script>window.opener.location.href = '{returnUrl}'; window.close();</script>","text/html");
+            }
+
+            // If the user does not have a corresponding record in the AspNetUserLogins table,
+            // attempt to create a new account using the user's email from the external provider.
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email); // Retrieve the user's email from the external login provider.
+
+            if(email != null)
+            {
+                // Check if a local user account with the retrieved email already exists.
+                var user = await userManager.FindByEmailAsync(email);
+
+                // If no local account exists, create a new user in the AspNetUsers table.
+                if(user == null)
+                {
+                    user = new AppUser
+                    {
+                        UserName = email, // Set the username to the user's email.
+                        Email = email,
+                        FullName = info.Principal.FindFirstValue(ClaimTypes.GivenName) + " " + info.Principal.FindFirstValue(ClaimTypes.Surname),
+                        CreatedAt = DateTime.UtcNow,
+                        EmailConfirmed = true
+                    };
+
+                    // Create the new user in the database.
+                    await userManager.CreateAsync(user);
+                }
+
+                // Link the external login to the newly created or existing user account.
+                // This inserts a record into the AspNetUserLogins table.
+                await userManager.AddLoginAsync(user,info);
+
+                // Sign in the user locally after linking their external login.
+                await signInManager.SignInAsync(user,isPersistent: false);
+
+                if(!(await userManager.GetRolesAsync(user)).Any())
+                {
+                    return Content($"<script>window.opener.showSetAccountTypeModel(); window.close();</script>","text/html");
+                }
+                else
+                {
+                    // Redirect the parent window to the returnUrl and close the popup window.
+                    return Content($"<script>window.opener.location.href = '{returnUrl}'; window.close();</script>","text/html");
+                }
+            }
+
+            // If the email claim is not provided by the external login provider,
+            // display an error message and close the popup window.
+            return Content($"<script>alert('Email claim not received. Please contact support.'); window.close();</script>","text/html");
         }
 
         [NonAction]

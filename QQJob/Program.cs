@@ -40,9 +40,18 @@ namespace QQJob
 
             builder.Services.AddIdentity<AppUser,IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
 
-
+            builder.Services.AddAuthentication()
+                            .AddGoogle(options =>
+                            {
+                                options.ClientId = builder.Configuration.GetSection("GoogleAuth")["ClientId"];
+                                options.ClientSecret = builder.Configuration.GetSection("GoogleAuth")["ClientSecret"];
+                            }).AddFacebook(facebookOptions =>
+                            {
+                                facebookOptions.ClientId = builder.Configuration.GetSection("FacebookAuth")["ClientId"];
+                                facebookOptions.ClientSecret = builder.Configuration.GetSection("FacebookAuth")["ClientSecret"];
+                            });
             var app = builder.Build();
-
+            builder.Services.AddHttpContextAccessor();
             TagHelper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
             if(!app.Environment.IsDevelopment())

@@ -1,20 +1,21 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
-using System.Diagnostics;
 
 namespace QQJob.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager):Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public async Task<IActionResult> Index()
         {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
+            if(User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                if((await userManager.FindByNameAsync(User.Identity.Name)) == null)
+                {
+                    return RedirectToAction("Logout",new { controller = "Account" });
+                }
+            }
             return View();
         }
 
@@ -22,6 +23,6 @@ namespace QQJob.Controllers
         {
             return View();
         }
-        
+
     }
 }
