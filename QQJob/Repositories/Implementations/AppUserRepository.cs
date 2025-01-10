@@ -2,10 +2,11 @@
 using QQJob.Data;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Implementations
 {
-    public class AppUserRepository : GenericRepository<AppUser>, IAppUserRepository
+    public class AppUserRepository:GenericRepository<AppUser>, IAppUserRepository
     {
         public AppUserRepository(QQJobContext context) : base(context)
         {
@@ -26,7 +27,7 @@ namespace QQJob.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<AppUser>> GetUsersAsync(int page, int per)
+        public async Task<IEnumerable<AppUser>> GetUsersAsync(int page,int per)
         {
             int skip = (page - 1) * per;
             return await _context.Set<AppUser>()
@@ -34,6 +35,22 @@ namespace QQJob.Repositories.Implementations
                                  .Skip(skip)
                                  .Take(per)
                                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AppUser>> GetUserAsync(Expression<Func<AppUser,bool>> predicate = null)
+        {
+
+            // Build the query
+            IQueryable<AppUser> query = _context.Set<AppUser>();
+
+            // Apply the predicate if it's provided
+            if(predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            // Execute the query
+            return await query.ToListAsync();
         }
         public async Task<int> GetCount()
         {

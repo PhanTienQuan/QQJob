@@ -1,53 +1,54 @@
-﻿const selectedSkills = new Set();
-document.addEventListener("DOMContentLoaded", () => {
-    // Load skills from the server-rendered list
-    const skillInput = document.getElementById("skillInput");
-    const skillTags = document.getElementById("skillTags");
-    const skillRecommendations = document.getElementById("skillRecommendations");
-    const endDateInput = document.getElementById("Close");
-    const selectedSkillsInput = document.getElementById("SelectedSkill");
-
-    // Set the minimum date to today for openDate
-    const today = new Date().toISOString().split("T")[0];
-    endDateInput.setAttribute("min", today);
-    endDateInput.value = today;
+﻿function initializeTagManager({
+    inputSelector,
+    tagsContainerSelector,
+    recommendationsSelector,
+    selectedItemsInputSelector,
+    itemsList,
+    uniqueIdField = "id",
+    displayNameField = "name"
+}) {
+    const selectedItems = new Set();
+    const inputElement = document.querySelector(inputSelector);
+    const tagsContainer = document.querySelector(tagsContainerSelector);
+    const recommendationsContainer = document.querySelector(recommendationsSelector);
+    const selectedItemsInput = document.querySelector(selectedItemsInputSelector);
 
     // Function to show recommendations
-    window.showRecommendations = function () {
-        const query = skillInput.value.trim().toLowerCase();
-        skillRecommendations.innerHTML = ""; // Clear previous suggestions
+    function showRecommendations() {
+        const query = inputElement.value.trim().toLowerCase();
+        recommendationsContainer.innerHTML = ""; // Clear previous suggestions
 
         if (query) {
-            const filteredSkills = skillList.filter(skill =>
-                skill.name.toLowerCase().includes(query) && !selectedSkills.has(skill.id)
+            const filteredItems = itemsList.filter(item =>
+                item[displayNameField].toLowerCase().includes(query) && !selectedItems.has(item[uniqueIdField])
             );
 
-            if (filteredSkills.length > 0) {
-                skillRecommendations.style.display = "block";
-                filteredSkills.forEach(skill => {
+            if (filteredItems.length > 0) {
+                recommendationsContainer.style.display = "block";
+                filteredItems.forEach(item => {
                     const li = document.createElement("li");
                     li.className = "list-group-item";
-                    li.textContent = skill.name;
-                    li.onclick = () => addSkill(skill);
-                    skillRecommendations.appendChild(li);
+                    li.textContent = item[displayNameField];
+                    li.onclick = () => addItem(item);
+                    recommendationsContainer.appendChild(li);
                 });
             } else {
-                skillRecommendations.style.display = "none";
+                recommendationsContainer.style.display = "none";
             }
         } else {
-            skillRecommendations.style.display = "none";
+            recommendationsContainer.style.display = "none";
         }
-    };
+    }
 
-    // Updated addSkill function
-    function addSkill(skill) {
-        if (!selectedSkills.has(skill.id)) {
-            selectedSkills.add(skill.id);
+    // Function to add an item
+    function addItem(item) {
+        if (!selectedItems.has(item[uniqueIdField])) {
+            selectedItems.add(item[uniqueIdField]);
 
-            // Create skill tag
+            // Create tag
             const tag = document.createElement("span");
             tag.className = "badge bg-primary text-white me-2";
-            tag.textContent = skill.name;
+            tag.textContent = item[displayNameField];
 
             // Create remove button
             const removeBtn = document.createElement("span");
@@ -55,31 +56,37 @@ document.addEventListener("DOMContentLoaded", () => {
             removeBtn.style.cursor = "pointer";
             removeBtn.textContent = "×";
             removeBtn.onclick = () => {
-                selectedSkills.delete(skill.id);
-                skillTags.removeChild(tag);
-                selectedSkillsInput.value = Array.from(selectedSkills).join(",");
+                selectedItems.delete(item[uniqueIdField]);
+                tagsContainer.removeChild(tag);
+                selectedItemsInput.value = Array.from(selectedItems).join(",");
             };
 
             tag.appendChild(removeBtn);
-            skillTags.appendChild(tag);
+            tagsContainer.appendChild(tag);
 
             // Clear input and hide recommendations
-            skillInput.value = "";
-            skillRecommendations.style.display = "none";
-            selectedSkillsInput.value = Array.from(selectedSkills).join(",");
+            inputElement.value = "";
+            recommendationsContainer.style.display = "none";
+            selectedItemsInput.value = Array.from(selectedItems).join(",");
         }
     }
-    if (selectedSkillsInput.value) {
-        const loadedSkillList = selectedSkillsInput.value.split(",") // Fetch skills from hidden JSON
-        console.log(skillList)
-        loadedSkillList.forEach(skillId => {
-            const skill = skillList.find(s => s.id == skillId);
-            if (skill) {
-                addSkill(skill)
+
+    // Initialize preloaded selected items
+    if (selectedItemsInput.value) {
+        const loadedItemIds = selectedItemsInput.value.split(",");
+        loadedItemIds.forEach(itemId => {
+            const item = itemsList.find(i => i[uniqueIdField] == itemId);
+            if (item) {
+                addItem(item);
             }
         });
     }
-});
+
+    // Attach event listeners
+    inputElement.addEventListener("input", showRecommendations);
+}
+
+
 function toggleCustomField(selectElement, customFieldId) {
     const customField = document.querySelector(customFieldId);
     if (selectElement.value === "Other") {

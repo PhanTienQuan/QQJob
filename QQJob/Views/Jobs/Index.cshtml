@@ -141,9 +141,9 @@
                     <div class="tab-pane fade show active list__style" role="tabpanel" id="list">
                         <div class="row g-30">
                             @* List Items *@
-                            @if (ViewBag.Jobs != null && (ViewBag.Jobs as List<JobListViewModel>).Any())
+                            @if (ViewBag.Jobs is List<JobListViewModel> jobs && jobs.Any())
                             {
-                                foreach (var job in ViewBag.Jobs as List<JobListViewModel>)
+                                foreach (var job in jobs)
                                 {
                                     <div class="col-lg-12">
                                         <div class="rts__job__card__big style__gradient flex-wrap justify-content-between d-flex gap-4 align-items-center">

@@ -125,3 +125,30 @@ function enableElement(...elements) {
         }
     });
 }
+function handleExternalLoginClick(button) {
+    var provider = button.getAttribute('data-provider');
+    var url = button.getAttribute('data-url');
+    // Define popup window size
+    var width = 500;
+    var height = 600;
+    var left = (window.innerWidth / 2) - (width / 2);
+    var top = (window.innerHeight / 2) - (height / 2);
+    // Open the popup window
+    var popup = window.open(url, provider, `width=${width},height=${height},top=${top},left=${left},resizable=yes`);
+    // Monitor the popup to check if it closes
+}
+function showSetAccountTypeModel() {
+    $.ajax({
+        url: '/Account/SetAccountType',
+        method: 'GET',
+        contentType: 'application/json',
+        success: function (response) {
+            $("#loginModal").modal("hide");
+            $("#modalPlaceholder").html(response);
+            $("#setAccountModal").modal("show");
+        },
+        error: function () {
+            alert("An error occurred while processing your request.");
+        }
+    });
+}
