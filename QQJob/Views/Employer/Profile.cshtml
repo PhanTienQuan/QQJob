@@ -1,0 +1,175 @@
+﻿@model EmployerProfileViewModel
+@{
+    ViewBag.Title = "Profile";
+}
+<!-- content area -->
+<div class="dashboard__content d-flex template-dashboard">
+    <partial name="_LeftMenu" />
+    <div class="dashboard__right">
+        <div class="dash__content" id="content-area">
+            <!-- sidebar menu -->
+            <div class="sidebar__menu d-md-block d-lg-none">
+                <div class="sidebar__action"><i class="fa-sharp fa-regular fa-bars"></i>Sidebar</div>
+            </div>
+            <form asp-action="Profile" asp-controller="Employer" method="post" enctype="multipart/form-data">
+                <!-- sidebar menu end -->
+                <div class="my__profile__tab radius-16 bg-white">
+                    <nav>
+                        <div class="nav nav-tabs">
+                            <a class="nav-link active" href="#info">My Details</a>
+                            <a class="nav-link " href="#social">Social Links</a>
+                            <a class="nav-link" href="#address">Contact Information</a>
+                        </div>
+                    </nav>
+                    <div class="my__details" id="info">
+                        <div class="info__top">
+                            <div class="author__image">
+                                <img id="avatar" class="p-4" src="@Model.Avatar" alt="" />
+                            </div>
+                            <div class="select__image">
+                                <label asp-for="AvatarFile" class="file-upload__label">Upload New Photo</label>
+                                <input type="file" class="file-upload__input" asp-for="AvatarFile" accept="image/*" />
+                            </div>
+                            <div class="delete__data">
+                                <i class="fa-light fa-trash-can"></i>
+                            </div>
+                        </div>
+                        <div class="info__field">
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                @Html.HiddenFor(e => e.Id)
+                                @Html.HiddenFor(e => e.Avatar)
+                                <div class="rt-input-group">
+                                    <label asp-for="FullName">Employer name</label>
+                                    <input asp-for="FullName" placeholder="PTQ Tech" class="mb-3" required />
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="Email">Email</label>
+                                    <input type="email" value="@Model.Email" placeholder="ptqtech@gmail.com" class="mb-3" disabled />
+                                </div>
+                                <input type="hidden" asp-for="Email" />
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="rt-input-group">
+                                    <label asp-for="PhoneNumber">Phone</label>
+                                    <input asp-for="PhoneNumber" placeholder="+880171234567" class="mb-3" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="Website">Website</label>
+                                    <input type="url" asp-for="Website" placeholder="QQJob.com" class="mb-3" />
+                                    <span asp-validation-for="Website" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="rt-input-group">
+                                    <label asp-for="FoundedDate">Founded Date</label>
+                                    <input type="date" placeholder="DD/MM/YY" asp-for="FoundedDate" class="mb-3" />
+                                    <span asp-validation-for="FoundedDate" class="text-danger"></span>
+                                </div>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="CompanySize">Company Size</label>
+                                        <input type="text" asp-for="CompanySize" class="mb-3" placeholder="10 - 20" />
+                                        <span asp-validation-for="CompanySize" class="text-danger"></span>
+                                    </div>
+                                    <span asp-validation-for="CompanySize"></span>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label for="pv">Public For Profile View</label>
+                                        <select name="PublicProfile" id="pv" class="form-select">
+                                            <option value="1">Yes</option>
+                                            <option value="2">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-1 row-cols-1 g-3">
+                                <label for="pv" style="color:black;">Company Field</label>
+                                <div class="my__skillset">
+                                    <ul class="skill__tags">
+                                        @if(Model.CompanyField == null){
+                                            <li class="placeholder"><span>Your company have not add any field yet</span></li>
+                                        }
+                                        <li class="add__btn"><span class="skill__item__add"><i class="fa-regular fa-plus"></i></span></li>
+                                    </ul>
+                                </div>
+                                @Html.HiddenFor(e => e.CompanyField)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-medium mt-4 mb-4">Social Links</h6>
+                <div class="social__links p-30 radius-16 bg-white" id="social">
+                    <div class="info__field">
+                        <div class="row row-cols-sm-2 row-cols-1 g-3" id="socialLinksContainer">
+
+                        </div>
+                        <div class="d-block">
+                            <a href="#" id="addSocialLinkBtn" class="added__social__link">Add Another Network</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="info__field">
+                    <button type="submit" class="rts__btn fill__btn mx-0">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        const socialLinks = @Html.Raw(Json.Serialize(Model.SocialLinks));
+        console.log(socialLinks)
+        const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeSocialLinksManager({
+                socialLinksContainerSelector: "#socialLinksContainer",
+                addSocialLinkBtnSelector: "#addSocialLinkBtn",
+                maxSocialLinks: 4,
+                initialLinks: socialLinks,
+            });
+
+            initializeSkillTagsManager({
+                skillTagsSelector: ".skill__tags",
+                addSkillBtnSelector: ".add__btn",
+                fieldInputSelector: "#CompanyField",
+                initialCompanyField: companyField
+            });
+        });
+        document.getElementById('AvatarFile').addEventListener('change', function(event) {
+            const fileInput = event.target;
+            const file = fileInput.files[0]; // Get the selected file
+
+            if (file) {
+                // Create a URL for the selected image
+                const imgURL = URL.createObjectURL(file);
+
+                // Update the src of the avatar image
+                const avatarImg = document.getElementById('avatar');
+                avatarImg.src = imgURL;
+
+                // Optionally revoke the object URL later to release memory
+                avatarImg.onload = () => URL.revokeObjectURL(imgURL);
+            }
+        });
+        document.querySelector('.delete__data i').addEventListener('click', function() {
+            const avatarImg = document.getElementById('avatar');
+            const fileInput = document.getElementById('file');
+
+            // Reset the image source to the default
+            avatarImg.src = '@Model.Avatar'; // Replace with the default image path
+            fileInput.value = ''; // Clear the file input
+        });
+        const messageData = @Html.Raw(TempData["Message"])
+        console.log(messageData);
+        if (messageData !== null) {
+            showToastMessage(messageData.message, messageData.type);
+        }
+    </script>
+    <script src="~/assets/js/employer.js"></script>
+}

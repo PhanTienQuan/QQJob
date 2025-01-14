@@ -43,7 +43,8 @@ namespace QQJob.Controllers
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow,
                 Candidate = model.AccountType == true ? new Candidate() : null,
-                Employer = model.AccountType == false ? new Employer() : null
+                Employer = model.AccountType == false ? new Employer() : null,
+                Avatar = "/assets/img/avatars/default-avatar.jpg"
             };
 
             string roleName = model.AccountType == true ? "Candidate" : "Employer";
@@ -357,7 +358,8 @@ namespace QQJob.Controllers
                         Email = email,
                         FullName = info.Principal.FindFirstValue(ClaimTypes.GivenName) + " " + info.Principal.FindFirstValue(ClaimTypes.Surname),
                         CreatedAt = DateTime.UtcNow,
-                        EmailConfirmed = true
+                        EmailConfirmed = true,
+                        Avatar = "/assets/img/avatars/default-avatar.jpg"
                     };
 
                     // Create the new user in the database.
@@ -385,6 +387,12 @@ namespace QQJob.Controllers
             // If the email claim is not provided by the external login provider,
             // display an error message and close the popup window.
             return Content($"<script>alert('Email claim not received. Please contact support.'); window.close();</script>","text/html");
+        }
+
+        [AllowAnonymous]
+        public IActionResult OnExternalLoginDenied()
+        {
+            return Content($"<script>window.opener.location.href = '/'; window.close();</script>","text/html");
         }
 
         [NonAction]
@@ -425,5 +433,6 @@ namespace QQJob.Controllers
             // Replace spaces with hyphens
             return Regex.Replace(cleaned,@"\s","-");
         }
+
     }
 }

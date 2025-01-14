@@ -32,12 +32,16 @@ function showRegisterModal() {
 }
 function login(element) {
     let formData = $('#loginForm').serialize();
+    //remove message text
     $('span[data-valmsg-for]').text('');
     $("divx").text("");
     $("divx2").text("");
-    disableElement("#Email", "#Password");
+    //show loading icon
     const loading = $("#loading");
     loading.removeAttr("hidden");
+    //disable interaction with the webpage
+    document.getElementById("overlay").style.display = "block";
+    $(element).attr("disabled", true);
     $.ajax({
         url: '/Account/Login',
         type: 'POST',
@@ -54,12 +58,14 @@ function login(element) {
                     errorPlaceholder.text(messages.join(', '));
                 });
                 loading.attr("hidden", true);
-                enableElement("#Email", "#Password");
+                document.getElementById("overlay").style.display = "none";
+                document.getElementById("disableButton").disabled = false;
             }
         },
         error: function () {
             loading.attr("hidden", true);
-            enableElement("#Email", "#Password");
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("disableButton").disabled = false;
             alert('An error occurred while processing your request.');
         }
     });
@@ -73,7 +79,8 @@ function register(element) {
     const formData = $('#registerForm').serialize(); // Serialize form data
     const onRegisterLoading = $("#loading");
     onRegisterLoading.removeAttr("hidden");
-    disableElement("#Fullname", "#Email", "#Password", "#ConfirmPassword");
+    document.getElementById("overlay").style.display = "block";
+    $(element).attr("disabled", true);
     // Clear previous validation messages
     $('span[data-valmsg-for]').text('');
     $.ajax({
@@ -95,12 +102,14 @@ function register(element) {
                 });
 
                 onRegisterLoading.attr("hidden", true);
-                enableElement("#Fullname", "#Email", "#Password", "#ConfirmPassword");
+                document.getElementById("overlay").style.display = "none";
+                $(element).removeAttr("disabled");
             }
         },
         error: function () {
             onRegisterLoading.attr("hidden", true);
-            enableElement("#Fullname", "#Email", "#Password", "#ConfirmPassword");
+            document.getElementById("overlay").style.display = "none";
+            $(element).removeAttr("disabled"); 
             alert('An error occurred while processing your request.');
         }
     });
@@ -136,6 +145,13 @@ function handleExternalLoginClick(button) {
     // Open the popup window
     var popup = window.open(url, provider, `width=${width},height=${height},top=${top},left=${left},resizable=yes`);
     // Monitor the popup to check if it closes
+    //var checkPopup = setInterval(function () {
+    //    if (popup.closed) {
+    //        clearInterval(checkPopup);
+    //        // Optionally, reload or fetch updated user state
+    //        location.reload(); // Refresh the parent window to reflect login state
+    //    }
+    //}, 500);
 }
 function showSetAccountTypeModel() {
     $.ajax({
@@ -151,4 +167,143 @@ function showSetAccountTypeModel() {
             alert("An error occurred while processing your request.");
         }
     });
+}
+
+function showNotification(message) {
+    var toastElement = document.createElement('div');
+    toastElement.classList.add('toast');
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.innerHTML = `
+    <div class="toast-header">
+      <strong class="me-auto">New Toast</strong>
+      <small class="text-muted">just now</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      This is a new toast message.
+    </div>
+  `;
+
+    // Append the toast to the container
+    document.querySelector('.toast-container').appendChild(toastElement);
+
+    // Initialize and show the new toast
+    var toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    // Optional: Set a timeout to automatically hide the toast after 3 seconds
+    setTimeout(() => {
+        toast.hide();
+    }, 3000);
+}
+function showErrorMessage(message) {
+    const container = document.querySelector('.toast-container');
+    var toastElement = document.createElement('div');
+    toastElement.className = "toast align-items-center bg-warning text-dark border-0";
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.setAttribute('data-bs-delay', 4000);
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body"> ${message}</div>
+            <button type="button" class="btn-close btn-close-dark me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        container.removeChild(toastElement);
+    })
+    // Append the toast to the container
+    container.appendChild(toastElement);
+
+    // Initialize and show the new toast
+    var toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+
+function showSuccessMessage(message) {
+    const container = document.querySelector('.toast-container');
+    var toastElement = document.createElement('div');
+    toastElement.className = "toast align-items-center text-white border-0";
+    toastElement.style = "background-color: var(--rts-button-1);"
+    toastElement.setAttribute('role', 'status');
+    toastElement.setAttribute('aria-live', 'polite');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.setAttribute('data-bs-delay', 4000);
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body"> ${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        container.removeChild(toastElement);
+    })
+    // Append the toast to the container
+    container.appendChild(toastElement);
+
+    // Initialize and show the new toast
+    var toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+
+
+function showToastMessage(message, type) {
+    const container = document.querySelector('.toast-container');
+    const toastElement = document.createElement('div');
+
+    // Set class and styles based on the type
+    let backgroundColor, textColor, closeButtonColor;
+    switch (type) {
+        case "success":
+            backgroundColor = "bg-success";
+            textColor = "text-white";
+            closeButtonColor = "btn-close-white";
+            break;
+        case "error":
+            backgroundColor = "bg-danger";
+            textColor = "text-white";
+            closeButtonColor = "btn-close-white";
+            break;
+        case "warning":
+            backgroundColor = "bg-warning";
+            textColor = "text-black";
+            closeButtonColor = "btn-close-black";
+            break;
+        default:
+            backgroundColor = "bg-secondary";
+            textColor = "text-white";
+            closeButtonColor = "btn-close-white";
+            break;
+    }
+
+    toastElement.className = `toast align-items-center ${textColor} ${backgroundColor} border-0`;
+    //toastElement.style = `background-color: ${backgroundColor}`;
+    toastElement.setAttribute('role', 'status');
+    toastElement.setAttribute('aria-live', 'polite');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.setAttribute('data-bs-delay', 4000);
+
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close ${closeButtonColor} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+    // Remove the toast from DOM when it is hidden
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        container.removeChild(toastElement);
+    });
+
+    // Append the toast to the container
+    container.appendChild(toastElement);
+
+    // Initialize and show the new toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
 }

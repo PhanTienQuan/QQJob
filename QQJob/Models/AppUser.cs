@@ -12,6 +12,7 @@ namespace QQJob.Models
         public Status IsVerified { get; set; }
         public bool IsPremium { get; set; }
         public DateTime? LastLogin { get; set; }
+        public string? SocialLink { get; set; }
 
         // Navigation Properties
         public Employer? Employer { get; set; }

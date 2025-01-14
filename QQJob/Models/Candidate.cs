@@ -12,7 +12,6 @@ namespace QQJob.Models
         public string? Description { get; set; }
         public string? WorkingType { get; set; }
         public string? ResumePath { get; set; }
-        public string? SocialLink { get; set; }
 
         // Navigation Property
         public AppUser User { get; set; }

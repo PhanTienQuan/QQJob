@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QQJob.ViewModels
+namespace QQJob.ViewModels.EmployerViewModels
 {
     public class PostJobViewModel
     {

@@ -12,12 +12,12 @@ namespace QQJob.Models
         public string? Description { get; set; }
         public DateTime FoundedDate { get; set; }
         public string? CompanySize { get; set; }
+        public string? CompanyField { get; set; }
 
         // Navigation Property
         public AppUser User { get; set; }
         public IEnumerable<Job>? Jobs { get; set; }
         public IEnumerable<Follow>? Follows { get; set; }
-        public IEnumerable<FunctionalArea>? FunctionalAreas { get; set; }
 
     }
 }

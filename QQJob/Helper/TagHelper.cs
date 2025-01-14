@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Helper
@@ -25,7 +26,7 @@ namespace QQJob.Helper
             }
         }
 
-        public static async Task<string> GetUserRole(string? username)
+        public static async Task<string?> GetUserRole(string? username)
         {
             using(var scope = _serviceProvider.CreateScope())
             {
@@ -33,11 +34,11 @@ namespace QQJob.Helper
                 var user = await userManager.FindByNameAsync(username);
                 var role = await userManager.GetRolesAsync(user);
 
-                return role.Any() ? role.FirstOrDefault().ToString() : "Account Required Set Up";
+                return role.Any() ? role.FirstOrDefault().ToString() : null;
             }
         }
 
-        public static async Task<IHtmlContent> GetUserHomePageAction(string? username)
+        public static async Task<IHtmlContent> GetUserHomePageAction(string? username,IUrlHelper urlHelper)
         {
             using(var scope = _serviceProvider.CreateScope())
             {
@@ -48,15 +49,15 @@ namespace QQJob.Helper
                 {
                     if(role.FirstOrDefault().ToString() == "Candidate")
                     {
-                        return new HtmlString($@"<a asp-controller=""Candidate"" asp-action=""Resume""
+                        return new HtmlString($@"<a href=""{urlHelper.Action("Resume","Candidate")}""
                                         class=""small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs""
-                                        aria-label=""Job Posting Button"">
+                                        aria-label=""Resume Button"">
                                         Manage CV
                                     </a>");
                     }
                     else
                     {
-                        return new HtmlString($@"<a asp-controller=""Employer"" asp-action=""PostJob""
+                        return new HtmlString($@"<a href=""{urlHelper.Action("PostJob","Employer")}"" 
                                         class=""small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs""
                                         aria-label=""Job Posting Button"">
                                         Add A Job
@@ -65,12 +66,23 @@ namespace QQJob.Helper
                 }
                 else
                 {
-                    return new HtmlString($@"<a onclick=""showSetAccountTypeModel()""
+                    return new HtmlString($@"<a href=""#"" onclick=""showSetAccountTypeModel()""
                                         class=""small__btn d-none d-sm-flex d-xl-flex fill__btn border-6 font-xs""
                                         aria-label=""Job Posting Button"">
                                         Set Up Account Type
                                     </a>");
                 }
+            }
+        }
+
+        public static async Task<string> GetUserAvatarUrlAsync(string? username)
+        {
+            using(var scope = _serviceProvider.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+                var user = await userManager.FindByNameAsync(username);
+
+                return user.Avatar ?? "~/assets/img/avatars/default-avatar.jpg";
             }
         }
     }

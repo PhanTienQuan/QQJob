@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="~/assets/fonts/fontawesome/fontawesome.min.css" />
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/assets/css/style.css" />
-    <link rel="stylesheet" href="~/assets/css/client/client.css" />
+    <link rel="stylesheet" href="~/assets/css/app.css" />
     <title>@ViewData["Title"] - QQJob</title>
 </head>
 
@@ -58,6 +58,10 @@
     </button>
 
     <div id="modalPlaceholder"></div>
+    <div id="overlay" style="display: none;"></div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="true">
+        <!-- New toasts will appear here -->
+    </div>
 
     <!-- all plugin js -->
     <script src="~/assets/js/jquery.min.js"></script>

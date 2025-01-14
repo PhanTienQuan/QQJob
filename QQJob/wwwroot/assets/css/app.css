@@ -1,0 +1,66 @@
+﻿#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1); /* Semi-transparent black */
+    z-index: 9999; /* Ensure it overlays everything */
+    pointer-events: all; /* Block clicks */
+}
+
+.remove-icon {
+    position: absolute; /* To position the icon relative to the input container */
+    right: 4%; /* Align to the end */
+    transform: translateY(-130%); /* Center vertically relative to the input */
+    margin-right: 1rem; /* Space from the input's edge */
+    font-size: 1.2rem; /* Icon size */
+    line-height: 1;
+    color: #dc3545; /* Danger color */
+    cursor: pointer;
+    margin-bottom: 50px;
+}
+
+.remove-icon:hover {
+    opacity: 0.4;
+}
+
+.my__skillset {
+    background-color: transparent !important;
+}
+
+.skill__item_parent {
+    background-color: var(--rts-gray) !important;
+}
+
+.skill__item__add:hover {
+    transform: scale(1.2);
+    color: #007bff;
+}
+
+.skill__input {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    width: auto;
+    outline: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.inputContainer {
+    background-color: var(--rts-gray) !important;
+}
+.cancel-skill-btn > i {
+    color: var(--color-danger) !important;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

@@ -4,7 +4,7 @@ using QQJob.Models;
 
 namespace QQJob.Data
 {
-    public class QQJobContext:IdentityDbContext<AppUser>
+    public class QQJobContext : IdentityDbContext<AppUser>
     {
         public DbSet<Employer> Employers { get; set; }
         public DbSet<Candidate> Candidates { get; set; }
@@ -19,7 +19,6 @@ namespace QQJob.Data
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
         public DbSet<Notification> NotificationHistories { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<FunctionalArea> FunctionalAreas { get; set; }
 
         public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
