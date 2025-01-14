@@ -45,11 +45,14 @@ namespace QQJob
                             {
                                 options.ClientId = builder.Configuration.GetSection("GoogleAuth")["ClientId"];
                                 options.ClientSecret = builder.Configuration.GetSection("GoogleAuth")["ClientSecret"];
+                                options.AccessDeniedPath = "/Account/OnExternalLoginDenied";
                             }).AddFacebook(facebookOptions =>
                             {
                                 facebookOptions.ClientId = builder.Configuration.GetSection("FacebookAuth")["ClientId"];
                                 facebookOptions.ClientSecret = builder.Configuration.GetSection("FacebookAuth")["ClientSecret"];
+                                facebookOptions.AccessDeniedPath = "/Account/OnExternalLoginDenied";
                             });
+
             var app = builder.Build();
             builder.Services.AddHttpContextAccessor();
             TagHelper.Initialize(app.Services);

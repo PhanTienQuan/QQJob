@@ -1,6 +1,6 @@
 ﻿using QQJob.Models.Enum;
 
-namespace QQJob.ViewModels
+namespace QQJob.ViewModels.EmployerViewModels
 {
     public class PostedJobViewModel
     {

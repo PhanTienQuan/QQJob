@@ -32,7 +32,7 @@ namespace QQJob.Repositories.Implementations
 
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(file.FileName, file.OpenReadStream()),
+                File = new FileDescription(file.FileName,file.OpenReadStream()),
                 EagerTransforms = new List<Transformation> {
                         new Transformation().Width(250).Height(250).Crop("fill").Gravity("auto").FetchFormat("jpg")
                     },
@@ -55,5 +55,29 @@ namespace QQJob.Repositories.Implementations
             return uploadResult.SecureUrl.AbsoluteUri;
         }
 
+        public async Task<string> UpdateAvatar(IFormFile file,string userId)
+        {
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName,file.OpenReadStream()),
+                AssetFolder = "user_avatars",
+                PublicId = $"user_{userId}_avatar",
+                Overwrite = true,
+                EagerTransforms = new List<Transformation> {
+                        new Transformation().Width(320).Height(320).Crop("fill").Gravity("face").FetchFormat("png").Radius("max")
+                    },
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if(uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return uploadResult.Eager.FirstOrDefault().SecureUrl.AbsoluteUri;
+            }
+            else
+            {
+                throw new Exception($"Upload to Cloudinary failed: {uploadResult.Error.Message}");
+            }
+        }
     }
 }
