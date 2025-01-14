@@ -90,7 +90,8 @@ function initializeSocialLinksManager({
     socialLinksContainerSelector,
     addSocialLinkBtnSelector,
     maxSocialLinks = 5,
-    initialLinks = []
+    initialLinks = [],
+    errorMessage
 }) {
     const socialLinksContainer = document.querySelector(socialLinksContainerSelector);
     const addSocialLinkBtn = document.querySelector(addSocialLinkBtnSelector);
@@ -104,7 +105,7 @@ function initializeSocialLinksManager({
         if (currentLinks < maxSocialLinks) {
             createSocialLinkGroup("", ""); // Create an empty input group
         } else {
-            showToastMessage("Your company can only have 5 social links!", "warning");
+            showToastMessage(errorMessage, "warning");
         }
     });
 
