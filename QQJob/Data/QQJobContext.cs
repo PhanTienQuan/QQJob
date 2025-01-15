@@ -69,7 +69,7 @@ namespace QQJob.Data
                 .HasOne(j => j.Employer)
                 .WithMany(e => e.Jobs)
                 .HasForeignKey(j => j.EmployerId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             //SevedJob
             modelBuilder.Entity<SavedJob>()
