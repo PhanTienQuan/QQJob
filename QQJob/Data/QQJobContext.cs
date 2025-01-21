@@ -4,7 +4,7 @@ using QQJob.Models;
 
 namespace QQJob.Data
 {
-    public class QQJobContext : IdentityDbContext<AppUser>
+    public class QQJobContext:IdentityDbContext<AppUser>
     {
         public DbSet<Employer> Employers { get; set; }
         public DbSet<Candidate> Candidates { get; set; }
@@ -105,6 +105,19 @@ namespace QQJob.Data
                 .WithMany()
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //Application
+            modelBuilder.Entity<Application>()
+                .HasOne(a => a.Job)
+                .WithMany(j => j.Applications)
+                .HasForeignKey(a => a.JobId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<SavedJob>()
+                .HasOne(s => s.Job)
+                .WithMany(j => j.SavedJobs)
+                .HasForeignKey(s => s.JobId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

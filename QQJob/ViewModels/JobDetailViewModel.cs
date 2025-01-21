@@ -18,7 +18,10 @@ namespace QQJob.ViewModels
         public int Opening { get; set; }
         public float Experience { get; set; }
         public string Qualification { get; set; }
-        public string Benifits { get; set; }
+        public string Benefits { get; set; }
         public string ImgUrl { get; set; }
+        public string? CustomAddress { get; set; }
+        public string? CusExperience { get; set; }
+        public string? CusWorkingSche { get; set; }
     }
 }

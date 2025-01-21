@@ -55,7 +55,7 @@ namespace QQJob
 
             var app = builder.Build();
             builder.Services.AddHttpContextAccessor();
-            TagHelper.Initialize(app.Services);
+            Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
             if(!app.Environment.IsDevelopment())
             {

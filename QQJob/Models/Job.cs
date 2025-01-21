@@ -24,6 +24,7 @@ namespace QQJob.Models
         public Employer? Employer { get; set; }
 
         // Navigation Properties
+        public IEnumerable<SavedJob>? SavedJobs { get; set; }
         public IEnumerable<Skill>? Skills { get; set; }
         public IEnumerable<Application>? Applications { get; set; }
     }

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Helper
 {
-    public static class TagHelper
+    public static class Helper
     {
         private static IServiceProvider? _serviceProvider;
 
@@ -13,7 +15,6 @@ namespace QQJob.Helper
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
-
         public static async Task<string> GetFullNameAsync(string? username)
         {
             using(var scope = _serviceProvider.CreateScope())
@@ -25,7 +26,6 @@ namespace QQJob.Helper
                 return user?.FullName ?? "User not found";
             }
         }
-
         public static async Task<string?> GetUserRole(string? username)
         {
             using(var scope = _serviceProvider.CreateScope())
@@ -37,7 +37,6 @@ namespace QQJob.Helper
                 return role.Any() ? role.FirstOrDefault().ToString() : null;
             }
         }
-
         public static async Task<IHtmlContent> GetUserHomePageAction(string? username,IUrlHelper urlHelper)
         {
             using(var scope = _serviceProvider.CreateScope())
@@ -74,7 +73,6 @@ namespace QQJob.Helper
                 }
             }
         }
-
         public static async Task<string> GetUserAvatarUrlAsync(string? username)
         {
             using(var scope = _serviceProvider.CreateScope())
@@ -84,6 +82,20 @@ namespace QQJob.Helper
 
                 return user.Avatar ?? "~/assets/img/avatars/default-avatar.jpg";
             }
+        }
+        //no done
+        public static IHtmlContent DisplayUserStatus(UserStatus status)
+        {
+            return new HtmlString($@" <input value=""{status}"" class=""text-success"" disabled />");
+        }
+        public static string DisplayLimitedText(string address,int maxLength = 10)
+        {
+            if(string.IsNullOrEmpty(address)) return address;
+            return address.Length <= maxLength ? address : address.Substring(0,maxLength) + "...";
+        }
+        public static string DisplayTime(DateTime time)
+        {
+            return time.ToUniversalTime().Humanize().Replace("from now","ago");
         }
     }
 }

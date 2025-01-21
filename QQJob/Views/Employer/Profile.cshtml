@@ -18,7 +18,6 @@
                         <div class="nav nav-tabs">
                             <a class="nav-link active" href="#info">My Details</a>
                             <a class="nav-link " href="#social">Social Links</a>
-                            <a class="nav-link" href="#address">Contact Information</a>
                         </div>
                     </nav>
                     <div class="my__details" id="info">
@@ -64,7 +63,7 @@
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
                                 <div class="rt-input-group">
                                     <label asp-for="FoundedDate">Founded Date</label>
-                                    <input type="date" placeholder="DD/MM/YY" asp-for="FoundedDate" class="mb-3" />
+                                    <input type="date" placeholder="DD/MM/YY" asp-for="FoundedDate" class="mb-3" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                     <span asp-validation-for="FoundedDate" class="text-danger"></span>
                                 </div>
                                 <div class="position-relative">
@@ -84,6 +83,12 @@
                                             <option value="1">Yes</option>
                                             <option value="2">No</option>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="IsVerified">Verified status</label>
+                                        @Helper.DisplayUserStatus(Model.IsVerified)
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +129,6 @@
 @section Scripts {
     <script>
         const socialLinks = @Html.Raw(Json.Serialize(Model.SocialLinks));
-        console.log(socialLinks)
         const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
         document.addEventListener("DOMContentLoaded", () => {
             initializeSocialLinksManager({
@@ -166,11 +170,6 @@
             avatarImg.src = '@Model.Avatar'; // Replace with the default image path
             fileInput.value = ''; // Clear the file input
         });
-        const messageData = @Html.Raw(TempData["Message"])
-        console.log(messageData);
-        if (messageData !== null) {
-            showToastMessage(messageData.message, messageData.type);
-        }
     </script>
     <script src="~/assets/js/employer.js"></script>
 }

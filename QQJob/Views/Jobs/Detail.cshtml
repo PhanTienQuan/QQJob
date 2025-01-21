@@ -195,9 +195,9 @@
                     <div id="salary" class="mb-30">
                         <h6 class="fw-semibold mb-20">Salary and Benefits</h6>
                         <ul class="list-style-dot">
-                            @if (!string.IsNullOrEmpty(job.Benifits))
+                            @if (!string.IsNullOrEmpty(job.Benefits))
                             {
-                                var benifits = job.Benifits.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                                var benifits = job.Benefits.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
                                 @foreach (var benifit in benifits)
                                 {
                                     <li>@benifit.Trim()</li>

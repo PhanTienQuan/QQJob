@@ -69,6 +69,16 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/assets/js/main.js"></script>
     <script src="~/assets/js/app.js"></script>
+    <script>
+        const messageData = '@Html.Raw(TempData["Message"])'
+        if (messageData !== "") {
+            showToastMessage(messageData.message, messageData.type);
+        }
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

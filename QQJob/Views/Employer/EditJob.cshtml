@@ -1,4 +1,4 @@
-﻿@model PostJobViewModel
+﻿@model EditJobViewModel
 @{
     ViewBag.Title = "Post Job";
 }
@@ -16,7 +16,7 @@
         border-radius: 0.25rem;
     }
 </style>
- <!-- content area -->
+<!-- content area -->
 <div class="dashboard__content d-flex template-dashboard ">
     <partial name="_LeftMenu" />
     <div class="dashboard__right">
@@ -27,7 +27,7 @@
             </div>
             <!-- sidebar menu end -->
             <!-- submit form -->
-            <form asp-controller="employer" asp-action="postjob" id="postjobform">
+            <form asp-controller="employer" asp-action="editjob" id="editjobform">
                 <div class="my__profile__tab radius-16 bg-white">
                     <nav>
                         <div class="nav nav-tabs">
@@ -46,24 +46,24 @@
                             </div>
                             <div class="row row-cols-1">
                                 <div class="rt-input-group">
-                                    <label asp-for="Description">Job Description</label>
-                                    <textarea asp-for="Description" placeholder="Enter description"></textarea>
+                                    <label asp-for="JobDescription.Descriptions">Job Description</label>
+                                    <textarea asp-for="JobDescription.Descriptions" placeholder="Enter description"></textarea>
                                 </div>
-                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <span asp-validation-for="JobDescription.Descriptions" class="text-danger"></span>
                             </div>
                             <div class="row row-cols-1">
                                 <div class="rt-input-group">
-                                    <label asp-for="Responsibilities">Responsibilities</label>
-                                    <textarea asp-for="Responsibilities" placeholder="Enter responsibilities"></textarea>
+                                    <label asp-for="JobDescription.Responsibilities">Responsibilities</label>
+                                    <textarea asp-for="JobDescription.Responsibilities" placeholder="Enter responsibilities"></textarea>
                                 </div>
-                                <span asp-validation-for="Responsibilities" class="text-danger"></span>
+                                <span asp-validation-for="JobDescription.Responsibilities" class="text-danger"></span>
                             </div>
                             <div class="row row-cols-1">
                                 <div class="rt-input-group">
-                                    <label asp-for="Requirements">Requirements</label>
-                                    <textarea asp-for="Requirements" placeholder="Enter requirements"></textarea>
+                                    <label asp-for="JobDescription.Requirements">Requirements</label>
+                                    <textarea asp-for="JobDescription.Requirements" placeholder="Enter requirements"></textarea>
                                 </div>
-                                <span asp-validation-for="Requirements" class="text-danger"></span>
+                                <span asp-validation-for="JobDescription.Requirements" class="text-danger"></span>
                             </div>
                             <div class="rt-input-group">
                                 <label for="skills">Skills</label>
@@ -87,8 +87,8 @@
                                 <div class="row row-cols-sm-2 row-cols-1 g-3">
                                     <div class="position-relative">
                                         <div class="rt-input-group">
-                                            <label asp-for="Location">Location</label>
-                                            <select asp-for="Location" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
+                                            <label asp-for="Address">Location</label>
+                                            <select asp-for="Address" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
                                                 <option value="Ha Noi">Ha Noi</option>
                                                 <option value="Da Nang">Da Nang</option>
                                                 <option value="Ho Chi Minh City">Ho Chi Minh City</option>
@@ -97,10 +97,10 @@
                                             </select>
                                         </div>
                                         <div id="customLocationInput" class="rt-input-group" style="display: none; margin-top: 1rem;">
-                                            <label asp-for="CustomLocation">Custom Location</label>
-                                            <input asp-for="CustomLocation" class="form-control" placeholder="Enter your location" />
+                                            <label asp-for="CustomAddress">Custom Location</label>
+                                            <input asp-for="CustomAddress" class="form-control" placeholder="Enter your location" />
                                         </div>
-                                        <span asp-validation-for="CustomLocation" class="text-danger"></span>
+                                        <span asp-validation-for="CustomAddress" class="text-danger"></span>
                                     </div>
                                     <div class="position-relative">
                                         <div class="rt-input-group">
@@ -133,7 +133,7 @@
                                         <!-- Job Schedule Input -->
                                         <div class="rt-input-group">
                                             <label for="schedule">Working Schedule</label>
-                                            <select asp-for="WorkingSche" class="form-select" onchange="toggleCustomField(this, '#customScheduleGroup')">
+                                            <select asp-for="JobDescription.WorkingSche" class="form-select" onchange="toggleCustomField(this, '#customScheduleGroup')">
                                                 <option value="" disabled selected>Select working schedule</option>
                                                 <option value="Full-time">Full-time</option>
                                                 <option value="Part-time">Part-time</option>
@@ -141,7 +141,7 @@
                                                 <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <span asp-validation-for="WorkingSche" class="text-danger"></span>
+                                        <span asp-validation-for="JobDescription.WorkingSche" class="text-danger"></span>
                                         <div class="rt-input-group" id="customScheduleGroup" style="display: none; margin-top: 1rem;">
                                             <label asp-for="CusWorkingSche">Custom Working Schedule</label>
                                             <input asp-for="CusWorkingSche" placeholder="Enter custom schedule (e.g., 3 days a week)">
@@ -186,27 +186,29 @@
                                 </div>
                             </div>
                             <button type="submit" class="rts__btn fill__btn">
-                                Post Job
+                                Save
                             </button>
                         </div>
                     </div>
                 </div>
             </form>
-            
+
             <!-- submit form end -->
         </div>
     </div>
 </div>
-@section Scripts{
+@section Scripts {
     <script>
         const skillList = @Html.Raw(Json.Serialize(ViewBag.SkillList));
+        const initSkills = @Html.Raw(Json.Serialize(ViewBag.InitSkills));
         document.addEventListener("DOMContentLoaded", () => {
             initializeTagManager({
                 inputSelector: "#skillInput",
                 tagsContainerSelector: "#skillTags",
                 recommendationsSelector: "#skillRecommendations",
                 selectedItemsInputSelector: "#SelectedSkill",
-                itemsList: skillList
+                itemsList: skillList,
+                initSkillList: initSkills
             });
         });
         $.validator.setDefaults({ ignore: [] });

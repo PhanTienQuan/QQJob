@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QQJob.Helper;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
@@ -10,7 +11,7 @@ using System.Security.Claims;
 namespace QQJob.Controllers
 {
     [Authorize(Roles = "Employer")]
-    public class EmployerController(IEmployerRepository employerRepository,IApplicationRepository applicationRepository,ISkillRepository skillRepository,IJobRepository jobRepository,ICloudinaryService cloudinaryService) : Controller
+    public class EmployerController(IEmployerRepository employerRepository,IApplicationRepository applicationRepository,ISkillRepository skillRepository,IJobRepository jobRepository,ICloudinaryService cloudinaryService):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
         private readonly IApplicationRepository _applicationRepository = applicationRepository;
@@ -61,7 +62,7 @@ namespace QQJob.Controllers
                 return NotFound("Employer profile not found.");
             }
 
-            List<SocialLink> socialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? new List<SocialLink>();
+            List<SocialLink> socialLinks = employer.User.SocialLink != null ? JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) : new List<SocialLink>();
             var model = new EmployerProfileViewModel
             {
                 Id = employer.EmployerId,
@@ -70,11 +71,12 @@ namespace QQJob.Controllers
                 Email = employer.User.Email,
                 PhoneNumber = employer.User.PhoneNumber,
                 Website = employer.Website,
-                FoundedDate = employer.FoundedDate,
+                FoundedDate = employer.FoundedDate != DateTime.MinValue ? employer.FoundedDate : null,
                 CompanySize = employer.CompanySize,
                 ForPublicView = true,
                 SocialLinks = socialLinks,
-                CompanyField = employer.CompanyField
+                CompanyField = employer.CompanyField,
+                IsVerified = employer.User.IsVerified
             };
 
             return View(model);
@@ -102,7 +104,6 @@ namespace QQJob.Controllers
                 }
                 catch
                 {
-
                     ViewBag.Message = "Something happen to cloudinary server!";
                     return View(model);
                 }
@@ -112,7 +113,7 @@ namespace QQJob.Controllers
             employer.User.FullName = UpdateIfDifferent(employer.User.FullName,model.FullName.Trim(),ref isUpdated);
             employer.User.PhoneNumber = UpdateIfDifferent(employer.User.PhoneNumber,model.PhoneNumber?.Trim(),ref isUpdated);
             employer.Website = UpdateIfDifferent(employer.Website,model.Website?.Trim(),ref isUpdated);
-            employer.FoundedDate = UpdateIfDifferent(employer.FoundedDate,model.FoundedDate,ref isUpdated);
+            employer.FoundedDate = (DateTime)UpdateIfDifferent(employer.FoundedDate,model.FoundedDate,ref isUpdated);
             employer.CompanySize = UpdateIfDifferent(employer.CompanySize,model.CompanySize?.Trim(),ref isUpdated);
             employer.CompanyField = UpdateIfDifferent(employer.CompanyField,model.CompanyField,ref isUpdated);
             var socialLinksJson = JsonConvert.SerializeObject(model.SocialLinks);
@@ -135,31 +136,73 @@ namespace QQJob.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> JobsPosted()
+        public async Task<IActionResult> JobsPosted(int page = 1,int pageSize = 5)
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var jobs = await _jobRepository.FindAsync(j => j.EmployerId == id);
+            var (jobs, pagingModel) = await _jobRepository.GetJobsAsync(page,pageSize,j => j.EmployerId == id);
 
-            var postedJobViewModels = jobs
-                .Take(3)
-                .Select(job => new PostedJobViewModel()
+            var model = new PostedJobsViewModel()
+            {
+                Jobs = new List<PostedJobViewModel>()
+            };
+
+            foreach(var job in jobs)
+            {
+                model.Jobs.Add(new PostedJobViewModel
                 {
                     Id = job.JobId,
                     Title = job.Title,
                     Address = job.Address,
-                    JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                    JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
                     Open = job.PostDate,
                     Close = job.CloseDate,
                     AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
                     Status = job.Status,
-                })
-                .ToList();
+                });
+            }
 
-            // Pass the list to the view
-            ViewBag.PostedJobs = postedJobViewModels;
+            model.Paging = pagingModel;
+            //model.SearchValue = searchValue;
+            //model.SearchStatus = searchStatus;
 
-            return View();
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetJobListPartial(PagingModel paging,string? searchValue = null,Status? searchStatus = null,DateTime? fromDate = null,DateTime? toDate = null)
+        {
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var current = paging.CurrentPage;
+            var (jobs, pagingModel) = await _jobRepository.GetJobsAsync(paging.CurrentPage,paging.PageSize,j => j.EmployerId == id,searchValue,searchStatus,fromDate,toDate);
+
+            var model = new PostedJobsViewModel()
+            {
+                Jobs = new List<PostedJobViewModel>()
+            };
+
+            foreach(var job in jobs)
+            {
+                model.Jobs.Add(new PostedJobViewModel
+                {
+                    Id = job.JobId,
+                    Title = job.Title,
+                    Address = job.Address,
+                    JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                    Open = job.PostDate,
+                    Close = job.CloseDate,
+                    AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
+                    Status = job.Status,
+                });
+            }
+
+            model.Paging = pagingModel;
+            model.SearchValue = searchValue;
+            model.SearchStatus = searchStatus;
+            model.FromDate = fromDate;
+            model.ToDate = toDate;
+
+            return PartialView("_PostedJobList",model);
         }
 
         [HttpGet]
@@ -171,74 +214,165 @@ namespace QQJob.Controllers
                 Id = skill.SkillId,
                 Name = skill.SkillName
             }).ToList();
-            return View(new PostJobViewModel());
+            var model = new PostJobViewModel()
+            {
+                Opening = 1
+            };
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> PostJob(PostJobViewModel model)
         {
-            try
+            var skills = await _skillRepository.GetAllAsync();
+
+            ViewBag.SkillList = skills.Select(skill => new
             {
-                var skills = await _skillRepository.GetAllAsync();
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
 
-                ViewBag.SkillList = skills.Select(skill => new
-                {
-                    Id = skill.SkillId,
-                    Name = skill.SkillName
-                }).ToList();
-
-                if(!ModelState.IsValid)
-                {
-                    return View(model);
-                }
-
-                var jobJD = new
-                {
-                    Descriptions = model.Description,
-                    Responsibilities = model.Responsibilities,
-                    Requirements = model.Requirements,
-                    WorkingSche = model.CusWorkingSche ?? model.WorkingSche,
-                };
-
-                var selectedSkill = new List<Skill>();
-
-                foreach(var id in model.SelectedSkill.Split(","))
-                {
-                    selectedSkill.Add(await _skillRepository.GetByIdAsync(int.Parse(id)));
-                }
-
-                var eId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var confirmed = (await _employerRepository.GetByIdAsync(eId)).User.IsVerified;
-                var status = confirmed == Status.Approved ? Status.Approved : Status.Pending;
-
-                Job newJob = new()
-                {
-                    EmployerId = eId,
-                    Title = model.Title,
-                    JobDescription = JsonConvert.SerializeObject(jobJD),
-                    Address = model.CustomLocation ?? model.Location,
-                    Experience = model.CusExperience ?? model.Experience,
-                    Salary = model.Salary,
-                    Benefits = model.Benefits,
-                    Qualification = model.Qualification,
-                    OpenPosition = model.Opening,
-                    PostDate = DateTime.Now,
-                    CloseDate = model.Close.ToDateTime(TimeOnly.MinValue),
-                    Skills = selectedSkill,
-                    Status = status
-                };
-
-                await _jobRepository.AddAsync(newJob);
-                await _jobRepository.SaveChangesAsync();
-            }
-            catch(Exception ex)
+            if(!ModelState.IsValid)
             {
-                Console.WriteLine(ex.ToString() + "=====> " + ex.Message);
+                return View(model);
             }
 
+            if((model.WorkingSche == null && model.CusWorkingSche == null) || (model.Experience == null && model.CusExperience == null))
+            {
+                string errorMessage = string.Empty;
+                if(model.WorkingSche == null && model.CusWorkingSche == null)
+                {
+                    errorMessage += "Working Schedule field";
+                    ModelState.AddModelError("WorkingSche","This field is required!");
+                }
+                if(model.Experience == null && model.CusExperience == null)
+                {
+                    errorMessage += errorMessage == string.Empty ? "Experience field" : ", Experience field";
+                    ModelState.AddModelError("Experience","This field is required!");
+                }
+                errorMessage += " is required!";
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = errorMessage,type = "error" });
+                return View(model);
+            }
+
+            var jobJD = new
+            {
+                Descriptions = model.Description,
+                model.Responsibilities,
+                model.Requirements,
+                WorkingSche = model.CusWorkingSche ?? model.WorkingSche,
+            };
+
+            var selectedSkill = new List<Skill>();
+
+            foreach(var id in model.SelectedSkill.Split(","))
+            {
+                selectedSkill.Add(await _skillRepository.GetByIdAsync(int.Parse(id)));
+            }
+
+            var eId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var confirmed = (await _employerRepository.GetByIdAsync(eId)).User.IsVerified;
+            var status = confirmed == UserStatus.Verified ? Status.Approved : Status.Pending;
+
+            Job newJob = new()
+            {
+                EmployerId = eId,
+                Title = model.Title,
+                JobDescription = JsonConvert.SerializeObject(jobJD),
+                Address = model.CustomLocation ?? model.Location,
+                Experience = (float)(model.CusExperience ?? model.Experience),
+                Salary = model.Salary,
+                Benefits = model.Benefits,
+                Qualification = model.Qualification,
+                OpenPosition = model.Opening,
+                PostDate = DateTime.Now,
+                CloseDate = (DateTime)model.Close,
+                Skills = selectedSkill,
+                Status = status
+            };
+
+            await _jobRepository.AddAsync(newJob);
+            await _jobRepository.SaveChangesAsync();
+            var message = "Post successfully!" + (confirmed != UserStatus.Verified ? " Wait for admin to verify your post" : "");
+            TempData["Message"] = JsonConvert.SerializeObject(new { message,type = "success" });
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditJob(int id)
+        {
+            var job = await _jobRepository.GetByIdAsync(id);
+
+            var jobDetailViewModel = new EditJobViewModel()
+            {
+                Id = job.JobId,
+                Title = job.Title,
+                Address = job.Address,
+                JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                Close = job.CloseDate,
+                Salary = job.Salary,
+                Opening = job.OpenPosition,
+                Experience = job.Experience,
+                Qualification = job.Qualification,
+                Benefits = job.Benefits,
+
+            };
+            var skills = await _skillRepository.GetAllAsync();
+            ViewBag.SkillList = skills.Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            ViewBag.InitSkills = skills.Where(skill => job.Skills.Contains(skill)).Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            return View(jobDetailViewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditJob(EditJobViewModel model)
+        {
+            var job = await _jobRepository.GetByIdAsync(model.Id);
+
+            var jobDetailViewModel = new EditJobViewModel()
+            {
+                Id = job.JobId,
+                Title = job.Title,
+                Address = job.Address,
+                JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                Close = job.CloseDate,
+                Salary = job.Salary,
+                Opening = job.OpenPosition,
+                Experience = job.Experience,
+                Qualification = job.Qualification,
+                Benefits = job.Benefits,
+
+            };
+
+            if(!ObjectComparer.AreEqual(model,jobDetailViewModel))
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Nothing changed!",type = "none" });
+                return RedirectToAction("EditJob");
+            }
+
+            var skills = await _skillRepository.GetAllAsync();
+            ViewBag.SkillList = skills.Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            ViewBag.InitSkills = skills.Where(skill => job.Skills.Contains(skill)).Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            return RedirectToAction("Index");
+        }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
         {
