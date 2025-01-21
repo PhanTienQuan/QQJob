@@ -4,6 +4,7 @@
     recommendationsSelector,
     selectedItemsInputSelector,
     itemsList,
+    initSkillList = [],
     uniqueIdField = "id",
     displayNameField = "name"
 }) {
@@ -84,6 +85,12 @@
 
     // Attach event listeners
     inputElement.addEventListener("input", showRecommendations);
+
+    if (initSkillList && Array.isArray(initSkillList)) {
+        initSkillList.forEach(skill => {
+            addItem(skill);
+        });
+    }
 }
 
 function initializeSocialLinksManager({

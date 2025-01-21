@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using System.Data;
@@ -44,6 +45,7 @@ namespace QQJob.Controllers
                 CreatedAt = DateTime.UtcNow,
                 Candidate = model.AccountType == true ? new Candidate() : null,
                 Employer = model.AccountType == false ? new Employer() : null,
+                IsVerified = UserStatus.Unverified,
                 Avatar = "/assets/img/avatars/default-avatar.jpg"
             };
 
@@ -359,6 +361,7 @@ namespace QQJob.Controllers
                         FullName = info.Principal.FindFirstValue(ClaimTypes.GivenName) + " " + info.Principal.FindFirstValue(ClaimTypes.Surname),
                         CreatedAt = DateTime.UtcNow,
                         EmailConfirmed = true,
+                        IsVerified = UserStatus.Unverified,
                         Avatar = "/assets/img/avatars/default-avatar.jpg"
                     };
 

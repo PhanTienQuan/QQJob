@@ -64,3 +64,13 @@
         opacity: 1;
     }
 }
+
+.single__applied__job .action {
+    justify-content: flex-end;
+}
+.applied__status span {
+    white-space: nowrap;
+}
+.active{
+    background-color: lightgray;
+}

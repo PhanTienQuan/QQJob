@@ -243,20 +243,20 @@
                                         <td class="text-center">
                                             @switch (item.IsVerified)
                                             {
-                                                case Status.Pending:
-                                                    <span class="label label-warning">Pending</span>
+                                                case UserStatus.Unverified:
+                                                    <span class="label label-warning">Unverified</span>
                                                     break;
-                                                case Status.Approved:
-                                                    <span class="label label-success">Approved</span>
+                                                case UserStatus.Verified:
+                                                    <span class="label label-success">Verified</span>
                                                     break;
-                                                case Status.Denied:
+                                                case UserStatus.Denied:
                                                     <span class="label label-danger">Denied</span>
                                                     break;
                                             }
                                         </td>
                                         <td class="text-center">
                                             <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
-                                            <a href='#' class='btn btn-sm btn-success  @(item.IsVerified == Status.Approved ? "disabled" : "")'>Approve</a>
+                                            <a href='#' class='btn btn-sm btn-success  @(item.IsVerified == UserStatus.Verified ? "disabled" : "")'>Verified</a>
                                             <form method="post" asp-action="Delete" asp-route-UserId="@item.Id">
                                                 <span id="confirmDeleteSpan_@item.Id" style="display:none">
                                                     <span>Are you sure you want to Delete?</span>
