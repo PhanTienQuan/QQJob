@@ -70,7 +70,7 @@
     <script src="~/assets/js/main.js"></script>
     <script src="~/assets/js/app.js"></script>
     <script>
-        const messageData = '@Html.Raw(TempData["Message"])'
+        const messageData = @(TempData["Message"] != null ? @Html.Raw(TempData["Message"]) : "")
         if (messageData !== "") {
             showToastMessage(messageData.message, messageData.type);
         }

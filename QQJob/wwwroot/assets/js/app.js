@@ -59,13 +59,13 @@ function login(element) {
                 });
                 loading.attr("hidden", true);
                 document.getElementById("overlay").style.display = "none";
-                document.getElementById("disableButton").disabled = false;
+                $(element).attr("disabled", false);
             }
         },
         error: function () {
             loading.attr("hidden", true);
             document.getElementById("overlay").style.display = "none";
-            document.getElementById("disableButton").disabled = false;
+            $(element).attr("disabled", false);
             alert('An error occurred while processing your request.');
         }
     });
@@ -90,6 +90,7 @@ function register(element) {
         success: function (response) {
             if (response.success) {
                 $("#signupModal").modal("hide");
+                document.getElementById("overlay").style.display = "none";
                 showLoginModal(response.message, response.email, response.password);
             } else {
                 $.each(response.errors, function (key, messages) {
@@ -100,7 +101,6 @@ function register(element) {
                         errorPlaceholder.text(messages.join(', '));
                     }
                 });
-
                 onRegisterLoading.attr("hidden", true);
                 document.getElementById("overlay").style.display = "none";
                 $(element).removeAttr("disabled");

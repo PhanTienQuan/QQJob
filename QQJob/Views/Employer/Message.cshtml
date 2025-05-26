@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "Message";
+}
+    <!-- content area -->
+<div class="dashboard__content d-flex template-dashboard ">
+    <partial name="_LeftMenu" />
+    <div class="dashboard__right">
+        <div class="dash__content ">
+
+            <!-- sidebar menu -->
+            <div class="sidebar__menu d-md-block d-lg-none">
+                <div class="sidebar__action"><i class="fa-sharp fa-regular fa-bars"></i> Sidebar</div>
+            </div>
+            <!-- sidebar menu end -->
+
+            <h6 class="fw-semibold mb-4">Message</h6>
+            <!-- mobile message end -->
+            <div class="candidate__message">
+                <div class="candidate__message__content">
+                    <div class="message__left">
+                        <!-- search people -->
+                        <div class="search__job">
+                            <div class="position-relative">
+                                <input type="text" id="search" placeholder="Find Top Employer" required="">
+                                <i class="fa-light fa-magnifying-glass"></i>
+                            </div>
+                        </div>
+                        <!-- search people end -->
+                        <!-- message filter -->
+                        <div class="message__filter">
+                            <ul class="list-unstyled">
+                                <li class="nav-item"><a href="#" class="nav-link active">All</a></li>
+                                <li class="nav-item"><a href="#" class="nav-link">Unread</a></li>
+                                <li class="nav-item"><a href="#" class="nav-link">Read</a></li>
+                            </ul>
+                        </div>
+                        <!-- message filter end -->
+                        <!-- CHAT USER -->
+                        <div class="chat__user__list">
+                            <!-- single user -->
+                            <div class="single__chat__person">
+                                <div class="d-flex align-items-center gap-30">
+                                    <div class="avater">
+                                        <img src="~/assets/img/author/1.svg" alt="">
+                                    </div>
+                                    <div class="chat__person__meta">
+                                        <h6 class="font-20 fw-medium mb-0">Chat Bot</h6>
+                                        <p>you: hello how are you?</p>
+                                    </div>
+                                </div>
+
+                                <div class="right__count">
+                                    <span class="time">6 Hour ago</span>
+                                    <span class="count">2</span>
+                                </div>
+                            </div>
+                            <!-- single user end -->
+                        </div>
+                        <!-- CHAT USER ENMD -->
+                    </div>
+                    <div class="message__content">
+                        <div class="chat__header">
+                            <div class="avatar">
+                                <img src="~/assets/img/author/1.svg" alt="">
+                            </div>
+                            <div class="content">
+                                <h6 class="font-20 fw-semibold mb-0">Upwork.Inc</h6>
+                                <span class="status">Online</span>
+                            </div>
+                        </div>
+                        <div class="chat__content">
+                            <div class="msg sender">
+                                <div class="avatar">
+                                    <img src="~/assets/img/author/1.svg" alt="">
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        Good morning.Thank you for coming in today.
+                                        How are you?
+                                    </p>
+                                    <span class="time">March 12, 2023, 2.20 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="msg receiver">
+                                <div class="avatar">
+                                    <img src="~/assets/img/author/1.svg" alt="">
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        Good morning! I'm doing well, thank you.
+                                        It's nice to be here.
+                                    </p>
+                                    <span class="time">March 12, 2023, 2.20 AM</span>
+                                </div>
+                            </div>
+
+
+
+                            <div class="msg sender">
+                                <div class="avatar">
+                                    <img src="assets/img/icon/upwork.svg" alt="">
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        We're glad to have you. So, let's start by talking a
+                                        bit about your background and experiences.
+                                        Could you tell me about your previous roles
+                                        and how they've prepared you for this position?
+                                    </p>
+                                    <span class="time">March 12, 2023, 2.20 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="msg receiver">
+                                <div class="avatar">
+                                    <img src="assets/img/author/1.svg" alt="">
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        Of course. I've spent the last five years
+                                        working in marketing, primarily focusing
+                                        on digital campaigns and social media
+                                        management. In my last role, I was for
+                                        and executing marketing strategies that
+                                        increased our online presence and drove
+                                        customer engagement. I believe these
+                                        experiences have equipped me with the
+                                        skills needed to excel in a similar role here.
+                                    </p>
+                                    <span class="time">March 12, 2023, 2.20 AM</span>
+                                </div>
+                            </div>
+                            <div class="msg sender">
+                                <div class="avatar">
+                                    <img src="assets/img/icon/upwork.svg" alt="">
+                                </div>
+                                <div class="content">
+                                    <p>
+                                        We're glad to have you. So, let's start by talking a
+                                        bit about your background and experiences.
+                                        Could you tell me about your previous roles
+                                        and how they've prepared you for this position?
+                                    </p>
+                                    <span class="time">March 12, 2023, 2.20 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="input__msg">
+                                <form action="#">
+                                    <input type="text" required placeholder="Type a message">
+                                    <label for="file">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4.36841 1.00084C3.40673 1.15916 2.71283 1.45389 2.17136 2.00126C1 3.1861 1 5.09346 1 8.90818C1 12.7229 1 14.6303 2.17136 15.8159C3.34273 17.0016 5.22819 17.0008 8.99997 17.0008C12.7709 17.0008 14.6572 17.0008 15.8286 15.8159C16.9999 14.6311 16.9999 12.7229 16.9999 8.90818C16.9999 5.09346 16.9999 3.18525 15.8286 2.00042C15.2871 1.45305 14.5932 1.15832 13.6315 1" stroke="#7D8087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M6.89471 3.10721C7.30903 2.6811 8.41049 1.00195 8.99997 1.00195M8.99997 1.00195C9.58944 1.00195 10.6909 2.6811 11.1052 3.10721M8.99997 1.00195V7.73877M16.9999 10.2651H12.8517C12.1427 10.2651 11.5861 10.8579 11.2728 11.4836C10.9334 12.164 10.2539 12.7914 8.99997 12.7914C7.74608 12.7914 7.0665 12.164 6.72629 11.4836C6.41471 10.8579 5.85724 10.2651 5.14819 10.2651H1" stroke="#7D8087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </label>
+                                    <input type="file" id="file" style="display: none;">
+                                    <button type="submit" class="message__btn">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-30">
+            <p class="copyright">Copyright © 2024 All Rights Reserved by jobpath</p>
+        </div>
+    </div>
+</div>
+<!-- content area end -->

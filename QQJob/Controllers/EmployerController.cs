@@ -349,10 +349,10 @@ namespace QQJob.Controllers
                 Experience = job.Experience,
                 Qualification = job.Qualification,
                 Benefits = job.Benefits,
-
+                SelectedSkill = string.Join(",",job.Skills.Select(skill => skill.SkillId))
             };
 
-            if(!ObjectComparer.AreEqual(model,jobDetailViewModel))
+            if(ObjectComparer.AreEqual(model,jobDetailViewModel))
             {
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "Nothing changed!",type = "none" });
                 return RedirectToAction("EditJob");
@@ -365,13 +365,24 @@ namespace QQJob.Controllers
                 Name = skill.SkillName
             }).ToList();
 
-            ViewBag.InitSkills = skills.Where(skill => job.Skills.Contains(skill)).Select(skill => new
+            ViewBag.InitSkills = job.Skills.Select(skill => new
             {
                 Id = skill.SkillId,
                 Name = skill.SkillName
             }).ToList();
 
+            if(!ModelState.IsValid)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Some field are wrong!",type = "error" });
+                return View(model);
+            }
+
             return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public IActionResult Message()
+        {
+            return View();
         }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)

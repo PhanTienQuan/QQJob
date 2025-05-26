@@ -1,4 +1,6 @@
-﻿namespace QQJob.Models
+﻿using System.Text.Json.Serialization;
+
+namespace QQJob.Models
 {
     public class Skill
     {
@@ -7,7 +9,8 @@
         public string? Description { get; set; }
 
         // Navigation Properties
-        public ICollection<Candidate>? Candidates { get; set; } // Quan hệ N:N với Candidate
+        public ICollection<Candidate>? Candidates { get; set; }
+        [JsonIgnore]
         public ICollection<Job>? Jobs { get; set; }
     }
 }

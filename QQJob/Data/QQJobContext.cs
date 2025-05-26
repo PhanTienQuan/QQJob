@@ -19,7 +19,8 @@ namespace QQJob.Data
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
         public DbSet<Notification> NotificationHistories { get; set; }
         public DbSet<Message> Messages { get; set; }
-
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
         {
@@ -118,6 +119,19 @@ namespace QQJob.Data
                 .WithMany(j => j.SavedJobs)
                 .HasForeignKey(s => s.JobId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ChatSession>().HasKey(cs => cs.ChatId);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasKey(cm => cm.MessageId);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(cm => cm.ChatSession)
+                .WithMany(cs => cs.Messages)
+                .HasForeignKey(cm => cm.ChatId);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasIndex(cm => new { cm.ChatId,cm.SentAt });
         }
     }
 }

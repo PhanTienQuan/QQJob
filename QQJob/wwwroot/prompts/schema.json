@@ -1,0 +1,147 @@
+{
+  "Skill": {
+    "SkillId": "int - Unique identifier",
+    "SkillName": "string? - Name of the skill",
+    "Description": "string? - Description of the skill",
+    "Candidates": "Candidate[]? - List of candidates that have this skill",
+    "Jobs": "Job[]? - List of jobs requiring this skill (ignored in JSON responses)"
+  },
+  "Job": {
+    "JobId": "int - Unique identifier",
+    "Title": "string (nullable) - Job title",
+    "Address": "string (nullable) - Job location",
+    "Experience": "float - Required years of experience",
+    "Salary": "string (nullable) - Salary details",
+    "JobDescription": "string (nullable) - Job responsibilities and requirements",
+    "Qualification": "string (nullable) - Required qualifications",
+    "Benefits": "string (nullable) - Offered benefits",
+    "PostDate": "DateTime - Date the job was posted",
+    "CloseDate": "DateTime - Job closing date",
+    "Status": "enum - Job status",
+    "Slug": "string (nullable) - SEO-friendly URL slug",
+    "OpenPosition": "int - Available job positions",
+    "ViewCount": "long - Number of times the job was viewed",
+    "EmployerId": "string (nullable) - Employer who posted the job",
+    "SavedJobs": "ICollection<SavedJob> (nullable)",
+    "Skills": "ICollection<Skill> (nullable)",
+    "Applications": "ICollection<Application> (nullable)"
+  },
+  "Application": {
+    "ApplicationId": "int - Unique identifier",
+    "JobId": "int - Job being applied for",
+    "CandidateId": "string - Candidate applying",
+    "ApplicationDate": "DateTime - Date of application",
+    "CoverLetter": "string? - Candidate's cover letter",
+    "Status": "string - Application status (e.g., 'Pending', 'Reviewed', 'Interviewed', 'Rejected', 'Accepted')",
+    "Job": "ICollection<Job> (nullable)",
+    "Candidate": "ICollection<Candidate> (nullable)"
+  },
+  "AppUser": {
+    "Id": "string - Unique identifier (inherited from IdentityUser)",
+    "UserName": "string - User's username (inherited from IdentityUser)",
+    "NormalizedUserName": "string - Normalized username (inherited)",
+    "Email": "string - Email address (inherited)",
+    "NormalizedEmail": "string - Normalized email address (inherited)",
+    "EmailConfirmed": "bool - Whether the email is confirmed (inherited)",
+    "PasswordHash": "string - Hashed password (inherited)",
+    "SecurityStamp": "string - Security token (inherited)",
+    "ConcurrencyStamp": "string - Concurrency token (inherited)",
+    "PhoneNumber": "string? - Phone number (inherited)",
+    "PhoneNumberConfirmed": "bool - Whether phone number is confirmed (inherited)",
+    "TwoFactorEnabled": "bool - Two-factor auth enabled (inherited)",
+    "LockoutEnd": "DateTime? - Lockout end time (inherited)",
+    "LockoutEnabled": "bool - Whether lockout is enabled (inherited)",
+    "AccessFailedCount": "int - Failed access attempts (inherited)",
+
+    "FullName": "string? - Full name of the user",
+    "Avatar": "string? - Profile picture URL",
+    "Slug": "string? - SEO-friendly URL slug",
+    "CreatedAt": "DateTime - Account creation date",
+    "IsVerified": "enum - User verification status (UserStatus)",
+    "IsPremium": "bool - Whether the user has a premium account",
+    "LastLogin": "DateTime? - Last login time",
+    "SocialLink": "string? - Social media link",
+
+    "Employer": "object? - Navigation property to Employer profile (null if not an employer)",
+    "Candidate": "object? - Navigation property to Candidate profile (null if not a candidate)"
+  },
+  "Award": {
+    "AwardId": "int - Unique identifier",
+    "CandidateId": "string - ID of the candidate receiving the award",
+    "Candidate": "object - Navigation property to the Candidate entity",
+    "Title": "string - Award title",
+    "Year": "int? - Year the award was received",
+    "Description": "string? - Award details or description"
+  },
+  "Candidate": {
+    "CandidateId": "string - Unique identifier (same as UserId in AppUser)",
+    "JobTitle": "string? - Current job title",
+    "Description": "string? - Short bio or profile summary",
+    "WorkingType": "string? - Work preference (e.g., remote, onsite)",
+    "ResumePath": "string? - Path to resume file",
+
+    "User": "object - Navigation property to AppUser entity",
+    "Educations": "array - Collection of Education records",
+    "Awards": "array - Collection of Award records",
+    "CandidateExps": "array - Collection of Candidate experience entries",
+    "Applications": "array - Collection of job applications submitted",
+    "Follows": "array - Collection of follow relationships",
+    "ViewJobHistories": "array - Collection of viewed job history records",
+    "SavedJobs": "array - Collection of saved job listings",
+    "Skills": "array - Many-to-many relationship with Skill entities"
+  },
+  "CandidateExp": {
+    "CandidateExpId": "int - Unique identifier",
+    "CandidateId": "string - Candidate associated with the experience",
+    "ExpTitle": "string - Job title for this experience",
+    "Candidate": "object - Navigation property to the Candidate entity",
+    "Company": "string? - Company name",
+    "StartDate": "DateTime? - Start date of the job",
+    "EndDate": "DateTime? - End date of the job",
+    "Description": "string? - Job responsibilities and achievements"
+  },
+  "Education": {
+    "EducationId": "int - Unique identifier",
+    "CandidateId": "string - Candidate associated with this education",
+    "UniversityName": "string - Name of the educational institution",
+    "StartDate": "DateTime? - Start date of the program",
+    "EndDate": "DateTime? - Graduation date (or null if ongoing)",
+    "Description": "string? - Details about the program",
+    "Candidate": "object - Navigation property to the Candidate entity"
+  },
+  "Employer": {
+    "EmployerId": "string - Unique identifier",
+    "Website": "string? - Company website",
+    "Description": "string? - Company description",
+    "FoundedDate": "DateTime - Year the company was founded",
+    "CompanySize": "string? - Size of the company",
+    "CompanyField": "string? - Industry or business field",
+    "User": "object - Navigation property to AppUser entity",
+    "Job": "ICollection<Job> (nullable)",
+    "Follow": "ICollection<Follow> (nullable)"
+  },
+  "Follow": {
+    "Id": "long - Unique identifier",
+    "CandidateId": "string - Candidate following the employer",
+    "EmployerId": "string - Employer being followed",
+    "FollowOn": "DateTime - Date the follow action was taken",
+    "Candidate": "object - Navigation property to the Candidate entity",
+    "Employer": "object? - Navigation property to Employer entity"
+  },
+  "SavedJob": {
+    "SaveJobId": "int - Unique identifier",
+    "JobId": "int - Job that was saved",
+    "CandidateId": "string - Candidate who saved the job",
+    "SaveDate": "DateTime - Date the job was saved",
+    "Job": "ICollection<Job> (nullable)",
+    "Candidate": "object - Navigation property to the Candidate entity"
+  },
+  "ViewJobHistory": {
+    "Id": "long - Unique identifier",
+    "UserId": "string? - User who viewed the job",
+    "JobId": "int - Job that was viewed",
+    "ViewOn": "DateTime - Date the job was viewed",
+    "Job": "ICollection<Job> (nullable)",
+    "User": "object - Navigation property to AppUser entity"
+  }
+}
