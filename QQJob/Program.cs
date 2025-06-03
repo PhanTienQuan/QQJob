@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
+using QQJob.Controllers;
 using QQJob.Data;
 using QQJob.Models;
 
@@ -37,6 +38,8 @@ namespace QQJob
             builder.Services.AddScoped<IEmployerRepository,EmployerRepository>();
             builder.Services.AddScoped<ISkillRepository,SkillRepository>();
             builder.Services.AddScoped<IApplicationRepository,ApplicationRepository>();
+            builder.Services.AddScoped<IChatSessionRepository,ChatSessionRepository>();
+            builder.Services.AddScoped<IChatMessageRepository,ChatMessageRepository>();
             builder.Services.AddScoped<CustomRepository,CustomRepository>();
             builder.Services.AddTransient<ISenderEmail,EmailSender>();
             builder.Services.AddTransient<ICloudinaryService,CloudinaryService>();
@@ -57,6 +60,11 @@ namespace QQJob
                                 facebookOptions.ClientSecret = builder.Configuration.GetSection("FacebookAuth")["ClientSecret"];
                                 facebookOptions.AccessDeniedPath = "/Account/OnExternalLoginDenied";
                             });
+            builder.Services.AddSignalR();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/";
+            });
 
             var app = builder.Build();
             builder.Services.AddHttpContextAccessor();
@@ -83,7 +91,7 @@ namespace QQJob
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
+            app.MapHub<ChatHub>("/chathub");
             app.Run();
         }
     }

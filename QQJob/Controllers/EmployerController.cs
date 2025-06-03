@@ -5,13 +5,21 @@ using QQJob.Helper;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
 using System.Security.Claims;
 
 namespace QQJob.Controllers
 {
     [Authorize(Roles = "Employer")]
-    public class EmployerController(IEmployerRepository employerRepository,IApplicationRepository applicationRepository,ISkillRepository skillRepository,IJobRepository jobRepository,ICloudinaryService cloudinaryService):Controller
+    public class EmployerController(IEmployerRepository employerRepository,
+        IApplicationRepository applicationRepository,
+        ISkillRepository skillRepository,
+        IJobRepository jobRepository,
+        ICloudinaryService cloudinaryService,
+        IChatSessionRepository chatSessionRepository,
+        IAppUserRepository appUserRepository
+        ):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
         private readonly IApplicationRepository _applicationRepository = applicationRepository;
@@ -380,9 +388,22 @@ namespace QQJob.Controllers
             return RedirectToAction("Index");
         }
         [HttpGet]
-        public IActionResult Message()
+        public async Task<IActionResult> Message()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var sessions = await chatSessionRepository.GetChatSession(userId);
+
+            var sortedSessions = sessions?
+                    .OrderByDescending(s => s.Messages?.Max(m => m.SentAt))
+                    .ToList();
+
+            MessageViewModel messageViewModel = new MessageViewModel()
+            {
+                Sessions = sortedSessions,
+                CurrentChatSession = sortedSessions?.FirstOrDefault(),
+                CurrentUser = await appUserRepository.GetByIdAsync(userId),
+            };
+            return View(messageViewModel);
         }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)

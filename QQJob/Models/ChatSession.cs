@@ -3,8 +3,10 @@
     public class ChatSession
     {
         public Guid ChatId { get; set; }
-        public int User1Id { get; set; }
-        public int User2Id { get; set; }
+        public string User1Id { get; set; }
+        public string User2Id { get; set; }
+        public AppUser User1 { get; set; }
+        public AppUser User2 { get; set; }
 
         public ICollection<ChatMessage> Messages { get; set; }
     }

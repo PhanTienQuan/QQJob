@@ -10,7 +10,7 @@ namespace QQJob.Repositories.Implementations
         {
             _context = context;
         }
-        public async Task<object> QueryDatabase(List<string> tableNames,LambdaExpression predicate)
+        public async Task<object> QueryDatabase(List<string> tableNames,LambdaExpression predicate,int limit)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace QQJob.Repositories.Implementations
                 // Execute the query asynchronously
                 var result = await Task.Run(() => ((IQueryable<object>)filteredQuery).ToList());
 
-                return result;
+                return result.Take(limit);
             }
             catch(Exception ex)
             {
