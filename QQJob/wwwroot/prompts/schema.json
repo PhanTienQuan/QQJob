@@ -80,7 +80,7 @@
     "WorkingType": "string? - Work preference (e.g., remote, onsite)",
     "ResumePath": "string? - Path to resume file",
 
-    "User": "object - Navigation property to AppUser entity",
+    "User": "object - Navigation property to AppUser entity (use this to get other properties of candidate)",
     "Educations": "array - Collection of Education records",
     "Awards": "array - Collection of Award records",
     "CandidateExps": "array - Collection of Candidate experience entries",
