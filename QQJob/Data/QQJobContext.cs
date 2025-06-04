@@ -120,18 +120,39 @@ namespace QQJob.Data
                 .HasForeignKey(s => s.JobId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<ChatSession>().HasKey(cs => cs.ChatId);
+            // ChatSession primary key
+            modelBuilder.Entity<ChatSession>()
+                .HasKey(cs => cs.ChatId);
 
+            // User1 relationship (no inverse navigation)
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User1)
+                .WithMany()
+                .HasForeignKey(cs => cs.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // User2 relationship (no inverse navigation)
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User2)
+                .WithMany()
+                .HasForeignKey(cs => cs.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ChatMessage primary key
             modelBuilder.Entity<ChatMessage>()
                 .HasKey(cm => cm.MessageId);
 
+            // ChatMessage → ChatSession relationship
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(cm => cm.ChatSession)
                 .WithMany(cs => cs.Messages)
-                .HasForeignKey(cm => cm.ChatId);
+                .HasForeignKey(cm => cm.ChatId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade path issue
 
+            // Index for performance on ChatId + SentAt
             modelBuilder.Entity<ChatMessage>()
                 .HasIndex(cm => new { cm.ChatId,cm.SentAt });
+
         }
     }
 }

@@ -18,7 +18,8 @@ namespace QQJob.Controllers
         IJobRepository jobRepository,
         ICloudinaryService cloudinaryService,
         IChatSessionRepository chatSessionRepository,
-        IAppUserRepository appUserRepository
+        IAppUserRepository appUserRepository,
+        IChatMessageRepository chatMessageRepository
         ):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
@@ -391,19 +392,32 @@ namespace QQJob.Controllers
         public async Task<IActionResult> Message()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var sessions = await chatSessionRepository.GetChatSession(userId);
-
-            var sortedSessions = sessions?
-                    .OrderByDescending(s => s.Messages?.Max(m => m.SentAt))
-                    .ToList();
+            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
 
             MessageViewModel messageViewModel = new MessageViewModel()
             {
-                Sessions = sortedSessions,
-                CurrentChatSession = sortedSessions?.FirstOrDefault(),
+                Sessions = sessions,
+                CurrentChatSession = sessions?.FirstOrDefault(),
                 CurrentUser = await appUserRepository.GetByIdAsync(userId),
             };
             return View(messageViewModel);
+        }
+        [HttpGet]
+        public async Task<JsonResult> LoadMoreMessages(Guid chatId,int skip = 0,int take = 10)
+        {
+            var messages = await chatMessageRepository.GetChatMessage(chatId,skip,take);
+
+            var m = messages.Select(m => new
+            {
+                m.MessageId,
+                m.ChatId,
+                m.SenderId,
+                Avatar = m.Sender.Avatar,
+                m.MessageText,
+                m.SentAt
+            });
+
+            return Json(m);
         }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
