@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using QQJob.Areas.Admin.ViewModels;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager) : Controller
+    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager):Controller
     {
         private readonly ILogger<UserController> _logger = logger;
         private readonly IAppUserRepository _userRepository = appUserRepository;
@@ -16,10 +17,20 @@ namespace QQJob.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetUsersAsync();
             var count = await _userRepository.GetCount();
             ViewBag.Count = count;
-            return View("List",user);
+            List<ListUserViewModel> list = new List<ListUserViewModel>();
+            foreach(var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                list.Add(new ListUserViewModel
+                {
+                    User = user,
+                    Role = roles.FirstOrDefault() ?? "No Role"
+                });
+            }
+            return View("List",list);
         }
 
         [HttpGet]

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AppUser>
+﻿@model IEnumerable<ListUserViewModel>
 @{
     ViewBag.Title = "All User";
 }
@@ -207,19 +207,21 @@
                             <tr>
 
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Id)
+                                    @Html.DisplayNameFor(model => model.User.Id)
                                 </th>
 
                                 <th>
-                                    @Html.DisplayNameFor(model => model.FullName)
+                                    @Html.DisplayNameFor(model => model.User.FullName)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Email)
+                                    @Html.DisplayNameFor(model => model.User.Email)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.CreatedAt)
+                                    @Html.DisplayNameFor(model => model.User.CreatedAt)
                                 </th>
-
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Role)
+                                </th>
                                 <th>
                                     Status
                                 </th>
@@ -229,19 +231,22 @@
                                 {
                                     <tr>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Id)
+                                            @Html.DisplayFor(modelItem => item.User.Id)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.UserName)
+                                            @Html.DisplayFor(modelItem => item.User.UserName)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Email)
+                                            @Html.DisplayFor(modelItem => item.User.Email)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedAt)
+                                            @Html.DisplayFor(modelItem => item.User.CreatedAt)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Role)
                                         </td>
                                         <td class="text-center">
-                                            @switch (item.IsVerified)
+                                            @switch (item.User.IsVerified)
                                             {
                                                 case UserStatus.Unverified:
                                                     <span class="label label-warning">Unverified</span>
@@ -256,17 +261,17 @@
                                         </td>
                                         <td class="text-center">
                                             <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
-                                            <a href='#' class='btn btn-sm btn-success  @(item.IsVerified == UserStatus.Verified ? "disabled" : "")'>Verified</a>
-                                            <form method="post" asp-action="Delete" asp-route-UserId="@item.Id">
-                                                <span id="confirmDeleteSpan_@item.Id" style="display:none">
+                                            <a href='#' class='btn btn-sm btn-success  @(item.User.IsVerified == UserStatus.Verified ? "disabled" : "")'>Verified</a>
+                                            <form method="post" asp-action="Delete" asp-route-UserId="@item.User.Id">
+                                                <span id="confirmDeleteSpan_@item.User.Id" style="display:none">
                                                     <span>Are you sure you want to Delete?</span>
                                                     <button type="submit" class="btn btn-danger">Yes</button>
                                                     <a class="btn btn-primary"
-                                                       onclick="confirmDelete('@item.Id', false)">No</a>
+                                                       onclick="confirmDelete('@item.User.Id', false)">No</a>
                                                 </span>
-                                                <span id="deleteSpan_@item.Id">
+                                                <span id="deleteSpan_@item.User.Id">
                                                     <a class="btn btn-danger"
-                                                       onclick="confirmDelete('@item.Id', true)">Delete</a>
+                                                       onclick="confirmDelete('@item.User.Id', true)">Delete</a>
                                                 </span>
                                             </form>
                                         </td>
