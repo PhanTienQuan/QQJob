@@ -1,4 +1,5 @@
-﻿@model EmployerProfileViewModel
+﻿@using Newtonsoft.Json
+@model EmployerProfileViewModel
 @{
     ViewBag.Title = "Profile";
 }
@@ -128,7 +129,7 @@
 </div>
 @section Scripts {
     <script>
-        const socialLinks = @Html.Raw(Json.Serialize(Model.SocialLinks));
+        const socialLinks = @Html.Raw(JsonConvert.SerializeObject(Model.SocialLinks));
         const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
         document.addEventListener("DOMContentLoaded", () => {
             initializeSocialLinksManager({
@@ -140,10 +141,12 @@
             });
 
             initializeSkillTagsManager({
-                skillTagsSelector: ".skill__tags",
-                addSkillBtnSelector: ".add__btn",
-                fieldInputSelector: "#CompanyField",
-                initialCompanyField: companyField
+                tagsSelector: ".skill__tags",
+                addBtnSelector: ".add__btn",
+                inputSelector: "#CompanyField",
+                initialValue: companyField,
+                inputPlaceholder: "Enter your field",
+                emptyPlaceholder: "Your company has not added any fields yet"
             });
         });
         document.getElementById('AvatarFile').addEventListener('change', function(event) {

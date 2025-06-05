@@ -71,7 +71,7 @@ namespace QQJob.Controllers
                 return NotFound("Employer profile not found.");
             }
 
-            List<SocialLink> socialLinks = employer.User.SocialLink != null ? JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) : new List<SocialLink>();
+            List<SocialLink> socialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? new List<SocialLink>();
             var model = new EmployerProfileViewModel
             {
                 Id = employer.EmployerId,
@@ -122,7 +122,7 @@ namespace QQJob.Controllers
             employer.User.FullName = UpdateIfDifferent(employer.User.FullName,model.FullName.Trim(),ref isUpdated);
             employer.User.PhoneNumber = UpdateIfDifferent(employer.User.PhoneNumber,model.PhoneNumber?.Trim(),ref isUpdated);
             employer.Website = UpdateIfDifferent(employer.Website,model.Website?.Trim(),ref isUpdated);
-            employer.FoundedDate = (DateTime)UpdateIfDifferent(employer.FoundedDate,model.FoundedDate,ref isUpdated);
+            employer.FoundedDate = UpdateIfDifferent(employer.FoundedDate,model.FoundedDate ??= DateTime.MinValue,ref isUpdated);
             employer.CompanySize = UpdateIfDifferent(employer.CompanySize,model.CompanySize?.Trim(),ref isUpdated);
             employer.CompanyField = UpdateIfDifferent(employer.CompanyField,model.CompanyField,ref isUpdated);
             var socialLinksJson = JsonConvert.SerializeObject(model.SocialLinks);
@@ -140,7 +140,7 @@ namespace QQJob.Controllers
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "No changes detected.",type = "none" });
             }
 
-            model.SocialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? new List<SocialLink>();
+            model.SocialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? [];
             return RedirectToAction("Profile");
         }
 

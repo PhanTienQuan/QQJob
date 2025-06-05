@@ -212,7 +212,7 @@ function initializeSocialLinksManager({
     function populateSocialLinks() {
         socialLinksContainer.innerHTML = ""; // Clear container
         initialLinks.forEach(link => {
-            createSocialLinkGroup(link.platform, link.url);
+            createSocialLinkGroup(link.Platform, link.Url);
         });
     }
 
@@ -221,31 +221,33 @@ function initializeSocialLinksManager({
 }
 
 function initializeSkillTagsManager({
-    skillTagsSelector,
-    addSkillBtnSelector,
-    fieldInputSelector,
-    initialCompanyField = []
+    tagsSelector,
+    addBtnSelector,
+    inputSelector,
+    initialValue = [],
+    inputPlaceholder,
+    emptyPlaceholder
 }) {
-    const skillTags = document.querySelector(skillTagsSelector);
-    const addSkillBtn = document.querySelector(addSkillBtnSelector);
-    const fieldInput = document.querySelector(fieldInputSelector);
+    const tags = document.querySelector(tagsSelector);
+    const addBtn = document.querySelector(addBtnSelector);
+    const fieldInput = document.querySelector(inputSelector);
 
 
-    addSkillBtn.addEventListener("click", () => {
+    addBtn.addEventListener("click", () => {
         // Create input field
         const inputField = document.createElement("input");
         inputField.type = "text";
-        inputField.className = "skill__input";
-        inputField.placeholder = "Enter skill";
+        inputField.className = "input";
+        inputField.placeholder = inputPlaceholder;
 
         // Add save and cancel buttons
         const saveBtn = document.createElement("button");
         saveBtn.innerHTML = "<i class='fa-solid fa-check'></i>";
-        saveBtn.className = "save-skill-btn";
+        saveBtn.className = "save-btn";
 
         const cancelBtn = document.createElement("button");
         cancelBtn.innerHTML = "<i class='fa-solid fa-xmark'></i>";
-        cancelBtn.className = "cancel-skill-btn";
+        cancelBtn.className = "cancel-btn";
 
         const inputContainer = document.createElement("li");
         inputContainer.className = "inputContainer";
@@ -254,59 +256,59 @@ function initializeSkillTagsManager({
         inputContainer.appendChild(cancelBtn);
 
         // Replace the add button with the input container
-        skillTags.replaceChild(inputContainer, addSkillBtn);
+        tags.replaceChild(inputContainer, addBtn);
 
         // Focus on input field
         inputField.focus();
 
         // Save skill
         saveBtn.addEventListener("click", () => {
-            const skillValue = inputField.value.trim();
-            if (skillValue) {
-                createSkillTag(skillValue, inputContainer);
-                fieldInput.value = fieldInput.value ? `${fieldInput.value}, ${skillValue}` : skillValue;
+            const value = inputField.value.trim();
+            if (value) {
+                createTag(value, inputContainer);
+                fieldInput.value = fieldInput.value ? `${fieldInput.value}, ${value}` : value;
             }
-            skillTags.replaceChild(addSkillBtn, inputContainer); // Restore add button
+            tags.replaceChild(addBtn, inputContainer); // Restore add button
         });
 
         // Cancel input
         cancelBtn.addEventListener("click", () => {
-            skillTags.replaceChild(addSkillBtn, inputContainer); // Restore add button
+            tags.replaceChild(addBtn, inputContainer); // Restore add button
         });
     });
     
-    function createSkillTag(skillValue, btn) {
-        const placeholder = skillTags.querySelector(".placeholder");
+    function createTag(value, btn) {
+        const placeholder = tags.querySelector(".placeholder");
         if (placeholder) {
-            skillTags.removeChild(placeholder);
+            tags.removeChild(placeholder);
         }
 
-        const newSkill = document.createElement("li");
-        newSkill.className = "skill__item_parent";
-        newSkill.innerHTML = `<span class="skill__item">${skillValue}</span>`;
+        const newTag = document.createElement("li");
+        newTag.className = "item_parent";
+        newTag.innerHTML = `<span class="item">${value}</span>`;
 
         const removeBtn = document.createElement("span");
         removeBtn.innerHTML = `<i class="fa-regular fa-xmark"></i>`;
         removeBtn.style.cursor = "pointer";
         removeBtn.addEventListener("click", () => {
-            skillTags.removeChild(newSkill); // Remove the skill item
-            const regex = new RegExp(`(^|,\\s?)${skillValue}(,\\s?|$)`, "g");
+            tags.removeChild(newTag); // Remove the skill item
+            const regex = new RegExp(`(^|,\\s?)${value}(,\\s?|$)`, "g");
             fieldInput.value = fieldInput.value.replace(regex, "$1").replace(/,\s*$/, "");
             // Add placeholder back if no skills remain
-            if (!skillTags.querySelector(".skill__item_parent")) {
+            if (!tags.querySelector(".item_parent")) {
                 const placeholder = document.createElement("li");
                 placeholder.className = "placeholder";
-                placeholder.innerHTML = `<span>Your company has not added any fields yet</span>`;
-                skillTags.insertBefore(placeholder, addSkillBtn.closest('li'));
+                placeholder.innerHTML = `<span>${emptyPlaceholder}</span>`;
+                tags.insertBefore(placeholder, addBtn.closest('li'));
             }
         });
-        newSkill.appendChild(removeBtn);
+        newTag.appendChild(removeBtn);
 
-        skillTags.insertBefore(newSkill, btn); // Add before input container
+        tags.insertBefore(newTag, btn); // Add before input container
     }
 
     function populateSkill() {
-        initialCompanyField.forEach(skill => createSkillTag(skill, addSkillBtn));
+        initialValue.forEach(skill => createTag(skill, addBtn));
     }
 
     populateSkill();

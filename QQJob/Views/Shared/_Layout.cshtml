@@ -70,8 +70,8 @@
     <script src="~/assets/js/main.js"></script>
     <script src="~/assets/js/app.js"></script>
     <script>
-        const messageData = "@(TempData["Message"] != null ? @Html.Raw(TempData["Message"]) : "")"
-        if (messageData !== "") {
+        const messageData = @Html.Raw(TempData["Message"] ?? "\"\"");
+        if (messageData != "") {
             showToastMessage(messageData.message, messageData.type);
         }
         if (window.location.search.includes("ReturnUrl")) {

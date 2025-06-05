@@ -4,7 +4,7 @@ using QQJob.Repositories.Interfaces;
 
 namespace QQJob.Repositories.Implementations
 {
-    public class CloudinaryService : ICloudinaryService
+    public class CloudinaryService:ICloudinaryService
     {
         private readonly Cloudinary _cloudinary;
         public CloudinaryService(IConfiguration configuration)
