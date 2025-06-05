@@ -246,13 +246,13 @@ namespace QQJob.Controllers
                 return View(model);
             }
 
-            if((model.WorkingSche == null && model.CusWorkingSche == null) || (model.Experience == null && model.CusExperience == null))
+            if((model.WorkingType == null && model.CusWorkingType == null) || (model.Experience == null && model.CusExperience == null))
             {
                 string errorMessage = string.Empty;
-                if(model.WorkingSche == null && model.CusWorkingSche == null)
+                if(model.WorkingType == null && model.CusWorkingType == null)
                 {
-                    errorMessage += "Working Schedule field";
-                    ModelState.AddModelError("WorkingSche","This field is required!");
+                    errorMessage += "Working Type field";
+                    ModelState.AddModelError("WorkingType","This field is required!");
                 }
                 if(model.Experience == null && model.CusExperience == null)
                 {
@@ -269,7 +269,7 @@ namespace QQJob.Controllers
                 Descriptions = model.Description,
                 model.Responsibilities,
                 model.Requirements,
-                WorkingSche = model.CusWorkingSche ?? model.WorkingSche,
+                WorkingType = model.CusWorkingType ?? model.WorkingType,
             };
 
             var selectedSkill = new List<Skill>();
@@ -297,14 +297,17 @@ namespace QQJob.Controllers
                 PostDate = DateTime.Now,
                 CloseDate = (DateTime)model.Close,
                 Skills = selectedSkill,
-                Status = status
+                Status = status,
+                WorkingHours = model.WorkingHours,
+                WorkingType = model.CusWorkingType ?? model.WorkingType,
+                PayType = model.CusPayType ?? model.PayType,
             };
 
             await _jobRepository.AddAsync(newJob);
             await _jobRepository.SaveChangesAsync();
             var message = "Post successfully!" + (confirmed != UserStatus.Verified ? " Wait for admin to verify your post" : "");
             TempData["Message"] = JsonConvert.SerializeObject(new { message,type = "success" });
-            return RedirectToAction("Index");
+            return RedirectToAction("JobsPosted");
         }
 
         [HttpGet]

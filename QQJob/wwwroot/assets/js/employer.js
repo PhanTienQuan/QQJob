@@ -5,8 +5,8 @@
     selectedItemsInputSelector,
     itemsList,
     initSkillList = [],
-    uniqueIdField = "id",
-    displayNameField = "name"
+    uniqueIdField = "Id",
+    displayNameField = "Name"
 }) {
     const selectedItems = new Set();
     const inputElement = document.querySelector(inputSelector);

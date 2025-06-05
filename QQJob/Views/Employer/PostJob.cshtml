@@ -1,4 +1,5 @@
-﻿@model PostJobViewModel
+﻿@using Newtonsoft.Json
+@model PostJobViewModel
 @{
     ViewBag.Title = "Post Job";
 }
@@ -132,22 +133,49 @@
                                     <div class="position-relative">
                                         <!-- Job Schedule Input -->
                                         <div class="rt-input-group">
-                                            <label for="schedule">Working Schedule</label>
-                                            <select asp-for="WorkingSche" class="form-select" onchange="toggleCustomField(this, '#customScheduleGroup')">
-                                                <option value="" disabled selected>Select working schedule</option>
+                                            <label for="schedule">Working Type</label>
+                                            <select asp-for="WorkingType" class="form-select" onchange="setWorkingHours(this)">
+                                                <option value="" disabled selected>Select working type</option>
                                                 <option value="Full-time">Full-time</option>
                                                 <option value="Part-time">Part-time</option>
-                                                <option value="Remote">Remote</option>
+                                                <option value="Contract">Contract</option>
+                                                <option value="Temporary">Temporary</option>
+                                                <option value="Internship">Internship</option>
                                                 <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <span asp-validation-for="WorkingSche" class="text-danger"></span>
+                                        <span asp-validation-for="WorkingType" class="text-danger"></span>
                                         <div class="rt-input-group" id="customScheduleGroup" style="display: none; margin-top: 1rem;">
-                                            <label asp-for="CusWorkingSche">Custom Working Schedule</label>
-                                            <input asp-for="CusWorkingSche" placeholder="Enter custom schedule (e.g., 3 days a week)">
+                                            <label asp-for="CusWorkingType">Custom Working Type</label>
+                                            <input asp-for="CusWorkingType" placeholder="Enter custom Type">
                                         </div>
-                                        <span asp-validation-for="CusWorkingSche" class="text-danger"></span>
+                                        <span asp-validation-for="CusWorkingType" class="text-danger"></span>
                                     </div>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label asp-for="WorkingHours">Working Hours</label>
+                                    <input asp-for="WorkingHours" placeholder="Working Hours" required disabled>
+                                </div>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="PayType">Pay Type</label>
+                                        <select asp-for="PayType" class="form-select" onchange="toggleCustomField(this, '#customPayTypeGroup')">
+                                            <option value="" disabled selected>Select pay type</option>
+                                            <option value="Project">Project</option>
+                                            <option value="Hourly">Hourly</option>
+                                            <option value="Paid">Paid</option>
+                                            <option value="Salary/Hourly">Salary/Hourly</option>
+                                            <option value="Hourly/Project">Hourly/Project</option>
+                                            <option value="None/Paid">None/Paid</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="PayType" class="text-danger"></span>
+                                    <div class="rt-input-group" id="customPayTypeGroup" style="display: none; margin-top: 1rem;">
+                                        <label asp-for="CusPayType">Custom Pay Type</label>
+                                        <input asp-for="CusPayType" placeholder="Enter Pay Type">
+                                    </div>
+                                    <span asp-validation-for="CusPayType" class="text-danger"></span>
                                 </div>
                                 <div class="rt-input-group">
                                     <label asp-for="Opening">Opening</label>
@@ -185,7 +213,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" class="rts__btn fill__btn">
+                            <button type="submit" class="rts__btn fill__btn" id="submit_btn">
                                 Post Job
                             </button>
                         </div>
@@ -199,7 +227,7 @@
 </div>
 @section Scripts{
     <script>
-        const skillList = @Html.Raw(Json.Serialize(ViewBag.SkillList));
+        const skillList = @Html.Raw(JsonConvert.SerializeObject(ViewBag.SkillList));
         document.addEventListener("DOMContentLoaded", () => {
             initializeTagManager({
                 inputSelector: "#skillInput",
@@ -210,6 +238,27 @@
             });
         });
         $.validator.setDefaults({ ignore: [] });
+
+        function setWorkingHours(selectElement) {
+            const hoursField = document.getElementById("WorkingHours");
+            const type = selectElement.value;
+            const hoursMap = {
+                "Full-time": "35–40+ hrs/wk",
+                "Part-time": "<35 hrs/wk",
+                "Contract": "Varies",
+                "Temporary": "Varies",
+                "Internship": "Varies",
+                "Other": ""
+            };
+
+            hoursField.value = hoursMap[type] ?? "";
+            if(type == "Other"){
+                hoursField.disabled = false;
+            }else{
+                hoursField.disabled = true;
+            }
+            toggleCustomField(selectElement, '#customScheduleGroup');
+        }
     </script>
     <script src="~/assets/js/employer.js"></script>
 }

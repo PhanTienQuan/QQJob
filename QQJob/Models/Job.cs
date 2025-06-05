@@ -18,7 +18,9 @@ namespace QQJob.Models
         public string? Slug { get; set; }
         public int OpenPosition { get; set; }
         public long ViewCount { get; set; }
-
+        public string? PayType { get; set; }
+        public string? WorkingHours { get; set; }
+        public string? WorkingType { get; set; }
         // Foreign Key
         public string? EmployerId { get; set; }
         public Employer? Employer { get; set; }
