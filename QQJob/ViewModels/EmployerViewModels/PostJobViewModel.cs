@@ -10,6 +10,7 @@ namespace QQJob.ViewModels.EmployerViewModels
         [Required(ErrorMessage = "Description is required")]
         public string? Description { get; set; }
         public string? Requirements { get; set; }
+        public string? Responsibilities { get; set; }
         [Required(ErrorMessage = "Location is required")]
         public string? Location { get; set; }
         public string? CustomLocation { get; set; }
@@ -17,7 +18,6 @@ namespace QQJob.ViewModels.EmployerViewModels
         public float? Experience { get; set; }
         public float? CusExperience { get; set; }
         public string? Qualification { get; set; }
-        public string? Responsibilities { get; set; }
         [Required(ErrorMessage = "At least 1 skill needed")]
         public string SelectedSkill { get; set; }
         public string? Salary { get; set; }
