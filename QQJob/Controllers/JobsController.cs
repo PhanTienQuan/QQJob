@@ -6,7 +6,7 @@ using QQJob.ViewModels;
 
 namespace QQJob.Controllers
 {
-    public class JobsController(IJobRepository jobRepository):Controller
+    public class JobsController(IJobRepository jobRepository,IAppUserRepository appUserRepository,IEmployerRepository employerRepository):Controller
     {
         private readonly IJobRepository _jobRepository = jobRepository;
         public async Task<IActionResult> Index()
@@ -34,10 +34,12 @@ namespace QQJob.Controllers
         public async Task<IActionResult> Detail(int id)
         {
             var job = await _jobRepository.GetByIdAsync(id);
-
+            var employer = await employerRepository.GetByIdAsync(job.EmployerId);
+            Console.WriteLine("hours: " + job.WorkingHours);
             var jobDetailViewModel = new JobDetailViewModel()
             {
                 Id = job.JobId,
+                EmployerId = job.EmployerId,
                 Title = job.Title,
                 Address = job.Address,
                 JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
@@ -50,7 +52,11 @@ namespace QQJob.Controllers
                 Opening = job.OpenPosition,
                 Experience = job.Experience,
                 Qualification = job.Qualification,
-                Benefits = job.Benefits
+                Benefits = job.Benefits,
+                WorkingHours = job.WorkingHours,
+                WorkingType = job.WorkingType,
+                PayType = job.PayType,
+                Website = employer.Website
             };
 
             ViewBag.Job = jobDetailViewModel;

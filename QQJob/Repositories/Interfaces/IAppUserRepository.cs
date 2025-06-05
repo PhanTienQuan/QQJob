@@ -10,5 +10,6 @@ namespace QQJob.Repositories.Interfaces
         Task<IEnumerable<AppUser>> GetUsersAsync(int page = 1,int per = 10);
         Task<IEnumerable<AppUser>> GetUserAsync(Expression<Func<AppUser,bool>> predicate);
         Task<int> GetCount();
+        string GetUserAvatarUrl(string userId);
     }
 }

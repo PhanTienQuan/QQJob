@@ -6,6 +6,7 @@ namespace QQJob.ViewModels
     public class JobDetailViewModel
     {
         public int Id { get; set; }
+        public string EmployerId { get; set; }
         public string Title { get; set; }
         public string Address { get; set; }
         public JobDescription JobDes { get; set; }
@@ -20,8 +21,9 @@ namespace QQJob.ViewModels
         public string Qualification { get; set; }
         public string Benefits { get; set; }
         public string ImgUrl { get; set; }
-        public string? CustomAddress { get; set; }
-        public string? CusExperience { get; set; }
-        public string? CusWorkingSche { get; set; }
+        public string? PayType { get; set; }
+        public string? WorkingHours { get; set; }
+        public string? WorkingType { get; set; }
+        public string? Website { get; set; }
     }
 }
