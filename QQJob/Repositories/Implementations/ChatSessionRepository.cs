@@ -2,6 +2,7 @@
 using QQJob.Data;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Implementations
 {
@@ -60,6 +61,33 @@ namespace QQJob.Repositories.Implementations
 
             return sessions;
         }
+
+        public async Task<IEnumerable<ChatSession>> GetChatSession(Expression<Func<ChatSession,bool>> predicate,int messageLimit,int sessionLimit)
+        {
+            var sessions = await _context.ChatSessions
+                .Where(predicate)
+                .Include(s => s.Messages)
+                .Include(s => s.User1)
+                .Include(s => s.User2)
+                .OrderByDescending(s => s.Messages.Any() ? s.Messages.Max(m => m.SentAt) : s.CreateAt)
+                .Take(sessionLimit)
+                .ToListAsync();
+
+            foreach(var session in sessions)
+            {
+                if(session.Messages != null && session.Messages.Any())
+                {
+                    session.Messages = session.Messages
+                        .OrderByDescending(m => m.SentAt)
+                        .Take(messageLimit)
+                        .OrderBy(m => m.SentAt)
+                        .ToList();
+                }
+            }
+
+            return sessions;
+        }
+
 
     }
 }

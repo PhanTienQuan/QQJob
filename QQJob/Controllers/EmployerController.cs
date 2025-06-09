@@ -396,31 +396,13 @@ namespace QQJob.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
-
             MessageViewModel messageViewModel = new MessageViewModel()
             {
                 Sessions = sessions,
-                CurrentChatSession = sessions?.FirstOrDefault(),
+                CurrentChatSession = sessions != null ? sessions.FirstOrDefault() : new ChatSession(),
                 CurrentUser = await appUserRepository.GetByIdAsync(userId),
             };
             return View(messageViewModel);
-        }
-        [HttpGet]
-        public async Task<JsonResult> LoadMoreMessages(Guid chatId,int skip = 0,int take = 10)
-        {
-            var messages = await chatMessageRepository.GetChatMessage(chatId,skip,take);
-
-            var m = messages.Select(m => new
-            {
-                m.MessageId,
-                m.ChatId,
-                m.SenderId,
-                Avatar = m.Sender.Avatar,
-                m.MessageText,
-                m.SentAt
-            });
-
-            return Json(m);
         }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
