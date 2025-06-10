@@ -12,7 +12,7 @@ namespace QQJob.Controllers
         {
             if(previousChatId.HasValue && currentUserId != null)
             {
-                await chatMessageRepository.UpdateIsReadAsync(previousChatId.Value,currentUserId);
+                await chatMessageRepository.UpdateIsReadAsync(previousChatId,currentUserId);
             }
 
             var messages = await chatMessageRepository.GetChatMessage(chatId,skip,take);
@@ -61,7 +61,7 @@ namespace QQJob.Controllers
                 s.User2,
                 s.CreateAt,
                 s.Messages,
-                unreadCount = await chatMessageRepository.GetUnreadMessagesCount(s.ChatId,userId)
+                unreadCount = await chatMessageRepository.GetUnreadMessagesCount(s.ChatId,s.User1Id != userId ? s.User1Id : s.User2Id)
             });
             return Json(new { sessions = sessionData });
         }

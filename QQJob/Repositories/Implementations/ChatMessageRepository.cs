@@ -18,7 +18,7 @@ namespace QQJob.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task UpdateIsReadAsync(Guid chatId,string userId)
+        public async Task UpdateIsReadAsync(Guid? chatId,string userId)
         {
             var messages = await _context.ChatMessages.Where(m => m.ChatId == chatId && m.SenderId != userId && !m.IsRead).ToListAsync();
             foreach(var message in messages)

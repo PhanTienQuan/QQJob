@@ -18,6 +18,36 @@
             <!-- sidebar menu end -->
 
             <h6 class="fw-semibold mb-4">Message</h6>
+            <!-- mobile message -->
+            <div class="user__list__as__messanger d-xxl-none mb-30">
+                <h6 class="fw-semibold mb-4 font-20">Active Users</h6>
+                <div class="message__left">
+                    <!-- search people -->
+                    <div class="search__job">
+                        <div class="position-relative">
+                            <input type="text" id="search" placeholder="Find Top Employer" required="">
+                            <i class="fa-light fa-magnifying-glass"></i>
+                        </div>
+                    </div>
+                    <!-- search people end -->
+                    <!-- message filter -->
+                    <div class="message__filter mt-4">
+                        <ul class="list-unstyled d-flex gap-3">
+                            <li class="nav-item"><a href="#" class="nav-link active">All</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Unread</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Read</a></li>
+                        </ul>
+                    </div>
+                    <!-- message filter end -->
+                    <!-- CHAT USER -->
+                    <div class="chat__user__list">
+                        <!-- single user -->
+                        @* render by js *@
+                        <!-- single user end -->
+                    </div>
+                    <!-- CHAT USER ENMD -->
+                </div>
+            </div>
             <!-- mobile message end -->
             <div class="candidate__message">
                 <div class="candidate__message__content">
@@ -124,6 +154,7 @@
     </div>
 </div>
 <!-- content area end -->
+
 @section Scripts {
     <script>
         let currentChatId = '@Model.CurrentChatSession?.ChatId';

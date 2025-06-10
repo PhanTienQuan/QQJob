@@ -1,8 +1,8 @@
 ﻿const messageInput = document.getElementById("messageInput");
 const sendButton = document.querySelector(".message__btn");
 const chatMessagesDiv = document.getElementById("chatMessages");
-const searchInput = document.getElementById("search");
-const chatSessionList = document.querySelector(".chat__user__list");
+const searchInputs = document.querySelectorAll("#search");
+const chatSessionList = document.querySelectorAll(".chat__user__list");
 const typingDelay = 5000;
 const loadBatchSize = 10;
 let loadedMessagesCount = 10;
@@ -23,26 +23,35 @@ connection.start().then(() => {
 connection.on("ReceiveMessage", function (response) {
     const message = response.message;
 
-    const messagePreview = document.getElementById(message.chatId + "_messagePreview");
-    const countPreview = document.getElementById(message.chatId + "_count");
-    const timePreview = document.getElementById(message.chatId + "_time");
+    const messagePreview = document.querySelectorAll(`#${message.chatId}_messagePreview`);
+    const countPreview = document.querySelectorAll(`#${message.chatId}_count`);
+    const timePreview = document.querySelectorAll(`#${message.chatId}_time`);
     const isCurrentUser = message.senderId === currentUserId;
     const unreadCount = isCurrentUser ? 0 : response.unreadMessagesCount;
-
     // Update chat preview
-    if (countPreview) countPreview.innerHTML = unreadCount;
-    if (messagePreview) {
-        messagePreview.innerHTML = isCurrentUser ? `You: ${message.messageText}` : `${message.sender.fullName}: ${message.messageText}`;
-        messagePreview.style.fontWeight = unreadCount === 0 ? "normal" : "bold";
+    if (countPreview.length > 0) {
+        countPreview.forEach(function (element) {
+            element.innerHTML = unreadCount;
+        });
     }
-    if (timePreview) timePreview.innerHTML = formatTimeAgo(message.sentAt);
+    if (messagePreview) {
+        messagePreview.forEach(function (element) {
+            element.innerHTML = isCurrentUser ? `You: ${message.messageText}` : `${message.sender.fullName}: ${message.messageText}`;
+            element.style.fontWeight = unreadCount === 0 ? "normal" : "bold";
+        });
+    }
+    if (timePreview) {
+        timePreview.forEach(function (element) {
+            element.innerHTML = formatTimeAgo(message.sentAt);
+        });
+    }
 
-    // 🔼 Move session to top
-    const sessionElement = document.querySelector(`.single__chat__person[data-sessionid="${message.chatId}"]`);
-
-    if (sessionElement && chatSessionList) {
-        chatSessionList.removeChild(sessionElement);
-        chatSessionList.insertBefore(sessionElement, chatSessionList.firstChild);
+    if (chatSessionList) {
+        chatSessionList.forEach(function (element) {
+            const sessionElement = element.querySelector(`.single__chat__person[data-sessionid="${message.chatId}"]`);
+            element.removeChild(sessionElement);
+            element.insertBefore(sessionElement, element.firstChild);
+        });
     }
 
     // Show in chat window if it's the current chat
@@ -55,8 +64,10 @@ connection.on("ReceiveMessage", function (response) {
 sendButton.addEventListener("click", function (e) {
     e.preventDefault();
     const message = messageInput.value;
-    connection.invoke("SendMessage", currentChatId, currentUserId, message);
-    messageInput.value = "";
+    if (message != "") {
+        connection.invoke("SendMessage", currentChatId, currentUserId, message);
+        messageInput.value = "";
+    }
 });
 
 messageInput.addEventListener("input", function () {
@@ -93,7 +104,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 chatMessagesDiv.addEventListener('scroll', function () {
     if (chatMessagesDiv.scrollTop === 0 && hasMore) {
-        isLoadingMore = true;
 
         const currentScrollHeight = chatMessagesDiv.scrollHeight;
 
@@ -120,11 +130,9 @@ chatMessagesDiv.addEventListener('scroll', function () {
                 }
 
                 hasMore = response.hasMore;
-                isLoadingMore = false;
             },
             error: function () {
                 console.error('Failed to load messages');
-                isLoadingMore = false;
             }
         });
     }
@@ -132,19 +140,23 @@ chatMessagesDiv.addEventListener('scroll', function () {
 
 function loadSessionMessages(sessionId) {
     hasMore = false;
-    const messagePreview = document.getElementById(currentChatId + "_messagePreview");
-    const countPreview = document.getElementById(currentChatId + "_count");
-    countPreview.innerHTML = 0;
-    messagePreview.style.fontWeight = "normal";
+    const messagePreview = document.querySelectorAll(`#${currentChatId}_messagePreview`);
+    const countPreview = document.querySelectorAll(`#${currentChatId}_count`);
+
+    messagePreview.forEach(function (element) {
+        element.style.fontWeight = "normal";
+    })
+
+    countPreview.forEach(function (element) {
+        element.innerHTML = 0;
+    })
 
     if (sessionId === currentChatId) return; // Already active
 
     loadedMessagesCount = 10;
-    isLoadingMore = false;
     hasMore = true;
 
     document.querySelectorAll('.chat__message').forEach(el => el.remove());
-
     $.ajax({
         url: '/Message/GetMessages',
         data: {
@@ -190,8 +202,13 @@ connection.on("HideTyping", function (senderId) {
     }
 });
 
-
-searchInput.addEventListener("input", loadFilteredSessions);
+let searchName = "";
+searchInputs.forEach(function (element) {
+    element.addEventListener("input", function () {
+        searchName = element.value;
+        loadFilteredSessions();
+    });
+});
 
 let currentFilter = "";
 document.querySelectorAll(".message__filter .nav-link").forEach(link => {
@@ -216,8 +233,7 @@ document.querySelectorAll(".message__filter .nav-link").forEach(link => {
     });
 });
 function loadFilteredSessions() {
-    const name = searchInput.value.trim();
-    renderSession(name);
+    renderSession(searchName);
 }
 function formatTimeAgo(dateString) {
     const date = new Date(dateString);
@@ -270,72 +286,79 @@ function renderSession(name) {
             isRead: currentFilter !== "" ? currentFilter : null
         },
         success: function (response) {
-            chatSessionList.innerHTML = "";
-            const sessions = response.sessions.$values;
-            if (sessions && sessions.length > 0) {
-                sessions.forEach(function (session) {
-                    var sessionResult = session.result;
-                    const otherUser = sessionResult.user1Id == currentUserId ? sessionResult.user2 : sessionResult.user1
-                    const unreadMessages = sessionResult.unreadCount || 0;
+            chatSessionList.forEach(function (element) {
+                element.innerHTML = "";
+                const sessions = response.sessions.$values;
+                if (sessions && sessions.length > 0) {
+                    sessions.forEach(function (session) {
+                        var sessionResult = session.result;
+                        const otherUser = sessionResult.user1Id == currentUserId ? sessionResult.user2 : sessionResult.user1
+                        const unreadMessages = sessionResult.unreadCount || 0;
 
-                    const lastMessage = sessionResult.messages?.$values.length > 0
-                        ? sessionResult.messages.$values[sessionResult.messages.$values.length - 1]
-                        : "No messages";
-                    const isCurrentUser = lastMessage && lastMessage.senderId === currentUserId;
-                    const timeText = lastMessage == undefined ? formatTimeAgo(lastMessage.sentAt) : "";
-                    const previewText = lastMessage == undefined    
-                        ? (isCurrentUser
-                            ? `You: ${lastMessage.messageText}`
-                            : `${otherUser.fullName}: ${lastMessage.messageText}`)
-                        : "No messages yet";
+                        const lastMessage = sessionResult.messages?.$values.length > 0
+                            ? sessionResult.messages.$values[sessionResult.messages.$values.length - 1]
+                            : "No messages";
+                        const isCurrentUser = lastMessage && lastMessage.senderId === currentUserId;
+                        const timeText = lastMessage == undefined ? formatTimeAgo(lastMessage.sentAt) : "";
+                        const previewText = lastMessage != undefined
+                            ? (isCurrentUser
+                                ? `You: ${lastMessage.messageText}`
+                                : `${otherUser.fullName}: ${lastMessage.messageText}`)
+                            : "No messages yet";
+                        const previewWeight = !isCurrentUser && unreadMessages > 0 ? "bold" : "normal";
 
-                    const previewWeight = !isCurrentUser && unreadMessages > 0 ? "bold" : "normal";
-
-                    const sessionHtml = `
-                    <div class="single__chat__person" data-sessionId="${sessionResult.chatId}" onclick="loadSessionMessages('${sessionResult.chatId}')">
-                        <div class="d-flex align-items-center gap-30">
-                            <div class="avater">
-                                <img src="${otherUser.avatar}" alt="">
+                        const sessionHtml = `
+                            <div class="single__chat__person" data-sessionId="${sessionResult.chatId}" onclick="loadSessionMessages('${sessionResult.chatId}')">
+                                <div class="d-flex align-items-center gap-30">
+                                    <div class="avater">
+                                        <img src="${otherUser.avatar}" alt="">
+                                    </div>
+                                    <div class="chat__person__meta">
+                                        <h6 class="font-20 fw-medium mb-0">${otherUser.fullName}</h6>
+                                        <p id="${sessionResult.chatId}_messagePreview" style="font-weight: ${previewWeight}">${previewText}</p>
+                                    </div>
+                                </div>
+                                <div class="right__count">
+                                    <span class="time" id="${sessionResult.chatId}_time">${timeText}</span>
+                                    <span class="count" id="${sessionResult.chatId}_count">${unreadMessages}</span>
+                                </div>
                             </div>
-                            <div class="chat__person__meta">
-                                <h6 class="font-20 fw-medium mb-0">${otherUser.fullName}</h6>
-                                <p id="${sessionResult.chatId}_messagePreview" style="font-weight: ${previewWeight}">${previewText}</p>
-                            </div>
-                        </div>
-                        <div class="right__count">
-                            <span class="time" id="${sessionResult.chatId}_time">${timeText}</span>
-                            <span class="count" id="${sessionResult.chatId}_count">${unreadMessages}</span>
-                        </div>
-                    </div>
-                    `;
+                            `;
 
-                    chatSessionList.insertAdjacentHTML('beforeend', sessionHtml);
-                    highlightCurrentSession();
-                });
-            } else {
-                chatSessionList.innerHTML = "<div>No sessions found</div>";
-            }
+                        element.insertAdjacentHTML('beforeend', sessionHtml);
+                        highlightCurrentSession();
+                    });
+                } else {
+                    element.innerHTML = "<div>No sessions found</div>";
+                }
+            });
         },
         error: function () {
-            chatSessionList.innerHTML = "<div>Error loading sessions</div>";
+            chatSessionList.forEach(function (element) {
+                element.innerHTML = "<div>Error loading sessions</div>";
+            });
         }
     });
 }
 function highlightCurrentSession() {
-    const currentSession = document.querySelector(`.single__chat__person[data-sessionId="${currentChatId}"]`);
+    const currentSession = document.querySelectorAll(`.single__chat__person[data-sessionId="${currentChatId}"]`);
 
     // Remove existing highlight
-    const previouslyHighlighted = document.querySelector(".single__chat__person.highlight");
+    const previouslyHighlighted = document.querySelectorAll(".single__chat__person.highlight");
     if (previouslyHighlighted) {
-        previouslyHighlighted.classList.remove("highlight");
+        previouslyHighlighted.forEach(function (element) {
+            element.classList.remove("highlight");
+        });
     }
 
     if (currentSession) {
         // Highlight the current session if it's visible
-        currentSession.classList.add("highlight");
+        currentSession.forEach(function (element) {
+            element.classList.add("highlight");
+        });
     } else {
         // Otherwise highlight the first session in the list
-        const firstSession = document.querySelector(".single__chat__person");
+        const firstSession = document.querySelectorAll(".single__chat__person")[0];
         if (firstSession) {
             firstSession.classList.add("highlight");
         }

@@ -20,9 +20,20 @@ namespace QQJob.Controllers
             await chatMessageRepository.UpdateIsReadAsync(chatId,senderId);
             await chatMessageRepository.AddAsync(message);
             await chatMessageRepository.SaveChangesAsync();
+
             int unreadMessagesCount = await chatMessageRepository.GetUnreadMessagesCount(chatId,senderId);
+            var m = new
+            {
+                message.MessageId,
+                message.ChatId,
+                message.SenderId,
+                message.Sender.Avatar,
+                message.MessageText,
+                message.SentAt
+            };
+
             // Send to everyone in the session group
-            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage",new { message,unreadMessagesCount });
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage",new { message = m,unreadMessagesCount });
         }
 
         public async Task JoinChat(Guid chatId)
