@@ -6,7 +6,7 @@ using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager):Controller
+    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository):Controller
     {
         private readonly ILogger<UserController> _logger = logger;
         private readonly IAppUserRepository _userRepository = appUserRepository;
@@ -60,7 +60,8 @@ namespace QQJob.Areas.Admin.Controllers
                 ViewBag.ErrorMessage = $"User with Id = {UserId} cannot be found";
                 return View("NotFound");
             }
-            else
+
+            if(await chatSessionRepository.UpdateRangeNullUserAsync(UserId))
             {
                 //Delete the User Using DeleteAsync Method of UserManager Service
                 var result = await _userManager.DeleteAsync(user);
@@ -77,8 +78,14 @@ namespace QQJob.Areas.Admin.Controllers
                         ModelState.AddModelError("",error.Description);
                     }
                 }
-                return View("Index");
             }
+            else
+            {
+                TempData["Message"] = "Something when wrong!";
+            }
+
+            return View("Index");
+
         }
     }
 }

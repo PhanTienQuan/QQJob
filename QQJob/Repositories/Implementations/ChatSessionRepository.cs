@@ -88,6 +88,34 @@ namespace QQJob.Repositories.Implementations
             return sessions;
         }
 
+        public async Task<bool> UpdateRangeNullUserAsync(string userId)
+        {
+            using(var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var sessions = await _context.ChatSessions
+                    .Where(cs => cs.User1Id == userId || cs.User2Id == userId)
+                    .ToListAsync();
 
+                    foreach(var session in sessions)
+                    {
+                        if(session.User1Id == userId) session.User1Id = null;
+                        if(session.User2Id == userId) session.User2Id = null;
+                    }
+
+                    _context.ChatSessions.UpdateRange(sessions);
+
+                    await SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch(Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
     }
 }
