@@ -71,7 +71,8 @@ namespace QQJob.Controllers
                 return NotFound("Employer profile not found.");
             }
 
-            List<SocialLink> socialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? new List<SocialLink>();
+            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? new List<SocialLink>() : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
+
             var model = new EmployerProfileViewModel
             {
                 Id = employer.EmployerId,
