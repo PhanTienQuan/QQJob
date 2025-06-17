@@ -95,7 +95,16 @@ namespace QQJob.Helper
         }
         public static string DisplayTime(DateTime time)
         {
-            return time.ToUniversalTime().Humanize().Replace("from now","ago");
+            var result = time.ToUniversalTime().Humanize().Replace("from now","ago");
+
+            return char.ToUpper(result[0]) + result.Substring(1);
+        }
+        public static string ShortenURL(string url)
+        {
+            string trimmed = url.Replace("https://","").Replace("http://","");
+
+            string result = char.ToUpper(trimmed[0]) + trimmed.Substring(1);
+            return result;
         }
     }
 }

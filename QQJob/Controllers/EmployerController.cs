@@ -5,13 +5,22 @@ using QQJob.Helper;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
 using System.Security.Claims;
 
 namespace QQJob.Controllers
 {
     [Authorize(Roles = "Employer")]
-    public class EmployerController(IEmployerRepository employerRepository,IApplicationRepository applicationRepository,ISkillRepository skillRepository,IJobRepository jobRepository,ICloudinaryService cloudinaryService):Controller
+    public class EmployerController(IEmployerRepository employerRepository,
+        IApplicationRepository applicationRepository,
+        ISkillRepository skillRepository,
+        IJobRepository jobRepository,
+        ICloudinaryService cloudinaryService,
+        IChatSessionRepository chatSessionRepository,
+        IAppUserRepository appUserRepository,
+        IChatMessageRepository chatMessageRepository
+        ):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
         private readonly IApplicationRepository _applicationRepository = applicationRepository;
@@ -62,7 +71,8 @@ namespace QQJob.Controllers
                 return NotFound("Employer profile not found.");
             }
 
-            List<SocialLink> socialLinks = employer.User.SocialLink != null ? JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) : new List<SocialLink>();
+            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? new List<SocialLink>() : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
+
             var model = new EmployerProfileViewModel
             {
                 Id = employer.EmployerId,
@@ -113,7 +123,7 @@ namespace QQJob.Controllers
             employer.User.FullName = UpdateIfDifferent(employer.User.FullName,model.FullName.Trim(),ref isUpdated);
             employer.User.PhoneNumber = UpdateIfDifferent(employer.User.PhoneNumber,model.PhoneNumber?.Trim(),ref isUpdated);
             employer.Website = UpdateIfDifferent(employer.Website,model.Website?.Trim(),ref isUpdated);
-            employer.FoundedDate = (DateTime)UpdateIfDifferent(employer.FoundedDate,model.FoundedDate,ref isUpdated);
+            employer.FoundedDate = UpdateIfDifferent(employer.FoundedDate,model.FoundedDate ??= DateTime.MinValue,ref isUpdated);
             employer.CompanySize = UpdateIfDifferent(employer.CompanySize,model.CompanySize?.Trim(),ref isUpdated);
             employer.CompanyField = UpdateIfDifferent(employer.CompanyField,model.CompanyField,ref isUpdated);
             var socialLinksJson = JsonConvert.SerializeObject(model.SocialLinks);
@@ -131,7 +141,7 @@ namespace QQJob.Controllers
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "No changes detected.",type = "none" });
             }
 
-            model.SocialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? new List<SocialLink>();
+            model.SocialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? [];
             return RedirectToAction("Profile");
         }
 
@@ -237,13 +247,13 @@ namespace QQJob.Controllers
                 return View(model);
             }
 
-            if((model.WorkingSche == null && model.CusWorkingSche == null) || (model.Experience == null && model.CusExperience == null))
+            if((model.WorkingType == null && model.CusWorkingType == null) || (model.Experience == null && model.CusExperience == null))
             {
                 string errorMessage = string.Empty;
-                if(model.WorkingSche == null && model.CusWorkingSche == null)
+                if(model.WorkingType == null && model.CusWorkingType == null)
                 {
-                    errorMessage += "Working Schedule field";
-                    ModelState.AddModelError("WorkingSche","This field is required!");
+                    errorMessage += "Working Type field";
+                    ModelState.AddModelError("WorkingType","This field is required!");
                 }
                 if(model.Experience == null && model.CusExperience == null)
                 {
@@ -260,7 +270,7 @@ namespace QQJob.Controllers
                 Descriptions = model.Description,
                 model.Responsibilities,
                 model.Requirements,
-                WorkingSche = model.CusWorkingSche ?? model.WorkingSche,
+                WorkingType = model.CusWorkingType ?? model.WorkingType,
             };
 
             var selectedSkill = new List<Skill>();
@@ -288,14 +298,17 @@ namespace QQJob.Controllers
                 PostDate = DateTime.Now,
                 CloseDate = (DateTime)model.Close,
                 Skills = selectedSkill,
-                Status = status
+                Status = status,
+                WorkingHours = model.WorkingHours,
+                WorkingType = model.CusWorkingType ?? model.WorkingType,
+                PayType = model.CusPayType ?? model.PayType,
             };
 
             await _jobRepository.AddAsync(newJob);
             await _jobRepository.SaveChangesAsync();
             var message = "Post successfully!" + (confirmed != UserStatus.Verified ? " Wait for admin to verify your post" : "");
             TempData["Message"] = JsonConvert.SerializeObject(new { message,type = "success" });
-            return RedirectToAction("Index");
+            return RedirectToAction("JobsPosted");
         }
 
         [HttpGet]
@@ -349,10 +362,10 @@ namespace QQJob.Controllers
                 Experience = job.Experience,
                 Qualification = job.Qualification,
                 Benefits = job.Benefits,
-
+                SelectedSkill = string.Join(",",job.Skills.Select(skill => skill.SkillId))
             };
 
-            if(!ObjectComparer.AreEqual(model,jobDetailViewModel))
+            if(ObjectComparer.AreEqual(model,jobDetailViewModel))
             {
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "Nothing changed!",type = "none" });
                 return RedirectToAction("EditJob");
@@ -365,13 +378,32 @@ namespace QQJob.Controllers
                 Name = skill.SkillName
             }).ToList();
 
-            ViewBag.InitSkills = skills.Where(skill => job.Skills.Contains(skill)).Select(skill => new
+            ViewBag.InitSkills = job.Skills.Select(skill => new
             {
                 Id = skill.SkillId,
                 Name = skill.SkillName
             }).ToList();
 
+            if(!ModelState.IsValid)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Some field are wrong!",type = "error" });
+                return View(model);
+            }
+
             return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Message()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
+            MessageViewModel messageViewModel = new MessageViewModel()
+            {
+                Sessions = sessions,
+                CurrentChatSession = sessions != null ? sessions.FirstOrDefault() : new ChatSession(),
+                CurrentUser = await appUserRepository.GetByIdAsync(userId),
+            };
+            return View(messageViewModel);
         }
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)

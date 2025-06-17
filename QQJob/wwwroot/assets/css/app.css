@@ -29,7 +29,7 @@
     background-color: transparent !important;
 }
 
-.skill__item_parent {
+.item_parent {
     background-color: var(--rts-gray) !important;
 }
 
@@ -38,7 +38,7 @@
     color: #007bff;
 }
 
-.skill__input {
+.input {
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -52,7 +52,7 @@
 .inputContainer {
     background-color: var(--rts-gray) !important;
 }
-.cancel-skill-btn > i {
+.cancel-btn > i {
     color: var(--color-danger) !important;
 }
 @keyframes fadeIn {

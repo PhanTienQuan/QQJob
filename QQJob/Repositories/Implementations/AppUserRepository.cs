@@ -56,5 +56,11 @@ namespace QQJob.Repositories.Implementations
         {
             return await _context.Set<AppUser>().CountAsync();
         }
+
+        public string GetUserAvatarUrl(string userId)
+        {
+            var user = _context.Set<AppUser>().Where(user => user.Id == userId).FirstOrDefault();
+            return user.Avatar;
+        }
     }
 }

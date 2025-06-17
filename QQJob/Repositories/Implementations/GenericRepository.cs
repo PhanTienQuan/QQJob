@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Implementations
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T>:IGenericRepository<T> where T : class
     {
         protected readonly QQJobContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -26,7 +26,7 @@ namespace QQJob.Repositories.Implementations
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T,bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }

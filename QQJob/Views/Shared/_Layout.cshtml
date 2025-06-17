@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/assets/css/style.css" />
     <link rel="stylesheet" href="~/assets/css/app.css" />
+    @RenderSection("Styles", required: false)
     <title>@ViewData["Title"] - QQJob</title>
 </head>
 
@@ -70,9 +71,12 @@
     <script src="~/assets/js/main.js"></script>
     <script src="~/assets/js/app.js"></script>
     <script>
-        const messageData = '@Html.Raw(TempData["Message"])'
-        if (messageData !== "") {
+        const messageData = @Html.Raw(TempData["Message"] ?? "\"\"");
+        if (messageData != "") {
             showToastMessage(messageData.message, messageData.type);
+        }
+        if (window.location.search.includes("ReturnUrl")) {
+            showLoginModal();
         }
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -80,5 +84,6 @@
         })
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -18,14 +18,16 @@ namespace QQJob.Models
         public string? Slug { get; set; }
         public int OpenPosition { get; set; }
         public long ViewCount { get; set; }
-
+        public string? PayType { get; set; }
+        public string? WorkingHours { get; set; }
+        public string? WorkingType { get; set; }
         // Foreign Key
         public string? EmployerId { get; set; }
         public Employer? Employer { get; set; }
 
         // Navigation Properties
-        public IEnumerable<SavedJob>? SavedJobs { get; set; }
-        public IEnumerable<Skill>? Skills { get; set; }
-        public IEnumerable<Application>? Applications { get; set; }
+        public ICollection<SavedJob>? SavedJobs { get; set; }
+        public ICollection<Skill>? Skills { get; set; }
+        public ICollection<Application>? Applications { get; set; }
     }
 }

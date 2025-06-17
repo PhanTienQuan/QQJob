@@ -2,9 +2,9 @@
 {
     public enum UserStatus
     {
-
-        Unverified = 0,
-        Verified = 1,
-        Denied = 2
+        Unverified,
+        Pending,
+        Verified,
+        Suspended
     }
 }
