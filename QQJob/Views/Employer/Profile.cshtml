@@ -3,6 +3,41 @@
 @{
     ViewBag.Title = "Profile";
 }
+<style>
+    .button-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .evidence-upload__label {
+        display: inline-block;
+        background-color: #4f46e5;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+
+    .evidence-upload__label:hover {
+        background-color: #4338ca;
+    }
+
+    .evidence-upload__input {
+        display: none;
+    }
+    
+    .select__evidence {
+        margin-top: 30px;
+    }
+
+    #evident-wrapper {
+        display: none;
+    }
+
+</style>
 <!-- content area -->
 <div class="dashboard__content d-flex template-dashboard">
     <partial name="_LeftMenu" />
@@ -120,9 +155,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="info__field">
-                    <button type="submit" class="rts__btn fill__btn mx-0">Save Profile</button>
-                    <button type="button" class="rts__btn fill__btn mx-0">Upload Company Evedent</button>
+
+                <div id="evident-wrapper">
+                    <h6 class="fw-medium mt-4 mb-4">Company Evident</h6>
+                    <div class="social__links p-30 radius-16 bg-white" id="evident"></div>
+                </div>
+
+                <div class="info__field" style="margin-bottom: 80px;">
+                    <div class="button-row">
+                        <button type="submit" class="rts__btn fill__btn mx-0">Save Profile</button>
+                        <div class="select__evidence">
+                            <label for="uploadEvidence" class="evidence-upload__label">Upload Evidence</label>
+                            <input type="file" class="evidence-upload__input" accept="*" id="uploadEvidence" />
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -130,7 +176,53 @@
 </div>
 @section Scripts {
     <script>
-        const socialLinks = @Html.Raw(JsonConvert.SerializeObject(Model.SocialLinks));
+        document.getElementById("uploadEvidence").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const wrapper = document.getElementById("evident-wrapper");
+            const container = document.getElementById("evident");
+
+            container.innerHTML = ""; // Clear preview
+
+            if (!file) {
+                wrapper.style.display = "none";
+                return;
+            }
+
+            wrapper.style.display = "block"; // Show section
+
+            const fileType = file.type;
+
+            if (fileType.startsWith("image/")) {
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = "100%";
+                img.style.borderRadius = "8px";
+                container.appendChild(img);
+            } else if (fileType === "application/pdf") {
+                const iframe = document.createElement("iframe");
+                iframe.src = URL.createObjectURL(file);
+                iframe.style.width = "100%";
+                iframe.style.height = "400px";
+                iframe.style.border = "none";
+                container.appendChild(iframe);
+            } else {
+                const div = document.createElement("div");
+                div.classList.add("file-preview");
+
+                const icon = document.createElement("span");
+                icon.textContent = "📄";
+                icon.style.fontSize = "2rem";
+                icon.style.marginRight = "10px";
+
+                const fileName = document.createElement("span");
+                fileName.textContent = file.name;
+
+                div.appendChild(icon);
+                div.appendChild(fileName);
+                container.appendChild(div);
+            }
+        });
+        const socialLinks = @Html.Raw(JsonConvert.SerializeObject(Model.SocialLinks ?? new List<SocialLink>()));
         const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
         document.addEventListener("DOMContentLoaded", () => {
             initializeSocialLinksManager({

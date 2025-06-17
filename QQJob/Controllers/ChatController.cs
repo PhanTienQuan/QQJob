@@ -77,6 +77,10 @@ namespace QQJob.Controllers
                 }
             }
 
+            var user = await userManager.FindByIdAsync(request.Sender);
+            IList<string>? roles = null;
+            if(user != null) roles = await userManager.GetRolesAsync(user);
+
             try
             {
                 var intentResult = await ClassifyUserIntentAsync(userMessage);
@@ -91,10 +95,7 @@ namespace QQJob.Controllers
                         return Ok(new { Message = await GenerateFriendlyReplyAsync(intentResult,userMessage),Intent = intentResult });
 
                     case "INSTRUCTION":
-                        var user = await userManager.FindByIdAsync(request.Sender);
-                        var roles = await userManager.GetRolesAsync(user);
-
-                        return Ok(new { Message = await GenerateInstructions(intentResult,userMessage,roles.First()) });
+                        return Ok(new { Message = await GenerateInstructions(intentResult,userMessage,roles == null ? "anonymous" : roles.First()) });
                     case "QUERY":
                         break;
                 }
@@ -448,14 +449,18 @@ namespace QQJob.Controllers
                 _ => Array.Empty<string>()
             };
 
-            var capabilityList = string.Join("\n",InstructionResponses.Select(kvp => $"- {kvp.Key}"));
+            var filtered = InstructionResponses
+                .Where(kvp => roleCapabilities.Contains(kvp.Key,StringComparer.OrdinalIgnoreCase))
+                .ToDictionary(kvp => kvp.Key,kvp => kvp.Value,StringComparer.OrdinalIgnoreCase);
+
+            var capabilityList = string.Join("\n",filtered.Select(kvp => $"- {kvp.Key}"));
 
             var systemPrompt = $"""
             You are an assistant for a recruitment website.
             User said:
             "{userMessage}"
             
-            The user's intent is categorized as **{intent}**.
+            The user's intent is categorized as **{intent}**
             Based on the user’s question, return the best-matching capability from the list below:
             {capabilityList}
 
@@ -470,7 +475,7 @@ namespace QQJob.Controllers
                 return finalResult;
             }
 
-            return null;
+            return "Sorry, you have to login first before you can do that action.";
         }
         public class Message
         {
