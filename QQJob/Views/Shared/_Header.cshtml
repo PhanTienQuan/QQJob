@@ -32,7 +32,7 @@
                         <div class="header__right__btn d-flex align-items-center gap-30">
                             @if (SignInManager.IsSignedIn(User))
                             {
-                                var role = await TagHelper.GetUserRole(User.Identity?.Name);
+                                var role = await Helper.GetUserRole(User.Identity?.Name);
                                 @if (role != null)
                                 {
                                     <div class="notification__btn">
@@ -140,10 +140,10 @@
                                 <div class="user__info">
                                     <div class="d-flex gap-3 align-items-center pointer" data-bs-toggle="dropdown">
                                         <div class="user__image">
-                                            <img class="rounded-5" width="48" height="48" src="@await TagHelper.GetUserAvatarUrlAsync(User.Identity?.Name)" alt="">
+                                            <img class="rounded-5" width="48" height="48" src="@await Helper.GetUserAvatarUrlAsync(User.Identity?.Name)" alt="">
                                         </div>
                                         <div class="user__name d-none d-xl-block">
-                                            <h6 class="font-20 mb-0 fw-medium lh-sm">@await TagHelper.GetFullNameAsync(User.Identity?.Name)</h6>
+                                            <h6 class="font-20 mb-0 fw-medium lh-sm">@await Helper.GetFullNameAsync(User.Identity?.Name)</h6>
                                             <span>@(role != null ? role : "Account need set up")</span>
                                         </div>
                                         <div class="dropdown__option d-none d-xl-block">
@@ -164,7 +164,7 @@
                                         <li><a class="dropdown-item" asp-action="Logout" asp-controller="Account">Log Out</a></li>
                                     </ul>
                                 </div>
-                                @await TagHelper.GetUserHomePageAction(User.Identity?.Name, Url)
+                                @await Helper.GetUserHomePageAction(User.Identity?.Name, Url)
                             }
                             else{
                                 <a href="#" onclick="showLoginModal()" class="small__btn d-none d-sm-flex no__fill__btn border-6 font-xs">

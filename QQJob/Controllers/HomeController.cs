@@ -4,7 +4,7 @@ using QQJob.Models;
 
 namespace QQJob.Controllers
 {
-    public class HomeController(UserManager<AppUser> userManager,SignInManager<AppUser> signInManager):Controller
+    public class HomeController(UserManager<AppUser> userManager):Controller
     {
 
         public async Task<IActionResult> Index()

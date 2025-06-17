@@ -1,0 +1,70 @@
+﻿using Microsoft.EntityFrameworkCore;
+using QQJob.Data;
+using QQJob.Models;
+using QQJob.Repositories.Interfaces;
+
+namespace QQJob.Repositories.Implementations
+{
+    public class ChatMessageRepository(QQJobContext context):GenericRepository<ChatMessage>(context), IChatMessageRepository
+    {
+        public async Task<IEnumerable<ChatMessage>> GetChatMessage(Guid chatId,int skip,int take)
+        {
+            return await _context.ChatMessages
+                .Where(m => m.ChatId == chatId)
+                .Include(m => m.Sender)
+                .OrderByDescending(m => m.SentAt)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task UpdateIsReadAsync(Guid? chatId,string userId)
+        {
+            var messages = await _context.ChatMessages.Where(m => m.ChatId == chatId && m.SenderId != userId && !m.IsRead).ToListAsync();
+            foreach(var message in messages)
+            {
+                message.IsRead = true;
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetChatSessionMessageCount(Guid chatId)
+        {
+            return await _context.ChatMessages.Where(m => m.ChatId == chatId).CountAsync();
+        }
+
+        public async Task<int> GetUnreadMessagesCount(Guid chatId,string userId)
+        {
+            return await _context.ChatMessages.Where(m => m.ChatId == chatId && m.SenderId == userId && !m.IsRead).CountAsync();
+        }
+
+        public async Task<bool> UpdateRangeNullUserAsync(string userId)
+        {
+            using(var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var messages = await _context.ChatMessages
+                    .Where(m => m.SenderId == userId)
+                    .ToListAsync();
+
+                    foreach(var message in messages)
+                    {
+                        if(message.SenderId == userId) message.SenderId = null;
+                    }
+
+                    _context.ChatMessages.UpdateRange(messages);
+
+                    await SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch(Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
+    }
+}

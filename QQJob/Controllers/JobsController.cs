@@ -6,38 +6,40 @@ using QQJob.ViewModels;
 
 namespace QQJob.Controllers
 {
-    public class JobsController(IJobRepository jobRepository) : Controller
+    public class JobsController(IJobRepository jobRepository,IEmployerRepository employerRepository):Controller
     {
         private readonly IJobRepository _jobRepository = jobRepository;
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var jobs = await _jobRepository.GetJobsAsync(1, 5);
-            var joblist = jobs
-                .Select(job => new JobListViewModel()
-                {
-                    Id = job.JobId,
-                    Title = job.Title,
-                    Address = job.Address,
-                    JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
-                    Open = job.PostDate,
-                    Close = job.CloseDate,
-                    AppliedCount = job.Applications != null ? job.Applications.Count() : 0, // Avoid .ToList() here for better performance
-                    Status = job.Status,
-                    Skills = job.Skills.Take(3).ToList()
-                })
-                .ToList();
+            //var jobs = await _jobRepository.GetJobsAsync(1, 5);
+            //var joblist = jobs
+            //    .Select(job => new JobListViewModel()
+            //    {
+            //        Id = job.JobId,
+            //        Title = job.Title,
+            //        Address = job.Address,
+            //        JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+            //        Open = job.PostDate,
+            //        Close = job.CloseDate,
+            //        AppliedCount = job.Applications != null ? job.Applications.Count() : 0, // Avoid .ToList() here for better performance
+            //        Status = job.Status,
+            //        Skills = job.Skills.Take(3).ToList()
+            //    })
+            //    .ToList();
 
-            // Pass the list to the view
-            ViewBag.Jobs = joblist;
+            //// Pass the list to the view
+            //ViewBag.Jobs = joblist;
             return View();
         }
         public async Task<IActionResult> Detail(int id)
         {
             var job = await _jobRepository.GetByIdAsync(id);
-
+            var employer = await employerRepository.GetByIdAsync(job.EmployerId);
+            Console.WriteLine("hours: " + job.WorkingHours);
             var jobDetailViewModel = new JobDetailViewModel()
             {
                 Id = job.JobId,
+                EmployerId = job.EmployerId,
                 Title = job.Title,
                 Address = job.Address,
                 JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
@@ -50,7 +52,11 @@ namespace QQJob.Controllers
                 Opening = job.OpenPosition,
                 Experience = job.Experience,
                 Qualification = job.Qualification,
-                Benifits = job.Benefits
+                Benefits = job.Benefits,
+                WorkingHours = job.WorkingHours,
+                WorkingType = job.WorkingType,
+                PayType = job.PayType,
+                Website = employer.Website
             };
 
             ViewBag.Job = jobDetailViewModel;

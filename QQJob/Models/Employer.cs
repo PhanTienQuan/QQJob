@@ -16,8 +16,8 @@ namespace QQJob.Models
 
         // Navigation Property
         public AppUser User { get; set; }
-        public IEnumerable<Job>? Jobs { get; set; }
-        public IEnumerable<Follow>? Follows { get; set; }
+        public ICollection<Job>? Jobs { get; set; }
+        public ICollection<Follow>? Follows { get; set; }
 
     }
 }

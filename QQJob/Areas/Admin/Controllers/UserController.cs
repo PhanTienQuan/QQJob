@@ -1,25 +1,35 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using QQJob.Areas.Admin.ViewModels;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager) : Controller
+    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository,IChatMessageRepository chatMessageRepository):Controller
     {
         private readonly ILogger<UserController> _logger = logger;
         private readonly IAppUserRepository _userRepository = appUserRepository;
         private readonly ICandidateRepository _candidateRepository = candidateRepository;
         private readonly IEmployerRepository _employerRepository = employerRepository;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
-        private readonly UserManager<AppUser> _userManager = userManager;
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetUsersAsync();
             var count = await _userRepository.GetCount();
             ViewBag.Count = count;
-            return View("List",user);
+            List<ListUserViewModel> list = new List<ListUserViewModel>();
+            foreach(var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                list.Add(new ListUserViewModel
+                {
+                    User = user,
+                    Role = roles.FirstOrDefault() ?? "No Role"
+                });
+            }
+            return View("List",list);
         }
 
         [HttpGet]
@@ -49,10 +59,11 @@ namespace QQJob.Areas.Admin.Controllers
                 ViewBag.ErrorMessage = $"User with Id = {UserId} cannot be found";
                 return View("NotFound");
             }
-            else
+
+            if(await chatSessionRepository.UpdateRangeNullUserAsync(UserId) && await chatMessageRepository.UpdateRangeNullUserAsync(UserId))
             {
                 //Delete the User Using DeleteAsync Method of UserManager Service
-                var result = await _userManager.DeleteAsync(user);
+                var result = await userManager.DeleteAsync(user);
                 if(result.Succeeded)
                 {
                     TempData["Message"] = "Delete Successful!";
@@ -66,8 +77,14 @@ namespace QQJob.Areas.Admin.Controllers
                         ModelState.AddModelError("",error.Description);
                     }
                 }
-                return View("Index");
             }
+            else
+            {
+                TempData["Message"] = "Something when wrong!";
+            }
+
+            return View("Index");
+
         }
     }
 }

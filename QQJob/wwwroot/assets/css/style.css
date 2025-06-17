@@ -11127,7 +11127,6 @@ input::placeholder {
     left: -4%;
     width: 108%;
     height: 1px;
-    background-color: var(--rts-border);
 }
 
 .user__list__as__messanger .chat__user__list .single__chat__person:last-child {
@@ -11215,7 +11214,6 @@ input::placeholder {
     left: -10%;
     width: 120%;
     height: 1px;
-    background-color: var(--rts-border);
 }
 
 .chat__user__list .single__chat__person:last-child::after {
@@ -11250,7 +11248,7 @@ input::placeholder {
 }
 
 .chat__user__list .right__count span {
-    font-size: 16px;
+    font-size: 10px;
     font-weight: 500;
     color: var(--rts-para);
 }
@@ -11272,6 +11270,7 @@ input::placeholder {
 }
 
 .message__content {
+    position: relative;
     width: 100%;
     border-radius: 0;
     background-color: rgba(125, 128, 135, 0.3);
@@ -11302,6 +11301,8 @@ input::placeholder {
 }
 
 .message__content .chat__content {
+    position: relative;
+    height: 100%;
     padding: 30px;
     display: flex;
     flex-direction: column;
@@ -11408,32 +11409,37 @@ input::placeholder {
     text-align: right;
 }
 
-.message__content .chat__content .input__msg {
-    position: relative;
+.message__content .input__msg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem; /* optional spacing */
+    background-color: #fff;
 }
 
-.message__content .chat__content .input__msg input[type=text] {
+.message__content .input__msg input[type=text] {
     width: 100%;
     border: 1px solid rgba(125, 128, 135, 0.5);
     padding: 18px 20px;
     position: relative;
 }
 
-.message__content .chat__content .input__msg label {
+.message__content .input__msg label {
     position: absolute;
-    top: 15px;
-    right: 110px;
+    top: 30%;
+    right: 130px;
     cursor: pointer;
 }
 
-.message__content .chat__content .input__msg .message__btn {
+.message__content .input__msg .message__btn {
     padding: 10px 20px;
     border-radius: 6px;
     background-color: var(--rts-button-1);
     color: var(--rts-white);
     position: absolute;
-    right: 10px;
-    top: 12px;
+    right: 30px;
+    top: 30%;
 }
 
 .candidate__meeting__content {

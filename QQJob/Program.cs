@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.SemanticKernel;
+using QQJob.Controllers;
 using QQJob.Data;
-using QQJob.Helper;
 using QQJob.Models;
 
 using QQJob.Repositories.Implementations;
@@ -25,6 +26,9 @@ namespace QQJob
                 options.UseSqlServer(connectionString);
             });
 
+            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
+            kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
+            Kernel kernel = kernelBuilder.Build();
 
             // Register repositories 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
@@ -34,9 +38,13 @@ namespace QQJob
             builder.Services.AddScoped<IEmployerRepository,EmployerRepository>();
             builder.Services.AddScoped<ISkillRepository,SkillRepository>();
             builder.Services.AddScoped<IApplicationRepository,ApplicationRepository>();
+            builder.Services.AddScoped<IChatSessionRepository,ChatSessionRepository>();
+            builder.Services.AddScoped<IChatMessageRepository,ChatMessageRepository>();
+            builder.Services.AddScoped<CustomRepository,CustomRepository>();
             builder.Services.AddTransient<ISenderEmail,EmailSender>();
             builder.Services.AddTransient<ICloudinaryService,CloudinaryService>();
-
+            builder.Services.AddSingleton<Kernel>(kernel);
+            builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve; });
 
             builder.Services.AddIdentity<AppUser,IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
 
@@ -52,10 +60,15 @@ namespace QQJob
                                 facebookOptions.ClientSecret = builder.Configuration.GetSection("FacebookAuth")["ClientSecret"];
                                 facebookOptions.AccessDeniedPath = "/Account/OnExternalLoginDenied";
                             });
-
-            var app = builder.Build();
+            builder.Services.AddSignalR();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/";
+            });
+            builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddHttpContextAccessor();
-            TagHelper.Initialize(app.Services);
+            var app = builder.Build();
+            Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
             if(!app.Environment.IsDevelopment())
             {
@@ -78,7 +91,16 @@ namespace QQJob
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapControllerRoute(
+                name: "profile",
+                pattern: "candidates/{slug}",
+                defaults: new { controller = "Candidate",action = "Profile" });
+            app.MapControllerRoute(
+                name: "profile",
+                pattern: "employer/profile/{slug}",
+                defaults: new { controller = "Employer",action = "Profile" });
 
+            app.MapHub<ChatHub>("/chathub");
             app.Run();
         }
     }

@@ -7,13 +7,13 @@ using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class JobController(IJobRepository jobRepository, IEmployerRepository employerRepository) : Controller
+    public class JobController(IJobRepository jobRepository,IEmployerRepository employerRepository):Controller
     {
         private readonly IJobRepository _jobRepository = jobRepository;
         private readonly IEmployerRepository _employerRepository = employerRepository;
         public async Task<IActionResult> Index()
         {
-            var jobs = await _jobRepository.GetJobsAsync();
+            var jobs = await _jobRepository.GetAllAsync();
             return View(jobs);
         }
         public async Task<IActionResult> Detail(string id)
@@ -22,7 +22,7 @@ namespace QQJob.Areas.Admin.Controllers
             return View(jobs);
         }
 
-        public async Task<IActionResult> UpdateJobStatus(int id, Status status)
+        public async Task<IActionResult> UpdateJobStatus(int id,Status status)
         {
             Job job = await _jobRepository.GetByIdAsync(id);
             job.Status = status;
@@ -89,7 +89,7 @@ namespace QQJob.Areas.Admin.Controllers
             }
             catch(Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
+                ModelState.AddModelError("",ex.Message);
                 return View(job);
             }
         }

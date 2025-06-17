@@ -4,7 +4,7 @@ using QQJob.Models;
 
 namespace QQJob.Data
 {
-    public class QQJobContext : IdentityDbContext<AppUser>
+    public class QQJobContext:IdentityDbContext<AppUser>
     {
         public DbSet<Employer> Employers { get; set; }
         public DbSet<Candidate> Candidates { get; set; }
@@ -19,7 +19,8 @@ namespace QQJob.Data
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
         public DbSet<Notification> NotificationHistories { get; set; }
         public DbSet<Message> Messages { get; set; }
-
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
         {
@@ -117,6 +118,53 @@ namespace QQJob.Data
                 .WithMany()
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //Application
+            modelBuilder.Entity<Application>()
+                .HasOne(a => a.Job)
+                .WithMany(j => j.Applications)
+                .HasForeignKey(a => a.JobId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<SavedJob>()
+                .HasOne(s => s.Job)
+                .WithMany(j => j.SavedJobs)
+                .HasForeignKey(s => s.JobId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // ChatSession primary key
+            modelBuilder.Entity<ChatSession>()
+                .HasKey(cs => cs.ChatId);
+
+            // User1 relationship (no inverse navigation)
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User1)
+                .WithMany()
+                .HasForeignKey(cs => cs.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // User2 relationship (no inverse navigation)
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(cs => cs.User2)
+                .WithMany()
+                .HasForeignKey(cs => cs.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ChatMessage primary key
+            modelBuilder.Entity<ChatMessage>()
+                .HasKey(cm => cm.MessageId);
+
+            // ChatMessage → ChatSession relationship
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(cm => cm.ChatSession)
+                .WithMany(cs => cs.Messages)
+                .HasForeignKey(cm => cm.ChatId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade path issue
+
+            // Index for performance on ChatId + SentAt
+            modelBuilder.Entity<ChatMessage>()
+                .HasIndex(cm => new { cm.ChatId,cm.SentAt });
+
         }
     }
 }
