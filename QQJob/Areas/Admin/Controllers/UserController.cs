@@ -6,14 +6,13 @@ using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository):Controller
+    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository,IChatMessageRepository chatMessageRepository):Controller
     {
         private readonly ILogger<UserController> _logger = logger;
         private readonly IAppUserRepository _userRepository = appUserRepository;
         private readonly ICandidateRepository _candidateRepository = candidateRepository;
         private readonly IEmployerRepository _employerRepository = employerRepository;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
-        private readonly UserManager<AppUser> _userManager = userManager;
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -23,7 +22,7 @@ namespace QQJob.Areas.Admin.Controllers
             List<ListUserViewModel> list = new List<ListUserViewModel>();
             foreach(var user in users)
             {
-                var roles = await _userManager.GetRolesAsync(user);
+                var roles = await userManager.GetRolesAsync(user);
                 list.Add(new ListUserViewModel
                 {
                     User = user,
@@ -61,10 +60,10 @@ namespace QQJob.Areas.Admin.Controllers
                 return View("NotFound");
             }
 
-            if(await chatSessionRepository.UpdateRangeNullUserAsync(UserId))
+            if(await chatSessionRepository.UpdateRangeNullUserAsync(UserId) && await chatMessageRepository.UpdateRangeNullUserAsync(UserId))
             {
                 //Delete the User Using DeleteAsync Method of UserManager Service
-                var result = await _userManager.DeleteAsync(user);
+                var result = await userManager.DeleteAsync(user);
                 if(result.Succeeded)
                 {
                     TempData["Message"] = "Delete Successful!";

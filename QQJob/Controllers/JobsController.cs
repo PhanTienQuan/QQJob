@@ -6,10 +6,10 @@ using QQJob.ViewModels;
 
 namespace QQJob.Controllers
 {
-    public class JobsController(IJobRepository jobRepository,IAppUserRepository appUserRepository,IEmployerRepository employerRepository):Controller
+    public class JobsController(IJobRepository jobRepository,IEmployerRepository employerRepository):Controller
     {
         private readonly IJobRepository _jobRepository = jobRepository;
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             //var jobs = await _jobRepository.GetJobsAsync(1, 5);
             //var joblist = jobs

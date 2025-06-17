@@ -8,5 +8,6 @@ namespace QQJob.Repositories.Interfaces
         public Task UpdateIsReadAsync(Guid? chatId,string userId);
         public Task<int> GetChatSessionMessageCount(Guid chatId);
         public Task<int> GetUnreadMessagesCount(Guid chatId,string userId);
+        public Task<bool> UpdateRangeNullUserAsync(string userId);
     }
 }
