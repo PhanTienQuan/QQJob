@@ -49,9 +49,15 @@ namespace QQJob.Repositories.Implementations
                 .AsSplitQuery()  // This will split the query into separate ones for better performance
                 .FirstOrDefaultAsync();
         }
-        public async Task<Employer> GetByIdAsync(string id)
+        public async Task<Employer?> GetByIdAsync(string? id)
         {
-            return await _context.Set<Employer>().Include(e => e.User).Where(e => e.EmployerId == id).FirstOrDefaultAsync();
+            return await _context.Set<Employer>()
+                .Include(e => e.User)
+                .Include(e => e.Jobs)
+                .ThenInclude(j => j.Applications)
+                .Include(e => e.Follows)
+                .Where(e => e.EmployerId == id)
+                .FirstOrDefaultAsync();
         }
         public async Task<Employer?> GetBySlugAsync(string slug)
         {

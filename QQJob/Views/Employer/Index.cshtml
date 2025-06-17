@@ -1,4 +1,5 @@
-﻿@{
+﻿@model DashboardViewModel
+@{
     ViewBag.Title = "Dashboard";
 }
    <!-- content area -->
@@ -21,7 +22,7 @@
                             </svg>
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">@ViewBag.JobCount</h5>
+                            <h5 class="lh-sm">@Model.PostedJobCount</h5>
                             <p class="font-20">Job Posted</p>
                         </div>
                     </div>
@@ -47,7 +48,7 @@
 
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">@ViewBag.ApplicantCount</h5>
+                            <h5 class="lh-sm">@Model.ApplicationCount</h5>
                             <p class="font-20">Application</p>
                         </div>
                     </div>
@@ -60,7 +61,7 @@
 
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">@ViewBag.JobView</h5>
+                            <h5 class="lh-sm">@Model.ViewCount</h5>
                             <p class="font-20">Views</p>
                         </div>
                     </div>
@@ -71,7 +72,7 @@
                             </svg>
                         </div>
                         <div class="content">
-                            <h5 class="lh-sm">@ViewBag.Follows</h5>
+                            <h5 class="lh-sm">@Model.FollowerCount</h5>
                             <p class="font-20">Followers</p>
                         </div>
                     </div>
@@ -79,10 +80,10 @@
             </div>
 
             <!-- Applied Jobs -->
-            <div class="applied__jobs">
+            <div class="applied__jobs mt-30">
                 <h6 class="fw-medium mb-30">Recent Applicants</h6>
                 <div class="short__list__candidate">
-                    @if (ViewBag.Application is List<Application> applications && applications.Any())
+                    @if (Model.RecentApplicants is List<Application> applications && applications.Any())
                     {
                         foreach (var application in applications)
                         {
@@ -158,7 +159,9 @@
                     }
                     else
                     {
-                        <p>No applications have been received yet.</p>
+                        <div class="single__shortlist__item">
+                            <p>No applications have been received yet.</p>
+                        </div>
                     }
                 </div>
             </div>

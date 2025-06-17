@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QQJob.Helper;
@@ -19,7 +20,7 @@ namespace QQJob.Controllers
         ICloudinaryService cloudinaryService,
         IChatSessionRepository chatSessionRepository,
         IAppUserRepository appUserRepository,
-        IChatMessageRepository chatMessageRepository
+        UserManager<AppUser> userManager
         ):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
@@ -29,34 +30,33 @@ namespace QQJob.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _employerRepository.GetByIdAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _employerRepository.GetByIdAsync(userId);
+            var dashboardViewModel = new DashboardViewModel
+            {
+                PostedJobCount = 0,
+                ApplicationCount = 0,
+                FollowerCount = 0,
+                ViewCount = 0,
+                RecentApplicants = new List<Application>()
+            };
+
             if(user.Jobs == null)
             {
-                ViewBag.JobCount = 0;
-                ViewBag.ApplicantCount = 0;
-                ViewBag.JobView = 0;
-                ViewBag.Follows = 0;
-                return View();
+                return View(dashboardViewModel);
             }
 
-            ViewBag.JobCount = user.Jobs.Count();
-            ViewBag.ApplicantCount = user.Jobs.Sum(j => j.Applications.Count());
-            ViewBag.JobView = user.Jobs.Sum(j => j.ViewCount);
-            ViewBag.Follows = user.Follows.Count();
+            dashboardViewModel.PostedJobCount = user.Jobs.Count;
+            dashboardViewModel.ApplicationCount = user.Jobs.Sum(j => j.Applications.Count());
+            dashboardViewModel.FollowerCount = user.Follows.Count();
+            dashboardViewModel.ViewCount = user.Jobs.Sum(j => j.ViewCount);
+            dashboardViewModel.RecentApplicants = await applicationRepository.GetApplicationsByEmployerId(userId);
 
-            var applications = new List<Application>();
-            foreach(var job in user.Jobs)
-            {
-                var jobApplications = await _applicationRepository.GetApplications(job.JobId);
-                applications.AddRange(jobApplications);
-            }
-
-            ViewBag.Application = applications;
-            return View();
+            return View(dashboardViewModel);
         }
 
         [HttpGet]
+        [Route("employer/profile")]
         public async Task<IActionResult> Profile()
         {
             var eId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -66,6 +66,36 @@ namespace QQJob.Controllers
             }
 
             var employer = await _employerRepository.GetByIdAsync(eId);
+            if(employer == null)
+            {
+                return NotFound("Employer profile not found.");
+            }
+
+            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? new List<SocialLink>() : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
+
+            var model = new EmployerProfileViewModel
+            {
+                Id = employer.EmployerId,
+                Avatar = employer.User.Avatar,
+                FullName = employer.User.FullName,
+                Email = employer.User.Email,
+                PhoneNumber = employer.User.PhoneNumber,
+                Website = employer.Website,
+                FoundedDate = employer.FoundedDate != DateTime.MinValue ? employer.FoundedDate : null,
+                CompanySize = employer.CompanySize,
+                ForPublicView = true,
+                SocialLinks = socialLinks,
+                CompanyField = employer.CompanyField,
+                IsVerified = employer.User.IsVerified
+            };
+
+            return View(model);
+        }
+        [HttpGet("employer/profile/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Profile(string slug)
+        {
+            var employer = await _employerRepository.GetBySlugAsync(slug);
             if(employer == null)
             {
                 return NotFound("Employer profile not found.");

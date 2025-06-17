@@ -17,7 +17,7 @@ namespace QQJob.Models
         public Status Status { get; set; }
         public string? Slug { get; set; }
         public int OpenPosition { get; set; }
-        public long ViewCount { get; set; }
+        public int ViewCount { get; set; }
         public string? PayType { get; set; }
         public string? WorkingHours { get; set; }
         public string? WorkingType { get; set; }
