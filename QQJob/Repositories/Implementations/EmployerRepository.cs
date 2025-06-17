@@ -5,7 +5,7 @@ using QQJob.Repositories.Interfaces;
 
 namespace QQJob.Repositories.Implementations
 {
-    public class EmployerRepository : GenericRepository<Employer>, IEmployerRepository
+    public class EmployerRepository:GenericRepository<Employer>, IEmployerRepository
     {
         public EmployerRepository(QQJobContext context) : base(context)
         {
@@ -18,7 +18,7 @@ namespace QQJob.Repositories.Implementations
                 .FirstOrDefaultAsync(e => e.EmployerId == employerId);
         }
 
-        public async Task<IEnumerable<Employer?>> GetAllRQEmployerAsync(int page, int per)
+        public async Task<IEnumerable<Employer?>> GetAllRQEmployerAsync(int page,int per)
         {
             int skip = (page - 1) * per;
             return await _context.Set<Employer>()
@@ -52,6 +52,12 @@ namespace QQJob.Repositories.Implementations
         public async Task<Employer> GetByIdAsync(string id)
         {
             return await _context.Set<Employer>().Include(e => e.User).Where(e => e.EmployerId == id).FirstOrDefaultAsync();
+        }
+        public async Task<Employer?> GetBySlugAsync(string slug)
+        {
+            return await _context.Employers
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.User.Slug == slug);
         }
     }
 }

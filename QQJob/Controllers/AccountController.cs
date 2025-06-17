@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
@@ -46,7 +47,8 @@ namespace QQJob.Controllers
                 Candidate = model.AccountType == true ? new Candidate() : null,
                 Employer = model.AccountType == false ? new Employer() : null,
                 IsVerified = UserStatus.Unverified,
-                Avatar = "/assets/img/avatars/default-avatar.jpg"
+                Avatar = "/assets/img/avatars/default-avatar.jpg",
+                Slug = await GenerateUniqueSlugAsync(model.Fullname)
             };
 
             string roleName = model.AccountType == true ? "Candidate" : "Employer";
@@ -362,7 +364,8 @@ namespace QQJob.Controllers
                         CreatedAt = DateTime.UtcNow,
                         EmailConfirmed = true,
                         IsVerified = UserStatus.Unverified,
-                        Avatar = "/assets/img/avatars/default-avatar.jpg"
+                        Avatar = "/assets/img/avatars/default-avatar.jpg",
+                        Slug = await GenerateUniqueSlugAsync(info.Principal.FindFirstValue(ClaimTypes.GivenName) + " " + info.Principal.FindFirstValue(ClaimTypes.Surname))
                     };
 
                     // Create the new user in the database.
@@ -410,32 +413,49 @@ namespace QQJob.Controllers
         }
 
         [NonAction]
-        private string GenerateSlug(string input)
+        public static string GenerateSlug(string text)
         {
-            if(string.IsNullOrWhiteSpace(input))
-                return string.Empty;
+            if(string.IsNullOrWhiteSpace(text))
+                return Guid.NewGuid().ToString("N");
 
-            // Normalize the string to handle Unicode characters
-            string normalized = input.Normalize(NormalizationForm.FormD);
+            // Convert to lowercase
+            string slug = text.ToLowerInvariant();
 
-            // Remove diacritical marks (e.g., accents)
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach(char c in normalized)
+            // Remove diacritics (accents, etc.)
+            slug = RemoveDiacritics(slug);
+
+            // Replace spaces and special characters with dashes
+            slug = Regex.Replace(slug,@"[^a-z0-9\s-]",""); // keep only a-z, 0-9, space, dash
+            slug = Regex.Replace(slug,@"[\s-]+","-").Trim('-'); // collapse and trim dashes
+
+            return slug;
+        }
+        [NonAction]
+        private static string RemoveDiacritics(string text)
+        {
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach(var c in normalized)
             {
                 if(CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                    stringBuilder.Append(c);
+                    sb.Append(c);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+        private async Task<string> GenerateUniqueSlugAsync(string fullName)
+        {
+            var baseSlug = GenerateSlug(fullName);
+            var slug = baseSlug;
+            int counter = 1;
+
+            while(await userManager.Users.AnyAsync(u => u.Slug == slug))
+            {
+                slug = $"{baseSlug}-{counter++}";
             }
 
-            string cleaned = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-
-            // Convert to lowercase and remove invalid characters
-            cleaned = cleaned.ToLowerInvariant();
-            cleaned = Regex.Replace(cleaned,@"[^a-z0-9\s-]",""); // Remove invalid characters
-            cleaned = Regex.Replace(cleaned,@"\s+"," ").Trim();  // Replace multiple spaces with a single space
-
-            // Replace spaces with hyphens
-            return Regex.Replace(cleaned,@"\s","-");
+            return slug;
         }
+
 
     }
 }

@@ -37,5 +37,34 @@ namespace QQJob.Repositories.Implementations
         {
             return await _context.ChatMessages.Where(m => m.ChatId == chatId && m.SenderId == userId && !m.IsRead).CountAsync();
         }
+
+        public async Task<bool> UpdateRangeNullUserAsync(string userId)
+        {
+            using(var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var messages = await _context.ChatMessages
+                    .Where(m => m.SenderId == userId)
+                    .ToListAsync();
+
+                    foreach(var message in messages)
+                    {
+                        if(message.SenderId == userId) message.SenderId = null;
+                    }
+
+                    _context.ChatMessages.UpdateRange(messages);
+
+                    await SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch(Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+            }
+        }
     }
 }

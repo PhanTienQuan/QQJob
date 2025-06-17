@@ -26,9 +26,9 @@ namespace QQJob
                 options.UseSqlServer(connectionString);
             });
 
-            var kernalBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-3.5-turbo",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
-            kernalBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
-            Kernel kernel = kernalBuilder.Build();
+            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
+            kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
+            Kernel kernel = kernelBuilder.Build();
 
             // Register repositories 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
@@ -65,9 +65,9 @@ namespace QQJob
             {
                 options.LoginPath = "/";
             });
-
-            var app = builder.Build();
+            builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddHttpContextAccessor();
+            var app = builder.Build();
             Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
             if(!app.Environment.IsDevelopment())
@@ -91,6 +91,15 @@ namespace QQJob
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapControllerRoute(
+                name: "profile",
+                pattern: "candidates/{slug}",
+                defaults: new { controller = "Candidate",action = "Profile" });
+            app.MapControllerRoute(
+                name: "profile",
+                pattern: "employer/profile/{slug}",
+                defaults: new { controller = "Employer",action = "Profile" });
+
             app.MapHub<ChatHub>("/chathub");
             app.Run();
         }

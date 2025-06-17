@@ -2,11 +2,11 @@
 
 namespace QQJob.Data.CValidation
 {
-    public class ConfirmPassword(string otherPropertyName) : ValidationAttribute
+    public class ConfirmPassword(string otherPropertyName):ValidationAttribute
     {
         private readonly string _otherPropertyName = otherPropertyName;
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object? value,ValidationContext validationContext)
         {
             var otherProperty = validationContext.ObjectType.GetProperty(_otherPropertyName);
             if(otherProperty == null)
@@ -23,7 +23,7 @@ namespace QQJob.Data.CValidation
             }
 
             // Check if the values match
-            if(!Equals(value.ToString(), otherPropertyValue?.ToString()))
+            if(!Equals(value.ToString(),otherPropertyValue?.ToString()))
             {
                 return new ValidationResult("Password and confirmation password do not match.");
             }
