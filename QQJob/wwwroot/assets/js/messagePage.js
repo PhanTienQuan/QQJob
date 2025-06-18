@@ -60,17 +60,15 @@ connection.on("ReceiveMessage", function (response) {
     renderMessage(message, chatMessagesDiv.querySelector("#chatIndicator"));
     connection.invoke("UserStoppedTyping", currentChatId, currentChatId);
 });
-
-sendButton.addEventListener("click", function (e) {
+function handleSendButtonClick(e) {
     e.preventDefault();
     const message = messageInput.value;
     if (message != "") {
         connection.invoke("SendMessage", currentChatId, currentUserId, message);
         messageInput.value = "";
     }
-});
-
-messageInput.addEventListener("input", function () {
+}
+function handleMessageInput() {
     const isEmpty = messageInput.value.trim() === "";
     sendButton.disabled = isEmpty;
 
@@ -89,12 +87,9 @@ messageInput.addEventListener("input", function () {
         sendButton.style.backgroundColor = "#34A853"; // blue when enabled
         sendButton.style.cursor = "pointer";
     }
-});
+}
 
 window.addEventListener("DOMContentLoaded", () => {
-    sendButton.disabled = true;
-    sendButton.style.backgroundColor = "#ccc";
-    sendButton.style.cursor = "not-allowed";
     if (chatMessagesDiv) {
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     }
@@ -172,6 +167,14 @@ function loadSessionMessages(sessionId) {
                 realMessages.forEach(msg => {
                     renderMessage(msg, chatMessagesDiv.firstChild);
                 });
+            }
+
+            if (response.otherUserAvailable) {
+                $('#messageForm').show();
+                $('#userNotAvailableMsg').hide();
+            } else {
+                $('#messageForm').hide();
+                $('#userNotAvailableMsg').show();
             }
         },
         error: function () {
@@ -264,9 +267,10 @@ function renderMessage(message, anchorElement) {
     const msgDiv = document.createElement("div");
     const isCurrentUser = message.senderId === currentUserId;
     msgDiv.className = isCurrentUser ? "msg receiver chat__message" : "msg sender chat__message";
+    const messageAvatar = message.avatar && message.avatar.trim() !== "" ? message.avatar : "/assets/img/avatars/default-avatar.jpg";
     msgDiv.innerHTML = `
         <div class="avatar">
-            <img src="${message.avatar}" alt="">
+            <img src="${messageAvatar}" alt="">
         </div>
         <div class="content">
             <p>${message.messageText}</p>
@@ -292,29 +296,39 @@ function renderSession(name) {
                 if (sessions && sessions.length > 0) {
                     sessions.forEach(function (session) {
                         var sessionResult = session.result;
-                        const otherUser = sessionResult.user1Id == currentUserId ? sessionResult.user2 : sessionResult.user1
+                        const otherUser = sessionResult.user1Id == currentUserId ? sessionResult.user2 : sessionResult.user1;
+                        const otherUserAvatar = otherUser && otherUser.avatar !== ""
+                            ? otherUser.avatar
+                            : "/assets/img/avatars/default-avatar.jpg";
+
+                        const otherUserName = otherUser && otherUser.fullName && otherUser.fullName !== ""
+                            ? otherUser.fullName
+                            : "Unknown User";
+
                         const unreadMessages = sessionResult.unreadCount || 0;
 
                         const lastMessage = sessionResult.messages?.$values.length > 0
                             ? sessionResult.messages.$values[sessionResult.messages.$values.length - 1]
                             : "No messages";
+
                         const isCurrentUser = lastMessage && lastMessage.senderId === currentUserId;
                         const timeText = lastMessage == undefined ? formatTimeAgo(lastMessage.sentAt) : "";
                         const previewText = lastMessage != undefined
                             ? (isCurrentUser
                                 ? `You: ${lastMessage.messageText}`
-                                : `${otherUser.fullName}: ${lastMessage.messageText}`)
+                                : `${otherUserName}: ${lastMessage.messageText}`)
                             : "No messages yet";
+
                         const previewWeight = !isCurrentUser && unreadMessages > 0 ? "bold" : "normal";
 
                         const sessionHtml = `
                             <div class="single__chat__person" data-sessionId="${sessionResult.chatId}" onclick="loadSessionMessages('${sessionResult.chatId}')">
                                 <div class="d-flex align-items-center gap-30">
                                     <div class="avater">
-                                        <img src="${otherUser.avatar}" alt="">
+                                        <img src="${otherUserAvatar}" alt="">
                                     </div>
                                     <div class="chat__person__meta">
-                                        <h6 class="font-20 fw-medium mb-0">${otherUser.fullName}</h6>
+                                        <h6 class="font-20 fw-medium mb-0">${otherUserName}</h6>
                                         <p id="${sessionResult.chatId}_messagePreview" style="font-weight: ${previewWeight}">${previewText}</p>
                                     </div>
                                 </div>

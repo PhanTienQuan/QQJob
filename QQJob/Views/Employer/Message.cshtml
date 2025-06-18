@@ -79,25 +79,40 @@
                     </div>
                     @if (Model.CurrentChatSession != null && Model.Sessions.Any())
                     {
-                        var otherUser = Model.CurrentChatSession.User1Id != Model.CurrentUser.Id ? Model.CurrentChatSession.User1 : Model.CurrentChatSession.User2;
+                        AppUser? otherUser = null;
+
+                        if (Model.CurrentUser != null)
+                        {
+                            if (Model.CurrentChatSession.User1Id != Model.CurrentUser.Id)
+                            {
+                                otherUser = Model.CurrentChatSession.User1;
+                            }
+                            else
+                            {
+                                otherUser = Model.CurrentChatSession.User2;
+                            }
+                        }
+
                         <div class="message__content">
                             <div class="chat__header">
                                 <div class="avatar">
-                                    <img src="@otherUser.Avatar" alt="">
+                                    <img src="@(!string.IsNullOrEmpty(otherUser?.Avatar) ? otherUser.Avatar : @Url.Content("~/assets/img/avatars/default-avatar.jpg"))" alt="">
                                 </div>
                                 <div class="content">
-                                    <h6 class="font-20 fw-semibold mb-0">@otherUser.FullName</h6>
+                                    <h6 class="font-20 fw-semibold mb-0">@(otherUser?.FullName ?? "Unknown User")</h6>
                                     <span class="status">Online</span>
                                 </div>
                             </div>
+
                             <div class="chat__content" id="chatMessages" style="height:500px; overflow-y:auto;">
                                 @foreach (ChatMessage chatMessage in Model.CurrentChatSession.Messages)
                                 {
                                     var isCurrentUser = chatMessage.SenderId == Model.CurrentUser.Id;
                                     var messageClass = isCurrentUser ? "msg receiver" : "msg sender";
+
                                     <div class="@messageClass chat__message">
                                         <div class="avatar">
-                                            <img src="@chatMessage.Sender.Avatar" alt="">
+                                            <img src="@(!string.IsNullOrEmpty(chatMessage.Sender?.Avatar) ? chatMessage.Sender.Avatar : @Url.Content("~/assets/img/avatars/default-avatar.jpg"))" alt="">
                                         </div>
                                         <div class="content">
                                             <p>
@@ -107,9 +122,10 @@
                                         </div>
                                     </div>
                                 }
+
                                 <div class="msg sender chat__message" id="chatIndicator">
                                     <div class="avatar" id="typingIndicator_avatar" style="display: none;">
-                                        <img src="@otherUser.Avatar" alt="">
+                                        <img src="@(!string.IsNullOrEmpty(otherUser?.Avatar) ? otherUser.Avatar : @Url.Content("~/assets/img/avatars/default-avatar.jpg"))" alt="">
                                     </div>
                                     <div id="typingIndicator" class="typing-indicator content" style="display: none;">
                                         <span class="dot"></span>
@@ -118,18 +134,18 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="input__msg">
-                                <form action="#">
-                                    <input type="text" placeholder="Type a message" id="messageInput">
+                                <form action="#" id="messageForm" style="@((otherUser != null) ? "" : "display:none;")">
+                                    <input type="text" placeholder="Type a message" id="messageInput" oninput="handleMessageInput()">
                                     <label for="file">
-                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M4.36841 1.00084C3.40673 1.15916 2.71283 1.45389 2.17136 2.00126C1 3.1861 1 5.09346 1 8.90818C1 12.7229 1 14.6303 2.17136 15.8159C3.34273 17.0016 5.22819 17.0008 8.99997 17.0008C12.7709 17.0008 14.6572 17.0008 15.8286 15.8159C16.9999 14.6311 16.9999 12.7229 16.9999 8.90818C16.9999 5.09346 16.9999 3.18525 15.8286 2.00042C15.2871 1.45305 14.5932 1.15832 13.6315 1" stroke="#7D8087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M6.89471 3.10721C7.30903 2.6811 8.41049 1.00195 8.99997 1.00195M8.99997 1.00195C9.58944 1.00195 10.6909 2.6811 11.1052 3.10721M8.99997 1.00195V7.73877M16.9999 10.2651H12.8517C12.1427 10.2651 11.5861 10.8579 11.2728 11.4836C10.9334 12.164 10.2539 12.7914 8.99997 12.7914C7.74608 12.7914 7.0665 12.164 6.72629 11.4836C6.41471 10.8579 5.85724 10.2651 5.14819 10.2651H1" stroke="#7D8087" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
+                                        <!-- SVG... -->
                                     </label>
                                     <input type="file" id="file" style="display: none;">
-                                    <button class="message__btn">Send</button>
+                                    <button class="message__btn" onclick="handleSendButtonClick(event)">Send</button>
                                 </form>
+
+                                <p id="userNotAvailableMsg" class="text-danger text-center" style="@((otherUser == null) ? "" : "display:none;")">User no longer available.</p>
                             </div>
                         </div>
                     }

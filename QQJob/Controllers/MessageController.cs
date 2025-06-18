@@ -16,21 +16,38 @@ namespace QQJob.Controllers
             }
 
             var messages = await chatMessageRepository.GetChatMessage(chatId,skip,take);
-
+            var chatSession = await chatSessionRepository.GetByIdAsync(chatId);
             var totalMessages = await chatMessageRepository.GetChatSessionMessageCount(chatId);
             bool hasMore = (skip + take) < totalMessages;
+
+            string? otherUserId = null;
+
+            if(chatSession != null && currentUserId != null)
+            {
+
+                if(chatSession.User1Id != currentUserId)
+                {
+                    otherUserId = chatSession.User1Id;
+                }
+                else
+                {
+                    otherUserId = chatSession.User2Id;
+                }
+            }
+
+            bool otherUserAvailable = (otherUserId != null);
+
 
             var m = messages.Select(m => new
             {
                 m.MessageId,
                 m.ChatId,
-                m.SenderId,
-                m.Sender.Avatar,
+                SenderId = string.IsNullOrEmpty(m.SenderId) ? null : m.SenderId,
+                Avatar = string.IsNullOrEmpty(m.SenderId) ? null : m.Sender.Avatar,
                 m.MessageText,
                 m.SentAt
             });
-
-            return Json(new { messages = m,hasMore });
+            return Json(new { messages = m,hasMore,otherUserAvailable });
         }
 
         [HttpGet]
