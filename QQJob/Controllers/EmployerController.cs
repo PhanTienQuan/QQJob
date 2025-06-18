@@ -8,6 +8,7 @@ using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace QQJob.Controllers
@@ -53,6 +54,50 @@ namespace QQJob.Controllers
             dashboardViewModel.RecentApplicants = await applicationRepository.GetApplicationsByEmployerId(userId);
 
             return View(dashboardViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConvertToPdf(IFormFile file)
+        {
+            if(file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var originalFilePath = Path.Combine(uploadsFolder,file.FileName);
+            var pdfFileName = Path.GetFileNameWithoutExtension(file.FileName) + ".pdf";
+            var pdfFilePath = Path.Combine(uploadsFolder,pdfFileName);
+
+            // Save uploaded DOCX
+            using(var stream = new FileStream(originalFilePath,FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Convert DOCX → PDF using LibreOffice (needs to be installed!)
+            var libreOfficePath = @"C:\Program Files\LibreOffice\program\soffice.exe"; // adjust path
+            var process = new Process();
+            process.StartInfo.FileName = libreOfficePath;
+            process.StartInfo.Arguments = $"--headless --convert-to pdf \"{originalFilePath}\" --outdir \"{uploadsFolder}\"";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+            process.WaitForExit();
+
+            if(!System.IO.File.Exists(pdfFilePath))
+            {
+                return BadRequest(new { error = "Failed to convert DOCX to PDF.",details = error });
+            }
+
+            // Return URL to PDF
+            var pdfUrl = Url.Content($"~/uploads/{pdfFileName}");
+            return Json(new { pdfUrl });
         }
 
         [HttpGet]

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QQJob.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QQJob.Models
@@ -8,13 +9,14 @@ namespace QQJob.Models
         [Key]
         public int Id { get; set; }
 
-        public string Content { get; set; }
+        public required string Content { get; set; }
 
         [ForeignKey("Receiver")]
-        public string ReceiverId { get; set; }
-        public AppUser Receiver { get; set; }
+        public string? ReceiverId { get; set; }
+        public AppUser? Receiver { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public bool IsReaded { get; set; }
+        public NotificationType Type { get; set; }
     }
 }
