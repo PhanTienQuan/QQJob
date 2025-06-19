@@ -52,10 +52,11 @@ function login(element) {
             } else {
                 $.each(response.errors, function (key, messages) {
                     if (key == "All") {
-                        $("divx").text(messages.join(', '))
+                        $("divx").text(messages)
+                    } else {
+                        let errorPlaceholder = $('span[data-valmsg-for="' + key + '"]');
+                        errorPlaceholder.text(messages);
                     }
-                    let errorPlaceholder = $('span[data-valmsg-for="' + key + '"]');
-                    errorPlaceholder.text(messages.join(', '));
                 });
                 loading.attr("hidden", true);
                 document.getElementById("overlay").style.display = "none";

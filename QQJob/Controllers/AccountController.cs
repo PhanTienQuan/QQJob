@@ -193,7 +193,6 @@ namespace QQJob.Controllers
             if(ModelState.IsValid)
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
-
                 if(user == null)
                 {
                     ModelState.AddModelError("All","User does not exist.");
@@ -203,8 +202,7 @@ namespace QQJob.Controllers
                         errors = GetModelStateErrors()
                     });
                 }
-
-                if(!await userManager.IsEmailConfirmedAsync(user))
+                else if(!await userManager.IsEmailConfirmedAsync(user))
                 {
                     ModelState.AddModelError("All","Email is not confirmed.");
                     return Json(new
@@ -213,37 +211,66 @@ namespace QQJob.Controllers
                         errors = GetModelStateErrors()
                     });
                 }
-
-                var result = await signInManager.PasswordSignInAsync(user.UserName,model.Password,model.RememberMe,lockoutOnFailure: false);
-
-                if(result.Succeeded)
-                {
-                    return Json(new { success = true,url = Url.Action("index","home") });
-                }
-                if(result.RequiresTwoFactor)
-                {
-                    // Handle two-factor authentication case
-                }
-                if(result.IsLockedOut)
-                {
-                    // Handle lockout scenario
-                }
-                else if(result.IsNotAllowed)
-                {
-                    ModelState.AddModelError("Password","Sign-in is not allowed.");
-                }
                 else
                 {
-                    ModelState.AddModelError("All","Wrong password");
+                    var logins = await userManager.GetLoginsAsync(user);
+                    if(logins.Any())
+                    {
+                        var provider = logins.First().LoginProvider;
+                        ModelState.AddModelError("All",$"This account uses {provider} login. Please sign in with {provider}.");
+                        return Json(new
+                        {
+                            success = false,
+                            errors = GetModelStateErrors()
+                        });
+                    }
+                    else if(string.IsNullOrEmpty(model.Password) || !await userManager.CheckPasswordAsync(user,model.Password))
+                    {
+                        ModelState.AddModelError("All","Wrong password.");
+                        return Json(new
+                        {
+                            success = false,
+                            errors = GetModelStateErrors()
+                        });
+                    }
+                    else
+                    {
+                        // Success login
+                        var result = await signInManager.PasswordSignInAsync(
+                            user.UserName ?? string.Empty,
+                            model.Password ?? string.Empty,
+                            model.RememberMe,
+                            lockoutOnFailure: false
+                        );
+                        if(result.Succeeded)
+                        {
+                            return Json(new { success = true,url = Url.Action("index","home") });
+                        }
+                        if(result.RequiresTwoFactor)
+                        {
+                            // Handle two-factor authentication case
+                        }
+                        if(result.IsLockedOut)
+                        {
+                            // Handle lockout scenario
+                        }
+                        else if(result.IsNotAllowed)
+                        {
+                            ModelState.AddModelError("Password","Sign-in is not allowed.");
+                        }
+                        return Json(new { success = true,url = Url.Action("index","home") });
+                    }
                 }
             }
-
-            model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            return Json(new
+            else
             {
-                success = false,
-                errors = GetModelStateErrors()
-            });
+                model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                return Json(new
+                {
+                    success = false,
+                    errors = GetModelStateErrors()
+                });
+            }
         }
         public async Task<IActionResult> Logout()
         {
