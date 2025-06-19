@@ -7,6 +7,7 @@ using QQJob.Models;
 
 using QQJob.Repositories.Implementations;
 using QQJob.Repositories.Interfaces;
+using QQJob.Services;
 
 namespace QQJob
 {
@@ -24,6 +25,7 @@ namespace QQJob
             {
                 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
                 options.UseSqlServer(connectionString);
+                options.LogTo(_ => { },LogLevel.None);
             });
 
             var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
@@ -40,6 +42,7 @@ namespace QQJob
             builder.Services.AddScoped<IApplicationRepository,ApplicationRepository>();
             builder.Services.AddScoped<IChatSessionRepository,ChatSessionRepository>();
             builder.Services.AddScoped<IChatMessageRepository,ChatMessageRepository>();
+            builder.Services.AddScoped<INotificationRepository,NotificationRepository>();
             builder.Services.AddScoped<CustomRepository,CustomRepository>();
             builder.Services.AddTransient<ISenderEmail,EmailSender>();
             builder.Services.AddTransient<ICloudinaryService,CloudinaryService>();
@@ -67,6 +70,7 @@ namespace QQJob
             });
             builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHostedService<BackgroundServices>();
             var app = builder.Build();
             Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.
@@ -91,15 +95,6 @@ namespace QQJob
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-            app.MapControllerRoute(
-                name: "profile",
-                pattern: "candidates/{slug}",
-                defaults: new { controller = "Candidate",action = "Profile" });
-            app.MapControllerRoute(
-                name: "profile",
-                pattern: "employer/profile/{slug}",
-                defaults: new { controller = "Employer",action = "Profile" });
-
             app.MapHub<ChatHub>("/chathub");
             app.Run();
         }
