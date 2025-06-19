@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QQJob.Helper;
@@ -8,7 +7,6 @@ using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
-using System.Diagnostics;
 using System.Security.Claims;
 
 namespace QQJob.Controllers
@@ -21,7 +19,7 @@ namespace QQJob.Controllers
         ICloudinaryService cloudinaryService,
         IChatSessionRepository chatSessionRepository,
         IAppUserRepository appUserRepository,
-        UserManager<AppUser> userManager
+        INotificationRepository notificationRepository
         ):Controller
     {
         private readonly IEmployerRepository _employerRepository = employerRepository;
@@ -62,37 +60,19 @@ namespace QQJob.Controllers
             if(file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
+            var pdfFile = ConversionHelper.ConvertWordToPDF(file);
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","uploads");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var originalFilePath = Path.Combine(uploadsFolder,file.FileName);
-            var pdfFileName = Path.GetFileNameWithoutExtension(file.FileName) + ".pdf";
+            var pdfFileName = pdfFile.FileName;
             var pdfFilePath = Path.Combine(uploadsFolder,pdfFileName);
-
-            // Save uploaded DOCX
-            using(var stream = new FileStream(originalFilePath,FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // Convert DOCX → PDF using LibreOffice (needs to be installed!)
-            var libreOfficePath = @"C:\Program Files\LibreOffice\program\soffice.exe"; // adjust path
-            var process = new Process();
-            process.StartInfo.FileName = libreOfficePath;
-            process.StartInfo.Arguments = $"--headless --convert-to pdf \"{originalFilePath}\" --outdir \"{uploadsFolder}\"";
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-
-            process.Start();
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            process.WaitForExit();
 
             if(!System.IO.File.Exists(pdfFilePath))
             {
-                return BadRequest(new { error = "Failed to convert DOCX to PDF.",details = error });
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    message = "Failed to convert DOCX to PDF.",
+                    type = "warning"
+                });
+                return BadRequest(new { error = "Failed to convert DOCX to PDF." });
             }
 
             // Return URL to PDF
@@ -101,7 +81,6 @@ namespace QQJob.Controllers
         }
 
         [HttpGet]
-        [Route("employer/profile")]
         public async Task<IActionResult> Profile()
         {
             var eId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -131,37 +110,8 @@ namespace QQJob.Controllers
                 ForPublicView = true,
                 SocialLinks = socialLinks,
                 CompanyField = employer.CompanyField,
-                IsVerified = employer.User.IsVerified
-            };
-
-            return View(model);
-        }
-        [HttpGet("employer/profile/{slug}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Profile(string slug)
-        {
-            var employer = await _employerRepository.GetBySlugAsync(slug);
-            if(employer == null)
-            {
-                return NotFound("Employer profile not found.");
-            }
-
-            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? new List<SocialLink>() : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
-
-            var model = new EmployerProfileViewModel
-            {
-                Id = employer.EmployerId,
-                Avatar = employer.User.Avatar,
-                FullName = employer.User.FullName,
-                Email = employer.User.Email,
-                PhoneNumber = employer.User.PhoneNumber,
-                Website = employer.Website,
-                FoundedDate = employer.FoundedDate != DateTime.MinValue ? employer.FoundedDate : null,
-                CompanySize = employer.CompanySize,
-                ForPublicView = true,
-                SocialLinks = socialLinks,
-                CompanyField = employer.CompanyField,
-                IsVerified = employer.User.IsVerified
+                IsVerified = employer.User.IsVerified,
+                CompanyEvidentUrl = employer.CompanyEvident?.Url
             };
 
             return View(model);
@@ -189,7 +139,7 @@ namespace QQJob.Controllers
                 }
                 catch
                 {
-                    ViewBag.Message = "Something happen to cloudinary server!";
+                    TempData["Message"] = JsonConvert.SerializeObject(new { message = "Something happen to cloudinary server!",type = "error" });
                     return View(model);
                 }
             }
@@ -217,6 +167,124 @@ namespace QQJob.Controllers
             }
 
             model.SocialLinks = JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink) ?? [];
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadEvident(IFormFile file,string userId)
+        {
+            if(file == null || file.Length == 0)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    message = "No file uploaded.",
+                    type = "error"
+                });
+                return RedirectToAction("Profile");
+            }
+
+            if(string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    message = "Invalid user.",
+                    type = "error"
+                });
+                return RedirectToAction("Profile");
+            }
+
+            var todayUploadAttempt = await notificationRepository.GetUploadAttemptToday(userId);
+            if(todayUploadAttempt >= 2)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    message = "Only 2 upload attempts per day! Try again tomorrow.",
+                    type = "warning"
+                });
+                return RedirectToAction("Profile");
+            }
+
+            var user = await employerRepository.GetByIdAsync(userId);
+            if(user == null)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    message = "User not found.",
+                    type = "error"
+                });
+                return RedirectToAction("Profile");
+            }
+
+            var userNotification = new Notification
+            {
+                CreatedDate = DateTime.Now,
+                Content = "Your evidence was uploaded successfully.",
+                IsReaded = false,
+                ReceiverId = userId,
+                Type = NotificationType.EvidenceUploaded,
+                UserType = UserType.User
+            };
+
+            var adminNotification = new Notification
+            {
+                CreatedDate = DateTime.Now,
+                Content = $"Employer {user.User.FullName} (ID: {user.EmployerId}) uploaded new evidence.",
+                IsReaded = false,
+                Type = NotificationType.EvidenceUploaded,
+                UserType = UserType.Admin
+            };
+
+            try
+            {
+                var allowedExtensions = new[] { ".doc",".docx" };
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                if(allowedExtensions.Contains(extension))
+                {
+                    file = ConversionHelper.ConvertWordToPDF(file);
+                }
+
+                var path = await cloudinaryService.UploadEvidentAsync(file,userId);
+                if(path == "Invalid file")
+                {
+                    TempData["Message"] = JsonConvert.SerializeObject(new { message = "Invalid file!",type = "error" });
+                    return RedirectToAction("Profile");
+                }
+
+                if(user.CompanyEvident != null)
+                {
+                    var originalFileName = Path.GetFileName(user.CompanyEvident.Url);
+                    var newFileName = Path.GetFileName(path);
+
+                    if(originalFileName != newFileName)
+                    {
+                        await cloudinaryService.DeleteFile(user.CompanyEvident.Url);
+                    }
+                }
+
+                user.User.IsVerified = UserStatus.Pending;
+                user.CompanyEvident = new CompanyEvident
+                {
+                    EmployerId = userId,
+                    Url = path,
+                    CreatedAt = DateTime.Now
+                };
+                employerRepository.Update(user);
+                await employerRepository.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error uploading evidence: {ex.Message}");
+                // Optionally log the exception: _logger?.LogError(ex, "Error uploading evidence");
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Something happened to the cloud server!",type = "error" });
+                return RedirectToAction("Profile");
+            }
+
+            await notificationRepository.AddAsync(userNotification);
+            await notificationRepository.AddAsync(adminNotification);
+            await notificationRepository.SaveChangesAsync();
+
+            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Your evidence was uploaded successfully",type = "success" });
             return RedirectToAction("Profile");
         }
 

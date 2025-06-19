@@ -2,22 +2,18 @@
 using Microsoft.AspNetCore.Mvc;
 using QQJob.Areas.Admin.ViewModels;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UserController(ILogger<UserController> logger,IAppUserRepository appUserRepository,ICandidateRepository candidateRepository,IEmployerRepository employerRepository,ICloudinaryService cloudinaryService,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository,IChatMessageRepository chatMessageRepository):Controller
+    public class UserController(IAppUserRepository appUserRepository,IEmployerRepository employerRepository,UserManager<AppUser> userManager,IChatSessionRepository chatSessionRepository,IChatMessageRepository chatMessageRepository,INotificationRepository notificationRepository):Controller
     {
-        private readonly ILogger<UserController> _logger = logger;
-        private readonly IAppUserRepository _userRepository = appUserRepository;
-        private readonly ICandidateRepository _candidateRepository = candidateRepository;
-        private readonly IEmployerRepository _employerRepository = employerRepository;
-        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var users = await _userRepository.GetUsersAsync();
-            var count = await _userRepository.GetCount();
+            var users = await appUserRepository.GetUsersAsync();
+            var count = await appUserRepository.GetCount();
             ViewBag.Count = count;
             List<ListUserViewModel> list = new List<ListUserViewModel>();
             foreach(var user in users)
@@ -35,19 +31,74 @@ namespace QQJob.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> VerificationRequestList()
         {
-            var user = await _employerRepository.GetAllRQEmployerAsync();
-            return View(user);
+            var users = await employerRepository.GetAllRQEmployerAsync();
+            return View(users);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Evidential(IFormFile file)
+        public async Task<IActionResult> EvidentSearch(string searchString = "")
         {
-            var url = await _cloudinaryService.UploadEvidentAsync(file);
-            ViewBag.url = url;
-            Console.WriteLine(url);
-            return View();
+            var users = await employerRepository.GetAllRQEmployerAsync();
+            var filteredUsers = users
+                .Where(u => u.EmployerId.Contains(searchString,StringComparison.OrdinalIgnoreCase) ||
+                            (u.User.UserName != null && u.User.UserName.Contains(searchString,StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            // Return the partial view with the filtered users
+            return PartialView("_verificationRequestTable",filteredUsers);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ApproveVerification(string employerId)
+        {
+            var employer = await employerRepository.GetByIdAsync(employerId);
+            if(employer == null || employer.User == null)
+                return NotFound();
+
+            employer.User.IsVerified = UserStatus.Verified;
+            appUserRepository.Update(employer.User);
+            await appUserRepository.SaveChangesAsync();
+
+            var notification = new Notification
+            {
+                Content = "Your verification request has been approved.",
+                ReceiverId = employer.User.Id,
+                CreatedDate = DateTime.Now,
+                Type = NotificationType.VerificationApproved,
+                UserType = UserType.User,
+            };
+
+            await notificationRepository.AddAsync(notification);
+            await notificationRepository.SaveChangesAsync();
+            TempData["Message"] = "Approve Successful!";
+            return Json(new { success = true,status = "Verified" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DenyVerification(string employerId)
+        {
+            var employer = await employerRepository.GetByIdAsync(employerId);
+            if(employer == null || employer.User == null)
+                return NotFound();
+
+            employer.User.IsVerified = UserStatus.Rejected;
+            appUserRepository.Update(employer.User);
+            await appUserRepository.SaveChangesAsync();
+
+            var notification = new Notification
+            {
+                Content = "Your verification request has been rejected.",
+                ReceiverId = employer.User.Id,
+                CreatedDate = DateTime.Now,
+                Type = NotificationType.VerificatiomnRejected,
+                UserType = UserType.User,
+            };
+
+            await notificationRepository.AddAsync(notification);
+            await notificationRepository.SaveChangesAsync();
+
+            TempData["Message"] = "Reject Successful!";
+            return Json(new { success = true,status = "Rejected" });
+        }
         [HttpPost]
         public async Task<IActionResult> Delete(string UserId)
         {
@@ -85,6 +136,18 @@ namespace QQJob.Areas.Admin.Controllers
 
             return View("Index");
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Evident(string userId)
+        {
+            var user = await employerRepository.GetByIdAsync(userId);
+            var evidentViewModel = new EvidentViewModel
+            {
+                UserId = userId,
+                EvidentUrl = user?.CompanyEvident == null ? "" : user.CompanyEvident.Url,
+            };
+            return View(evidentViewModel);
         }
     }
 }

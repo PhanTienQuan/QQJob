@@ -8,15 +8,13 @@ namespace QQJob.Models
     {
         [Key]
         public int Id { get; set; }
-
         public required string Content { get; set; }
-
         [ForeignKey("Receiver")]
         public string? ReceiverId { get; set; }
         public AppUser? Receiver { get; set; }
-
         public DateTime CreatedDate { get; set; }
         public bool IsReaded { get; set; }
         public NotificationType Type { get; set; }
+        public UserType UserType { get; set; }
     }
 }

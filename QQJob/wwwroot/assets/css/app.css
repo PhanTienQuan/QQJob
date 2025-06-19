@@ -74,3 +74,6 @@
 .active{
     background-color: lightgray;
 }
+.unread .notification__content p {
+    font-weight: bold !important;
+}

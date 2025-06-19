@@ -156,7 +156,7 @@
 </div>
 
 <script>
-    const currentUserId = "@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")";
+    const senderId = "@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")";
     document.addEventListener("DOMContentLoaded", function () {
         const chatWidget = document.getElementById("chatWidget");
         const openChat = document.getElementById("openChat");
@@ -235,7 +235,7 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    sender: currentUserId,
+                    sender: senderId,
                     receiver: "system",
                     content: userMessage,
                     history: getSessionHistory()

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 
 namespace QQJob.Repositories.Implementations
@@ -23,9 +24,9 @@ namespace QQJob.Repositories.Implementations
             int skip = (page - 1) * per;
             return await _context.Set<Employer>()
                     .Include(e => e.User)
-                    .Where(e => e.User.IsVerified == 0)
+                    .Where(e => e.User.IsVerified == UserStatus.Pending)
                     .OrderBy(e => e.User.FullName)
-                    .AsNoTracking() // Avoids tracking entities
+                    .AsNoTracking()
                     .Skip(skip)
                     .Take(per)
                     .ToListAsync();
@@ -56,6 +57,7 @@ namespace QQJob.Repositories.Implementations
                 .Include(e => e.Jobs)
                 .ThenInclude(j => j.Applications)
                 .Include(e => e.Follows)
+                .Include(e => e.CompanyEvident)
                 .Where(e => e.EmployerId == id)
                 .FirstOrDefaultAsync();
         }

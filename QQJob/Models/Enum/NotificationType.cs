@@ -5,6 +5,9 @@
         NewMessage,
         JobApplied,
         NewFollower,
-        System
+        EvidenceUploaded,
+        System,
+        VerificationApproved,
+        VerificatiomnRejected,
     }
 }

@@ -57,6 +57,11 @@ namespace QQJob.Controllers
                 await roleManager.CreateAsync(new IdentityRole { Name = roleName });
             }
 
+            if(roleName == "Candidate")
+            {
+                user.IsVerified = UserStatus.Pending;
+            }
+
             var result = await userManager.CreateAsync(user,model.Password);
             if(!result.Succeeded)
             {
@@ -134,6 +139,12 @@ namespace QQJob.Controllers
             var result = await userManager.ConfirmEmailAsync(user,Token);
             if(result.Succeeded)
             {
+                var roles = await userManager.GetRolesAsync(user);
+                if(roles.First() == "Candidate")
+                {
+                    user.IsVerified = UserStatus.Verified;
+                    await userManager.UpdateAsync(user);
+                }
                 ViewBag.Message = "Thank you for confirming your email address. Your account is now verified!";
                 return View();
             }
@@ -302,6 +313,7 @@ namespace QQJob.Controllers
             if(model.AccountType == true)
             {
                 user.Candidate = new Candidate();
+                user.IsVerified = UserStatus.Verified;
                 await userManager.AddToRoleAsync(user,"Candidate");
             }
             else

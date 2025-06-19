@@ -1,5 +1,16 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    AppUser? currentUser = null;
+    string? userRole = null;
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+        userRole = (await UserManager.GetRolesAsync(currentUser)).FirstOrDefault();
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -85,5 +96,9 @@
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 
+    @if (userRole == "Employer")
+    {
+        <script src="~/assets/js/employer.js"></script>
+    }
 </body>
 </html>

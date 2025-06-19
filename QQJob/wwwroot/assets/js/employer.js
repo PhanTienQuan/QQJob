@@ -326,3 +326,20 @@ function toggleCustomField(selectElement, customFieldId) {
         customField.querySelector("input").value = "";
     }
 };
+
+function markNotificationRead(id, el) {
+    fetch('/Notification/MarkAsRead?id=' + id, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (response.ok) {
+            el.classList.remove('unread');
+            // Optionally update the notification count
+            let countSpan = document.querySelector('.notification__count');
+            if (countSpan) {
+                let count = parseInt(countSpan.textContent) || 1;
+                countSpan.textContent = Math.max(0, count - 1);
+            }
+        }
+    });
+}

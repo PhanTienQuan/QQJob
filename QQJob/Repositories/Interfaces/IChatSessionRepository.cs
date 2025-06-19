@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Interfaces
 {
-    public interface IChatSessionRepository
+    public interface IChatSessionRepository:IGenericRepository<ChatSession>
     {
         public Task<IEnumerable<ChatSession>> GetChatSession(string userID);
         public Task<IEnumerable<ChatSession>> GetChatSession(string userID,int messageLimit,int sessionLimit);
