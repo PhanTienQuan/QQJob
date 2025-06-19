@@ -1,6 +1,18 @@
-﻿@{
-    JobDetailViewModel? job = ViewBag.Job;
-}<!-- breadcrumb area -->
+﻿@model JobDetailViewModel
+@{
+    ViewBag.Title = Model.JobTitle;
+}
+<style>
+    #description h6 {
+        font-weight: 600 !important;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        font-size: 20px;
+        color: var(--rts-heading);
+        line-height: 30px;
+    }
+</style>
+<!-- breadcrumb area -->
 <div class="rts__section breadcrumb__background">
     <div class="container">
         <div class="row">
@@ -13,24 +25,21 @@
                             </div>
                             <div class="job__meta w-100 d-flex text-center text-md-start flex-column gap-2">
                                 <div class="">
-                                    <h3 class="job__title h3 mb-0">@job.Title</h3>
+                                    <h3 class="job__title h3 mb-0">@Model.JobTitle</h3>
                                 </div>
                                 <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
                                     <div class="d-flex gap-2 align-items-center">
-                                        <i class="fa-light fa-location-dot"></i> @job.Address
+                                        <i class="fa-light fa-location-dot"></i> @Model.City
                                     </div>
                                     <div class="d-flex gap-2 align-items-center">
-                                        <i class="fa-light rt-briefcase"></i> @job.JobDes.WorkingSche
-                                    </div>
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <i class="fa-light fa-clock"></i> @Helper.DisplayTime(job.Open)
+                                        <i class="fa-light fa-clock"></i> @Helper.DisplayTime(Model.PostDate)
                                     </div>
                                     <div class="d-flex gap-2 fw-medium align-items-center">
-                                        <i class="fa-light rt-price-tag"></i> @job.Salary
+                                        <i class="fa-light rt-price-tag"></i> @Model.Salary / @Model.SalaryType
                                     </div>
                                 </div>
                                 <div class="job__tags d-flex justify-content-center justify-content-md-start flex-wrap gap-3">
-                                    @foreach (var skill in job.Skills)
+                                    @foreach (var skill in Model.Skills)
                                     {
                                         <a href="#">@skill.SkillName</a>
                                     }
@@ -70,68 +79,56 @@
                     <div class="job__overview__content">
                         <ul>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-calender"></i> Date Posted</span>
-                                <span class="text">@job.Open.ToString("MM/dd/yyyy")</span>
+                                <span class="left-text"><i class="rt-calender"></i>Date Posted</span>
+                                <span class="text">@Model.PostDate.ToString("MM/dd/yyyy")</span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"><i class="rt-loading"></i>Close On</span>
+                                <span class="text">@Model.CloseDate.ToString("MM/dd/yyyy")</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
                                 <span class="left-text"><i class="rt-user"></i> Vacancy</span>
-                                <span class="text">@(job.Opening - job.AppliedCount)</span>
+                                <span class="text">@(Model.Opening - Model.AppliedCount)</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-experience"></i> Experience</span>
-                                <span class="text">@job.Experience Year</span>
+                                <span class="left-text"><i class="rt-experience"></i>Experience Level</span>
+                                <span class="text">@Model.ExperienceLevel</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-price-tag"></i> Offered Salary</span>
-                                <span class="text">@job.Salary</span>
-                            </li>
-                            @if (job.WorkingType != null)
-                            {
-                                <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                    <span class="left-text"><i class="rt-price-tag"></i> Working Type</span>
-                                    <span class="text">@job.WorkingType</span>
-                                </li>
-                            }
-                            @if (job.PayType != null)
-                            {
-                                <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                    <span class="left-text"><i class="rt-price-tag"></i> Pay Type</span>
-                                    <span class="text">@job.PayType</span>
-                                </li>
-                            }
-                            @if (job.WorkingHours != null)
-                            {
-                                <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                    <span class="left-text"><i class="rt-price-tag"></i> Working Hours</span>
-                                    <span class="text">@job.WorkingHours</span>
-                                </li>
-                            }
-                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-loading"></i> Job Deadline</span>
-                                <span class="text">@job.Close.ToString("MM/dd/yyyy")</span>
+                                <span class="left-text"><i class="rt-price-tag"></i>Offered Salary</span>
+                                <span class="text">@Model.Salary</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-qualification"></i> Qualification</span>
-                                <span class="text">@job.Qualification</span>
+                                <span class="left-text"><i class="rt-price-tag"></i>Salary Type</span>
+                                <span class="text">@Model.SalaryType</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="fa-solid fa-location-dot"></i> Location</span>
-                                <span class="text">@job.Address</span>
+                                <span class="left-text"><i class="rt-price-tag"></i>Job Type</span>
+                                <span class="text">@Model.JobType</span>
                             </li>
                             <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <span class="left-text"><i class="rt-user"></i> Gender</span>
+                                <span class="left-text"><i class="rt-price-tag"></i>Location Requirement</span>
+                                <span class="text">@Model.LocationRequirement</span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"><i class="fa-solid fa-location-dot"></i>Location</span>
+                                <span class="text">@Model.City</span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"><i class="rt-user"></i>Gender</span>
                                 <span class="text">Both</span>
                             </li>
                         </ul>
                     </div>
                 </div>
-                @if(job.Website != null){
+                @if (Model.Website != null)
+                {
                     <div class="company__card">
                         <div class="icon">
                             <img src="@await Helper.GetUserAvatarUrlAsync(User.Identity?.Name)" alt="Company Logo">
                         </div>
-                        <h5 class="company__name mt-20">@Helper.ShortenURL(job.Website)</h5>
-                        <a href="@job.Website" class="company__link d-block mt-20" aria-label="Visit Company Website" target="_blank">Visit Website</a>
+                        <h5 class="company__name mt-20">@Helper.ShortenURL(Model.Website)</h5>
+                        <a href="@Model.Website" class="company__link d-block mt-20" aria-label="Visit Company Website" target="_blank">Visit Website</a>
                         @if (User.IsInRole("Candidate"))
                         {
                             <a href="#" class="rts__btn apply__btn mt-40">Apply This Position</a>
@@ -141,95 +138,32 @@
             </div>
             <div class="col-lg-7 col-xl-8">
                 <div class="rts__job__details">
-                    <!-- Tabs (nếu cần sử dụng sau này) -->
                     <div class="rts__tab active__link mb-30">
                          
                          <nav>
                          <div class="nav nav-tabs">
                          <a class="nav-link active" href="#all">All</a>
                          <a class="nav-link" href="#description">Job Description</a>
-                         <a class="nav-link" href="#responsibility">Responsibilities</a>
-                         <a class="nav-link" href="#requirements">Requirements</a>
-                         <a class="nav-link" href="#skill">Skill & Experience</a>
-                         <a class="nav-link" href="#salary">Salary & Benefits</a>
+                         <a class="nav-link" href="#skill">Skill</a>
                          </div>
                          </nav>
                         
                     </div>
 
                     <!-- Job Description -->
-                    <div id="description" class="mb-30">
-                        <h6 class="fw-semibold mb-20">Job Description</h6>
-                        <p>@job.JobDes.Descriptions</p>
-                    </div>
-
-                    <!-- Responsibilities -->
-                    <div id="responsibility" class="mb-30">
-                        <h6 class="fw-semibold mb-20">Responsibilities</h6>
-                        <ul class="list-style-dot">
-                            @if (!string.IsNullOrEmpty(job.JobDes.Responsibilities))
-                            {
-                                var responsibilities = job.JobDes.Responsibilities.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                                @foreach (var responsibility in responsibilities)
-                                {
-                                    <li>@responsibility.Trim()</li>
-                                }
-                            }
-                            else
-                            {
-                                <p>No responsibilities listed.</p>
-                            }
-                        </ul>
-                    </div>
-
-                    <!-- Requirements -->
-                    <div id="requirements" class="mb-30">
-                        <h6 class="fw-semibold mb-20">Requirements</h6>
-                        <ul class="list-style-dot">
-                            @if (!string.IsNullOrEmpty(job.JobDes.Requirements))
-                            {
-                                var requirements = job.JobDes.Requirements.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                                @foreach (var requirement in requirements)
-                                {
-                                    <li>@requirement.Trim()</li>
-                                }
-                            }
-                            else
-                            {
-                                <p>No requirements listed.</p>
-                            }
-                        </ul>
+                    <div id="description" class="mb-30 list-style-dot">
+                        @Html.Raw(Model.Description)
                     </div>
 
                     <!-- Skills and Experience -->
                     <div id="skill" class="mb-30">
-                        <h6 class="fw-semibold mb-20">Skills and Experience</h6>
+                        <h6 class="fw-semibold mb-20">Skills: </h6>
                         <div class="job__tags job__details__tags">
-                            @foreach(var skill in job.Skills)
+                            @foreach (var skill in Model.Skills)
                             {
                                 <a href="#" class="job__tag">@skill.SkillName</a>
                             }
                         </div>
-                    </div>
-
-                    <!-- Salary and Benefits -->
-                    <div id="salary" class="mb-30">
-                        <h6 class="fw-semibold mb-20">Salary and Benefits</h6>
-                        <ul class="list-style-dot">
-                            @if (!string.IsNullOrEmpty(job.Benefits))
-                            {
-                                var benifits = job.Benefits.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                                @foreach (var benifit in benifits)
-                                {
-                                    <li>@benifit.Trim()</li>
-                                }
-                            }
-                            else
-                            {
-                                <p>No benefits listed.</p>
-                            }
-                            <li>Salary: @job.Salary</li>
-                        </ul>
                     </div>
 
                     <!-- Share Options -->
@@ -280,7 +214,7 @@
         <div class="row swiper-data overflow-hidden" data-swiper='{
             "slidesPerView": 4.1,
             "autoplay": true,
-            "loop": true,
+            "loop": false,
             "navigation": {
                 "nextEl": ".rts__slide__next",
                 "prevEl": ".rts__slide__prev"
@@ -294,102 +228,46 @@
             }
         }'>
             <div class="swiper-wrapper">
-                <!-- Single Slide -->
-                <div class="swiper-slide">
-                    <div class="rts__job__card style__five">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="company__icon">
-                                <img src="~/assets/img/avatars/default-avatar.jpg" alt="Microsoft Logo">
-                            </div>
-                            <div class="featured__option">
-                                <span>Featured</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 mt-4 flex-wrap">
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-location-dot"></i> New York, USA
-                            </div>
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-briefcase"></i> Full Time
-                            </div>
-                        </div>
-                        <div class="font-20 fw-medium job__title mt-3 mb-2">
-                            <a href="#" aria-label="Software Engineer Job at Microsoft" class="job__title">
-                                DevOps Engineer
-                            </a>
-                        </div>
-                        <div class="job__tags d-flex flex-wrap gap-2 mt-4">
-                            <a href="#">Creative</a>
-                            <a href="#">User Interface</a>
-                            <a href="#">Web UI</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Single Slide End -->
-                <!-- Repeat structure for each job -->
-                <div class="swiper-slide">
-                    <div class="rts__job__card style__five">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="company__icon">
-                                <img src="~/assets/img/avatars/default-avatar.jpg" alt="Apple Logo">
-                            </div>
-                            <div class="featured__option">
-                                <span>Featured</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 mt-4 flex-wrap">
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-location-dot"></i> New York, USA
-                            </div>
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-briefcase"></i> Full Time
-                            </div>
-                        </div>
-                        <div class="font-20 fw-medium job__title mt-3 mb-2">
-                            <a href="#" aria-label="Software Engineer Job at Apple" class="job__title">
-                                Senior Software Engineer
-                            </a>
-                        </div>
-                        <div class="job__tags d-flex flex-wrap gap-2 mt-4">
-                            <a href="#">Java</a>
-                            <a href="#">Spring Boot</a>
-                            <a href="#">SQL  </a>
-                        </div>
-                    </div>
-                </div>
+                @if (Model.RelatedJobs != null && Model.RelatedJobs.Any())
+                {
+                    foreach (var job in Model.RelatedJobs)
+                    {
 
-                <div class="swiper-slide">
-                    <div class="rts__job__card style__five">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="company__icon">
-                                <img src="~/assets/img/avatars/default-avatar.jpg" alt="Apple Logo">
-                            </div>
-                            <div class="featured__option">
-                                <span>Featured</span>
+                        <!-- Single Slide -->
+                        <div class="swiper-slide">
+                            <div class="rts__job__card style__five">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="company__icon">
+                                        <img src="@job.Avatar" alt="Microsoft Logo">
+                                    </div>
+                                    <div class="featured__option">
+                                        <span>@job.Opening Vacancy</span>
+                                        @* <span>Featured</span> *@
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-3 mt-4 flex-wrap">
+                                    <div class="d-flex gap-2 align-items-center font-sm" data-bs-toggle="tooltip" data-bs-placement="right" title="@job.City">
+                                        <i class="fa-light fa-location-dot"></i> @Helper.DisplayLimitedText(@job.City)
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center font-sm">
+                                        <i class="fa-light fa-briefcase"></i> @job.JobType
+                                    </div>
+                                </div>
+                                <div class="font-20 fw-medium job__title mt-3 mb-2">
+                                    <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id" asp-route-slug="@job.Slug" aria-label="@job.Title" data-bs-toggle="tooltip" data-bs-placement="right" title="@job.Title" class="job__title">
+                                        @Helper.DisplayLimitedText(@job.Title, 20)
+                                    </a>
+                                </div>
+                                <div class="job__tags d-flex flex-wrap gap-2 mt-4">
+                                    @foreach (var skill in job.Skills)
+                                    {
+                                        <a href="#">@skill</a>
+                                    }
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex gap-3 mt-4 flex-wrap">
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-location-dot"></i> New York, USA
-                            </div>
-                            <div class="d-flex gap-2 align-items-center font-sm">
-                                <i class="fa-light fa-briefcase"></i> Full Time
-                            </div>
-                        </div>
-                        <div class="font-20 fw-medium job__title mt-3 mb-2">
-                            <a href="#" aria-label="Front-End Developer  " class="job__title">
-                                Front-End Developer
-                            </a>
-                        </div>
-                        <div class="job__tags d-flex flex-wrap gap-2 mt-4">
-                            <a href="#">JavaScript</a>
-                            <a href="#">React</a>
-                            <a href="#">HTML5  </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add more job cards as needed -->
+                    }
+                }
 
             </div>
         </div>

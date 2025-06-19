@@ -21,6 +21,8 @@ namespace QQJob.Data
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<CompanyEvident> CompanyEvidents { get; set; }
+        public DbSet<JobEmbedding> JobEmbeddings { get; set; }
+        public DbSet<JobSimilarityMatrix> JobSimilarityMatrix { get; set; }
         public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
         {
@@ -91,7 +93,7 @@ namespace QQJob.Data
 
             // Các ràng buộc bổ sung
             modelBuilder.Entity<Job>()
-                .Property(j => j.Title)
+                .Property(j => j.JobTitle)
                 .IsRequired()
                 .HasMaxLength(255);
 

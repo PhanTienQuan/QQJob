@@ -9,5 +9,6 @@
         System,
         VerificationApproved,
         VerificatiomnRejected,
+        PostJob
     }
 }

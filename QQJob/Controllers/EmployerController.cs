@@ -7,7 +7,10 @@ using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
+using System.Globalization;
 using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
 {
@@ -305,19 +308,18 @@ namespace QQJob.Controllers
                 model.Jobs.Add(new PostedJobViewModel
                 {
                     Id = job.JobId,
-                    Title = job.Title,
-                    Address = job.Address,
-                    JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                    Title = job.JobTitle,
+                    City = job.City,
+                    Description = job.Description,
                     Open = job.PostDate,
                     Close = job.CloseDate,
                     AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
                     Status = job.Status,
+                    Slug = job.Slug
                 });
             }
 
             model.Paging = pagingModel;
-            //model.SearchValue = searchValue;
-            //model.SearchStatus = searchStatus;
 
             return View(model);
         }
@@ -339,13 +341,14 @@ namespace QQJob.Controllers
                 model.Jobs.Add(new PostedJobViewModel
                 {
                     Id = job.JobId,
-                    Title = job.Title,
-                    Address = job.Address,
-                    JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                    Title = job.JobTitle,
+                    City = job.City,
+                    Description = job.Description,
                     Open = job.PostDate,
                     Close = job.CloseDate,
                     AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
                     Status = job.Status,
+                    Slug = job.Slug
                 });
             }
 
@@ -369,6 +372,7 @@ namespace QQJob.Controllers
             }).ToList();
             var model = new PostJobViewModel()
             {
+                EmployerId = User.FindFirstValue(ClaimTypes.NameIdentifier),
                 Opening = 1
             };
             return View(model);
@@ -390,68 +394,101 @@ namespace QQJob.Controllers
                 return View(model);
             }
 
-            if((model.WorkingType == null && model.CusWorkingType == null) || (model.Experience == null && model.CusExperience == null))
-            {
-                string errorMessage = string.Empty;
-                if(model.WorkingType == null && model.CusWorkingType == null)
-                {
-                    errorMessage += "Working Type field";
-                    ModelState.AddModelError("WorkingType","This field is required!");
-                }
-                if(model.Experience == null && model.CusExperience == null)
-                {
-                    errorMessage += errorMessage == string.Empty ? "Experience field" : ", Experience field";
-                    ModelState.AddModelError("Experience","This field is required!");
-                }
-                errorMessage += " is required!";
-                TempData["Message"] = JsonConvert.SerializeObject(new { message = errorMessage,type = "error" });
-                return View(model);
-            }
-
-            var jobJD = new
-            {
-                Descriptions = model.Description,
-                model.Responsibilities,
-                model.Requirements,
-                WorkingType = model.CusWorkingType ?? model.WorkingType,
-            };
-
             var selectedSkill = new List<Skill>();
 
             foreach(var id in model.SelectedSkill.Split(","))
             {
-                selectedSkill.Add(await _skillRepository.GetByIdAsync(int.Parse(id)));
+                var skill = await _skillRepository.GetByIdAsync(int.Parse(id));
+                if(skill != null) // Ensure skill is not null before adding
+                {
+                    selectedSkill.Add(skill);
+                }
             }
-
-            var eId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var confirmed = (await _employerRepository.GetByIdAsync(eId)).User.IsVerified;
+            var employer = await _employerRepository.GetByIdAsync(model.EmployerId);
+            var confirmed = employer.User.IsVerified;
             var status = confirmed == UserStatus.Verified ? Status.Approved : Status.Pending;
 
             Job newJob = new()
             {
-                EmployerId = eId,
-                Title = model.Title,
-                JobDescription = JsonConvert.SerializeObject(jobJD),
-                Address = model.CustomLocation ?? model.Location,
-                Experience = (float)(model.CusExperience ?? model.Experience),
+                EmployerId = model.EmployerId,
+                JobTitle = model.JobTitle,
+                Description = model.Description,
+                City = model.City,
+                ExperienceLevel = model.ExperienceLevel,
                 Salary = model.Salary,
-                Benefits = model.Benefits,
-                Qualification = model.Qualification,
-                OpenPosition = model.Opening,
+                SalaryType = model.SalaryType,
+                Opening = model.Opening,
                 PostDate = DateTime.Now,
                 CloseDate = (DateTime)model.Close,
                 Skills = selectedSkill,
                 Status = status,
-                WorkingHours = model.WorkingHours,
-                WorkingType = model.CusWorkingType ?? model.WorkingType,
-                PayType = model.CusPayType ?? model.PayType,
+                JobType = model.JobType,
+                LocationRequirement = model.LocationRequirement,
+                Slug = await GenerateUniqueSlugAsync(model.JobTitle)
             };
 
             await _jobRepository.AddAsync(newJob);
             await _jobRepository.SaveChangesAsync();
+
+            var notification = new Notification
+            {
+                Content = "You have post a job successful!",
+                CreatedDate = DateTime.Now,
+                ReceiverId = model.EmployerId,
+                Type = NotificationType.PostJob,
+                UserType = UserType.User
+            };
+
+            await notificationRepository.AddAsync(notification);
+            await notificationRepository.SaveChangesAsync();
+
             var message = "Post successfully!" + (confirmed != UserStatus.Verified ? " Wait for admin to verify your post" : "");
             TempData["Message"] = JsonConvert.SerializeObject(new { message,type = "success" });
             return RedirectToAction("JobsPosted");
+        }
+
+        [NonAction]
+        public static string GenerateSlug(string text)
+        {
+            if(string.IsNullOrWhiteSpace(text))
+                return Guid.NewGuid().ToString("N");
+
+            // Convert to lowercase
+            string slug = text.ToLowerInvariant();
+
+            // Remove diacritics (accents, etc.)
+            slug = RemoveDiacritics(slug);
+
+            // Replace spaces and special characters with dashes
+            slug = Regex.Replace(slug,@"[^a-z0-9\s-]",""); // keep only a-z, 0-9, space, dash
+            slug = Regex.Replace(slug,@"[\s-]+","-").Trim('-'); // collapse and trim dashes
+
+            return slug;
+        }
+        [NonAction]
+        private static string RemoveDiacritics(string text)
+        {
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach(var c in normalized)
+            {
+                if(CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+        private async Task<string> GenerateUniqueSlugAsync(string fullName)
+        {
+            var baseSlug = GenerateSlug(fullName);
+            var slug = baseSlug;
+            int counter = 1;
+
+            while(await _jobRepository.AnyAsync(u => u.Slug == slug))
+            {
+                slug = $"{baseSlug}-{counter++}";
+            }
+
+            return slug;
         }
 
         [HttpGet]
@@ -462,16 +499,16 @@ namespace QQJob.Controllers
             var jobDetailViewModel = new EditJobViewModel()
             {
                 Id = job.JobId,
-                Title = job.Title,
-                Address = job.Address,
-                JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                JobTitle = job.JobTitle,
+                City = job.City,
+                Description = job.Description,
                 Close = job.CloseDate,
                 Salary = job.Salary,
-                Opening = job.OpenPosition,
-                Experience = job.Experience,
-                Qualification = job.Qualification,
-                Benefits = job.Benefits,
-
+                Opening = job.Opening,
+                ExperienceLevel = job.ExperienceLevel,
+                JobType = job.JobType,
+                LocationRequirement = job.LocationRequirement,
+                SalaryType = job.SalaryType,
             };
             var skills = await _skillRepository.GetAllAsync();
             ViewBag.SkillList = skills.Select(skill => new
@@ -496,15 +533,16 @@ namespace QQJob.Controllers
             var jobDetailViewModel = new EditJobViewModel()
             {
                 Id = job.JobId,
-                Title = job.Title,
-                Address = job.Address,
-                JobDescription = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
+                JobTitle = job.JobTitle,
+                City = job.City,
+                Description = job.Description,
                 Close = job.CloseDate,
                 Salary = job.Salary,
-                Opening = job.OpenPosition,
-                Experience = job.Experience,
-                Qualification = job.Qualification,
-                Benefits = job.Benefits,
+                Opening = job.Opening,
+                ExperienceLevel = job.ExperienceLevel,
+                JobType = job.JobType,
+                LocationRequirement = job.LocationRequirement,
+                SalaryType = job.SalaryType,
                 SelectedSkill = string.Join(",",job.Skills.Select(skill => skill.SkillId))
             };
 

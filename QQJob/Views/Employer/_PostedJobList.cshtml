@@ -8,21 +8,21 @@
         <div class="single__applied__job">
             <div class="single__applied__job__content">
                 <div class="content">
-                    <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id">
+                    <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id" asp-route-slug="@job.Slug">
                         <h6 data-bs-toggle="tooltip" data-bs-placement="right" title="@job.Title">@Helper.DisplayLimitedText(@job.Title, 10)</h6>
                     </a>
                     <div class="content__info">
-                        <span data-bs-toggle="tooltip" data-bs-placement="right" title="@job.Address"><i class="fa-light fa-location-dot"></i>@Helper.DisplayLimitedText(@job.Address)</span>
-                        <span><i class="fa-light fa-briefcase"></i>@job.JobDescription.WorkingSche</span>
+                        <span data-bs-toggle="tooltip" data-bs-placement="right" title="@job.City"><i class="fa-light fa-location-dot"></i>@Helper.DisplayLimitedText(@job.City)</span>
+                        @* <span><i class="fa-light fa-briefcase"></i>@job.</span> *@
                     </div>
                 </div>
             </div>
             <div class="middle__content">
                 <div class="job__post">
                     <div class="content">
-                        <span>Posted: @Helper.DisplayTime(job.Open)</span>
+                        <span>Post @Helper.DisplayTime(job.Open)</span>
                         <span>Open on: @job.Open.ToString("dd/MM/yyyy")</span>
-                        <span>Deadline: @job.Close.ToString("dd/MM/yyyy")</span>
+                        <span>Close At: @job.Close.ToString("dd/MM/yyyy")</span>
                     </div>
                     <div class="applied__status">
                         <span>@job.AppliedCount Applied</span>
@@ -40,7 +40,7 @@
                               fill="#0B0D28" />
                     </svg>
                 </a>
-                <button class="action__btn">
+                <a class="action__btn" asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id" asp-route-slug="@job.Slug">
                     <svg width="22" height="16" viewBox="0 0 22 16" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
                         <path d="M20.544 7.045C20.848 7.471 21 7.685 21 8C21 8.316 20.848 8.529 20.544 8.955C19.178 10.871 15.689 15 11 15C6.31 15 2.822 10.87 1.456 8.955C1.152 8.529 1 8.315 1 8C1 7.684 1.152 7.471 1.456 7.045C2.822 5.129 6.311 1 11 1C15.69 1 19.178 5.13 20.544 7.045Z"
@@ -50,7 +50,7 @@
                               stroke="#0B0D28" stroke-width="1.5" stroke-linecap="round"
                               stroke-linejoin="round" />
                     </svg>
-                </button>
+                </a>
                 <button class="action__btn">
                     <svg width="20" height="22" viewBox="0 0 20 22" fill="none"
                          xmlns="http://www.w3.org/2000/svg">

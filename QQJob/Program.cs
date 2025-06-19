@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
+using QQJob.AIs;
 using QQJob.Controllers;
 using QQJob.Data;
 using QQJob.Models;
@@ -29,9 +30,23 @@ namespace QQJob
             });
 
             var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
-            kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
-            Kernel kernel = kernelBuilder.Build();
 
+            kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
+
+#pragma warning disable SKEXP0010
+            kernelBuilder.Services.AddOpenAIEmbeddingGenerator(
+                modelId: "text-embedding-3-small",
+                apiKey: builder.Configuration.GetSection("OpenAI")["SecretKey"],
+                serviceId: "embedding-generator",
+                dimensions: 1536
+            );
+#pragma warning restore SKEXP0010
+
+            // Now register Kernel in DI
+            builder.Services.AddSingleton(sp =>
+            {
+                return kernelBuilder.Build();
+            });
             // Register repositories 
             builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
             builder.Services.AddScoped<IJobRepository,JobRepository>();
@@ -43,10 +58,14 @@ namespace QQJob
             builder.Services.AddScoped<IChatSessionRepository,ChatSessionRepository>();
             builder.Services.AddScoped<IChatMessageRepository,ChatMessageRepository>();
             builder.Services.AddScoped<INotificationRepository,NotificationRepository>();
+            builder.Services.AddScoped<IJobEmbeddingRepository,JobEmbeddingRepository>();
+            builder.Services.AddScoped<IJobSimilarityMatrixRepository,JobSimilarityMatrixRepository>();
             builder.Services.AddScoped<CustomRepository,CustomRepository>();
+            builder.Services.AddScoped<EmbeddingAI>();
+
+
             builder.Services.AddTransient<ISenderEmail,EmailSender>();
             builder.Services.AddTransient<ICloudinaryService,CloudinaryService>();
-            builder.Services.AddSingleton<Kernel>(kernel);
             builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve; });
 
             builder.Services.AddIdentity<AppUser,IdentityRole>().AddEntityFrameworkStores<QQJobContext>().AddDefaultTokenProviders();
@@ -71,6 +90,7 @@ namespace QQJob
             builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHostedService<BackgroundServices>();
+            builder.Services.AddHostedService<RelatedJobEmbeddingService>();
             var app = builder.Build();
             Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.

@@ -39,31 +39,17 @@
                         <div class="info__field pt-3">
                             <div class="row row-cols-1 g-3">
                                 <div class="rt-input-group">
-                                    <label asp-for="Title">Job Title</label>
-                                    <input asp-for="Title" placeholder="Enter title" data-val-required="Post title is required">
+                                    <label asp-for="JobTitle">Job Title</label>
+                                    <input asp-for="JobTitle" placeholder="Enter title" data-val-required="Post title is required">
                                 </div>
-                                <span asp-validation-for="Title" class="text-danger"></span>
+                                <span asp-validation-for="JobTitle" class="text-danger"></span>
                             </div>
                             <div class="row row-cols-1">
                                 <div class="rt-input-group">
-                                    <label asp-for="JobDescription.Descriptions">Job Description</label>
-                                    <textarea asp-for="JobDescription.Descriptions" placeholder="Enter description"></textarea>
+                                    <label asp-for="Description">Job Description</label>
+                                    <textarea asp-for="Description" placeholder="Enter description"></textarea>
                                 </div>
-                                <span asp-validation-for="JobDescription.Descriptions" class="text-danger"></span>
-                            </div>
-                            <div class="row row-cols-1">
-                                <div class="rt-input-group">
-                                    <label asp-for="JobDescription.Responsibilities">Responsibilities</label>
-                                    <textarea asp-for="JobDescription.Responsibilities" placeholder="Enter responsibilities"></textarea>
-                                </div>
-                                <span asp-validation-for="JobDescription.Responsibilities" class="text-danger"></span>
-                            </div>
-                            <div class="row row-cols-1">
-                                <div class="rt-input-group">
-                                    <label asp-for="JobDescription.Requirements">Requirements</label>
-                                    <textarea asp-for="JobDescription.Requirements" placeholder="Enter requirements"></textarea>
-                                </div>
-                                <span asp-validation-for="JobDescription.Requirements" class="text-danger"></span>
+                                <span asp-validation-for="Description" class="text-danger"></span>
                             </div>
                             <div class="rt-input-group">
                                 <label for="skills">Skills</label>
@@ -87,8 +73,8 @@
                                 <div class="row row-cols-sm-2 row-cols-1 g-3">
                                     <div class="position-relative">
                                         <div class="rt-input-group">
-                                            <label asp-for="Address">Location</label>
-                                            <select asp-for="Address" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
+                                            <label asp-for="City">Location</label>
+                                            <select asp-for="City" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
                                                 <option value="Ha Noi">Ha Noi</option>
                                                 <option value="Da Nang">Da Nang</option>
                                                 <option value="Ho Chi Minh City">Ho Chi Minh City</option>
@@ -96,28 +82,17 @@
                                                 <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <div id="customLocationInput" class="rt-input-group" style="display: none; margin-top: 1rem;">
-                                            <label asp-for="CustomAddress">Custom Location</label>
-                                            <input asp-for="CustomAddress" class="form-control" placeholder="Enter your location" />
-                                        </div>
-                                        <span asp-validation-for="CustomAddress" class="text-danger"></span>
                                     </div>
                                     <div class="position-relative">
                                         <div class="rt-input-group">
-                                            <label asp-for="Experience">Experience</label>
-                                            <select asp-for="Experience" class="form-select" onchange="toggleCustomField(this, '#customExp')">
+                                            <label asp-for="ExperienceLevel">Experience</label>
+                                            <select asp-for="ExperienceLevel" class="form-select">
                                                 <option value="1">1 Year</option>
                                                 <option value="2">2 Years</option>
                                                 <option value="1">3 Years</option>
                                                 <option value="2">4 Years</option>
-                                                <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <div id="customExp" class="rt-input-group" style="display: none; margin-top: 1rem;">
-                                            <label asp-for="CusExperience">Custom Experience</label>
-                                            <input asp-for="CusExperience" class="form-control" placeholder="Enter your required experience" />
-                                        </div>
-                                        <span asp-validation-for="CusExperience" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -133,20 +108,13 @@
                                         <!-- Job Schedule Input -->
                                         <div class="rt-input-group">
                                             <label for="schedule">Working Schedule</label>
-                                            <select asp-for="JobDescription.WorkingSche" class="form-select" onchange="toggleCustomField(this, '#customScheduleGroup')">
+                                            <select asp-for="LocationRequirement" class="form-select">
                                                 <option value="" disabled selected>Select working schedule</option>
                                                 <option value="Full-time">Full-time</option>
                                                 <option value="Part-time">Part-time</option>
                                                 <option value="Remote">Remote</option>
-                                                <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <span asp-validation-for="JobDescription.WorkingSche" class="text-danger"></span>
-                                        <div class="rt-input-group" id="customScheduleGroup" style="display: none; margin-top: 1rem;">
-                                            <label asp-for="CusWorkingSche">Custom Working Schedule</label>
-                                            <input asp-for="CusWorkingSche" placeholder="Enter custom schedule (e.g., 3 days a week)">
-                                        </div>
-                                        <span asp-validation-for="CusWorkingSche" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="rt-input-group">
@@ -154,16 +122,6 @@
                                     <input asp-for="Opening" placeholder="Enter number of opening" min="@Model.Opening" required>
                                 </div>
                                 <span asp-validation-for="Opening" class="text-danger"></span>
-                                <div class="rt-input-group">
-                                    <label asp-for="Qualification">Qualification</label>
-                                    <input asp-for="Qualification" placeholder="Qualification" required>
-                                </div>
-                                <span asp-validation-for="Qualification" class="text-danger"></span>
-                                <div class="rt-input-group">
-                                    <label asp-for="Benefits">Benefits</label>
-                                    <textarea asp-for="Benefits" placeholder="Enter benefits" required></textarea>
-                                </div>
-                                <span asp-validation-for="Benefits" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
