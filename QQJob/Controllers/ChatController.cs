@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
+using QQJob.AIs;
 using QQJob.Dtos;
 using QQJob.Models;
 using QQJob.Repositories.Implementations;
+using QQJob.Repositories.Interfaces;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -16,7 +19,7 @@ namespace QQJob.Controllers
 {
     [ApiController]
     [Route("api/chat")]
-    public class ChatController(Kernel kernel,IWebHostEnvironment env,CustomRepository customRepository,IMapper mapper,UserManager<AppUser> userManager):ControllerBase
+    public class ChatController(Kernel kernel,IWebHostEnvironment env,CustomRepository customRepository,IMapper mapper,UserManager<AppUser> userManager,IJobEmbeddingRepository jobEmbeddingRepository,EmbeddingAI embeddingAI):ControllerBase
     {
         private readonly Kernel _kernel = kernel;
         private readonly string _schemaPath = Path.Combine(env.ContentRootPath,"wwwroot","prompts","schema.json");
@@ -25,12 +28,14 @@ namespace QQJob.Controllers
         private readonly IMapper _mapper = mapper;
         private static ChatCompletionAgent? generatePredicateAgent = null;
 
+        IEmbeddingGenerator<string,Embedding<float>> embeddingGen = kernel.GetRequiredService<IEmbeddingGenerator<string,Embedding<float>>>("embedding-generator");
+
         private static readonly Dictionary<string,(Type Model, Type Dto)> TableDtoMap = new()
         {
             ["Job"] = (typeof(Job), typeof(JobDto)),
             ["Candidate"] = (typeof(Candidate), typeof(CandidateDto)),
             ["Employer"] = (typeof(Employer), typeof(EmployerDto)),
-            ["Application"] = (typeof(Application), typeof(ApplicationDto)),
+            ["Application"] = (typeof(Models.Application), typeof(ApplicationDto)),
             ["Skill"] = (typeof(Skill), typeof(SkillDto))
         };
 
@@ -477,6 +482,43 @@ namespace QQJob.Controllers
 
             return "Sorry, you have to login first before you can do that action.";
         }
+        //[HttpPost]
+        //[Route("chat2")]
+        //public async Task<IActionResult> Chat2([FromBody] Message request)
+        //{
+        //    var kernel = _kernel.Clone();
+        //    var chatCompletion = kernel.GetRequiredService<IChatCompletionService>("openai-chat-completion");
+        //    OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+        //    {
+        //        FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+        //    };
+
+        //    //var vector = await embeddingGen.GenerateVectorAsync(request.Content);
+        //    //var embeddingJson = JsonConvert.SerializeObject(vector.ToArray());
+        //    //var jobs = await jobEmbeddingRepository.GetAllAsync();
+        //    //List<int> jobsList = new List<int>();
+        //    //foreach(var job in jobs)
+        //    //{
+        //    //    var jobVector = JsonConvert.DeserializeObject<float[]>(job.Embedding);
+        //    //    var similarity = embeddingAI.CosineSimilarity(jobVector,vector.ToArray());
+        //    //    Console.WriteLine("Calculating: " + similarity);
+        //    //    if(similarity > 0.35) // Threshold for similarity
+        //    //    {
+        //    //        jobsList.Add(job.JobId);
+        //    //        Console.WriteLine($"Found similar job: {job.JobId} with similarity {similarity}");
+        //    //    }
+        //    //}
+
+        //    return Ok(new
+        //    {
+        //        Message = embeddingJson,
+        //        Jobs = JsonConvert.SerializeObject(jobsList,new JsonSerializerSettings
+        //        {
+        //            Formatting = Formatting.Indented,
+        //            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        //        })
+        //    });
+        //}
         public class Message
         {
             public string? Sender { get; set; }

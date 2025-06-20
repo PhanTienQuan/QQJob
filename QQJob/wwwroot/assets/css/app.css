@@ -77,3 +77,142 @@
 .unread .notification__content p {
     font-weight: bold !important;
 }
+
+
+.ql-toolbar {
+    border-radius: 0.375rem; /* rounded corners */
+    border-color: #ced4da; /* match form input border */
+}
+
+.ql-container {
+    border-radius: 0.375rem;
+    border-color: #ced4da;
+    font-family: inherit; /* match your site font */
+    font-size: 1rem; /* match input size */
+}
+
+.ql-editor {
+    min-height: 200px;
+    color: #000;
+}
+
+.ql-align.ql-picker.ql-icon-picker svg {
+    vertical-align: unset !important;
+}
+/* Make toolbar responsive */
+.ql-toolbar.ql-snow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* optional spacing between buttons */
+}
+
+/* Prevent font dropdown text from wrapping */
+.ql-toolbar .ql-picker.ql-font .ql-picker-label {
+    white-space: nowrap;
+    max-width: 150px; /* optional, so long names don't break toolbar */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ql-editor h6 {
+    font-weight: 600 !important;
+    font-size: 20px !important;
+}
+
+.ql-editor p {
+    font-size: 15px !important;
+}
+
+.ql-editor li, #description li {
+    list-style: none;
+    padding-left: 30px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    position: relative;
+}
+
+.ql-editor li::before, #description li::before {
+    display: inline-block;
+    position: relative;
+    left: 0;
+    top: 50%;
+    margin-right: 1em !important;
+    transform: translate(0, -50%);
+    height: 6px;
+    width: 6px !important;
+    border-radius: 50%;
+    background-color: var(--rts-button-1);
+    content: "" !important;
+}
+
+#description li.ql-indent-1::before {
+    content: "";
+    display: inline-block;
+    width: 10px !important;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--rts-button-1);
+    margin-right: 0.5em;
+    position: relative;
+    top: -1px;
+    background-color: unset !important;
+}
+
+/* Level 2 - square */
+#description li.ql-indent-2::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    border: 2px solid var(--rts-button-1);
+    position: relative;
+    top: -1px;
+}
+
+/* Level 3 - smaller circle */
+#description li.ql-indent-3::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 2px solid var(--rts-button-1);
+    margin-right: 0.5em;
+    position: relative;
+    top: -1px;
+}
+
+.ql-editor ul, #description ul {
+    list-style: none;
+}
+#description li.ql-indent-1:not(.ql-direction-rtl) {
+    padding-left: 4.5em;
+}
+/* Indent level 2 */
+#description li.ql-indent-2:not(.ql-direction-rtl) {
+    padding-left: 6em;
+}
+
+/* Indent level 3 */
+#description li.ql-indent-3:not(.ql-direction-rtl) {
+    padding-left: 7.5em;
+}
+
+/* Indent level 4 */
+#description li.ql-indent-4:not(.ql-direction-rtl) {
+    padding-left: 9em;
+}
+
+/* Indent level 5 */
+#description li.ql-indent-5:not(.ql-direction-rtl) {
+    padding-left: 10.5em;
+}
+
+.action__btn:hover i {
+    color: #fff !important; /* white on hover */
+}
+
+.dashboard__left .dash__menu ul li a:hover i {
+    color: var(--rts-button-1);
+}

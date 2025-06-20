@@ -11,9 +11,8 @@ namespace QQJob.Services
             {
                 using var scope = serviceProvider.CreateScope();
                 var embeddingAI = scope.ServiceProvider.GetRequiredService<EmbeddingAI>();
-                var embeddingGen = kernel.GetRequiredService<IEmbeddingGenerator<string,Embedding<float>>>("embedding-generator");
 
-                await embeddingAI.GenerateEmbeddings(embeddingGen);
+                await embeddingAI.GenerateEmbeddings();
                 await embeddingAI.ComputeSimilarityMatrix();
 
                 await Task.Delay(TimeSpan.FromHours(24),stoppingToken);

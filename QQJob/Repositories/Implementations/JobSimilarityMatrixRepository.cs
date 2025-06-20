@@ -13,6 +13,7 @@ namespace QQJob.Repositories.Implementations
                 .Where(x => x.JobId1 == jobId)
                 .OrderByDescending(x => x.SimilarityScore)
                 .Take(topN)
+                .AsNoTracking()
                 .Select(x => x.JobId2)
                 .ToListAsync();
         }

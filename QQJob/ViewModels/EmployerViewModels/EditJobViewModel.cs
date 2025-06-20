@@ -16,7 +16,7 @@ namespace QQJob.ViewModels.EmployerViewModels
         public string? Salary { get; set; }
         public string? SalaryType { get; set; }
         public string? JobType { get; set; }
-        public DateTime? Close { get; set; }
+        public DateTime Close { get; set; }
         public int Opening { get; set; }
         public string? LocationRequirement { get; set; }
     }

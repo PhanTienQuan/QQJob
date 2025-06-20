@@ -1,4 +1,5 @@
-﻿@model EditJobViewModel
+﻿@using Newtonsoft.Json
+@model EditJobViewModel
 @{
     ViewBag.Title = "Post Job";
 }
@@ -31,8 +32,8 @@
                 <div class="my__profile__tab radius-16 bg-white">
                     <nav>
                         <div class="nav nav-tabs">
-                            <a class="nav-link active" href="#info">Company Details</a>
-                            <a class="nav-link" href="#jobdetail">Job Detail</a>
+                            <a class="nav-link active" href="#info">Job Details</a>
+                            <a class="nav-link" href="#jobdescription">Job Description</a>
                         </div>
                     </nav>
                     <div class="my__details" id="info">
@@ -44,84 +45,131 @@
                                 </div>
                                 <span asp-validation-for="JobTitle" class="text-danger"></span>
                             </div>
-                            <div class="row row-cols-1">
-                                <div class="rt-input-group">
-                                    <label asp-for="Description">Job Description</label>
-                                    <textarea asp-for="Description" placeholder="Enter description"></textarea>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="City">City/Province</label>
+                                        <input asp-for="City" placeholder="Enter City/Province" data-val-required="City/Province is required">
+                                    </div>
+                                    <span asp-validation-for="City" class="text-danger"></span>
                                 </div>
-                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="ExperienceLevel">Experience Level</label>
+                                        <select asp-for="ExperienceLevel" class="form-select">
+                                            <option value="Intern">Intern</option>
+                                            <option value="Junior">Junior</option>
+                                            <option value="Middle">Middle</option>
+                                            <option value="Senior">Senior</option>
+                                            <option value="Lead">Lead</option>
+                                            <option value="Manager">Manager</option>
+                                            <option value="Director">Director</option>
+                                            <option value="Executive">Executive</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="rt-input-group">
-                                <label for="skills">Skills</label>
-                                <input type="text" id="skillInput" class="form-control" placeholder="Type a skill" autocomplete="off" />
-                                <ul id="skillRecommendations" class="list-group" style="display: none; position: absolute; z-index: 1000; width: auto;"></ul>
-                                @Html.HiddenFor(j => j.SelectedSkill)
+                            <div class="position-relative mb-3">
+                                <div class="rt-input-group">
+                                    <label asp-for="Salary">Salary & Pay Type</label>
+                                    <div class="d-flex gap-2">
+                                        <input asp-for="Salary" class="form-control" placeholder="Enter salary" data-val-required="Salary is required" style="flex:1;">
+                                        <select asp-for="SalaryType" class="form-select" style="width: 200px;">
+                                            <option value="" disabled selected>Select pay type</option>
+                                            <option value="Salary">/ Salary</option>
+                                            <option value="Hourly">/ Hourly</option>
+                                            <option value="Project">/ Project</option>
+                                            <option value="Commission">/ Commission</option>
+                                            <option value="Salary + Commission">Salary + Commission</option>
+                                            <option value="Hourly/Project">Hourly / Project</option>
+                                            <option value="Unpaid">Unpaid / Volunteer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Salary" class="text-danger"></span>
                             </div>
-                            <div id="skillTags">
-                                <!-- Tags will appear here -->
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="JobType">Job Type</label>
+                                        <select asp-for="JobType" class="form-select" data-val-required="JobType is required">
+                                            <option value="" disabled selected>Select job type</option>
+                                            <option value="Full-time">Full-time</option>
+                                            <option value="Part-time">Part-time</option>
+                                            <option value="Contract">Contract</option>
+                                            <option value="Temporary">Temporary</option>
+                                            <option value="Internship">Internship</option>
+                                            <option value="Freelance">Freelance</option>
+                                            <option value="Volunteer">Volunteer</option>
+                                            <option value="Seasonal">Seasonal</option>
+                                            <option value="Per Diem">Per Diem</option>
+                                            <option value="Commission">Commission</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="JobType" class="text-danger"></span>
+                                </div>
+                                <!-- End Time -->
+                                <div class="position-relative">
+
+                                    <div class="rt-input-group">
+                                        <label asp-for="Opening">Opening</label>
+                                        <input asp-for="Opening" placeholder="Enter number of opening" min="@Model.Opening" required>
+                                    </div>
+                                    <span asp-validation-for="Opening" class="text-danger"></span>
+                                </div>
                             </div>
-                            <span asp-validation-for="SelectedSkill" class="text-danger"></span>
+                            <div class="row row-cols-sm-2 row-cols-1 g-3">
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="Close">End Time</label>
+                                        <input type="date" asp-for="Close" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                                    </div>
+                                    <span asp-validation-for="Close" class="text-danger"></span>
+                                </div>
+                                <!-- End Time -->
+                                <div class="position-relative mb-3">
+                                    <div class="rt-input-group">
+                                        <label asp-for="LocationRequirement">Location Requirement</label>
+                                        <select asp-for="LocationRequirement" class="form-select" required>
+                                            <option value="" disabled selected>Select location requirement</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                            <option value="Onsite">Fully Onsite</option>
+                                            <option value="Flexible">Flexible</option>
+                                            <option value="Client Site">Client Site</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="LocationRequirement" class="text-danger"></span>
+                                </div>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label for="skills">Skills</label>
+                                        <input type="text" id="skillInput" class="form-control" placeholder="Type a skill" autocomplete="off" />
+                                        <ul id="skillRecommendations" class="list-group" style="display: none; position: absolute; z-index: 1000; width: auto;"></ul>
+                                        @Html.HiddenFor(j => j.SelectedSkill)
+                                    </div>
+                                    <div id="skillTags">
+                                        <!-- Tags will appear here -->
+                                    </div>
+                                    <span asp-validation-for="SelectedSkill" class="text-danger"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <!-- address area -->
-                <h6 class="fw-medium mt-30 mb-20" id="jobdetail">Job Detail</h6>
+                <h6 class="fw-medium mt-30 mb-20" id="jobdetail">Job Description</h6>
                 <div class="social__links radius-16 p-30 bg-white">
                     <div class="info__field">
                         <div class="row row-cols-sm-1 row-cols-1 g-3">
                             <div class="info__field">
-                                <div class="row row-cols-sm-2 row-cols-1 g-3">
-                                    <div class="position-relative">
-                                        <div class="rt-input-group">
-                                            <label asp-for="City">Location</label>
-                                            <select asp-for="City" class="form-select" onchange="toggleCustomField(this, '#customLocationInput')">
-                                                <option value="Ha Noi">Ha Noi</option>
-                                                <option value="Da Nang">Da Nang</option>
-                                                <option value="Ho Chi Minh City">Ho Chi Minh City</option>
-                                                <option value="Remote">Remote</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="position-relative">
-                                        <div class="rt-input-group">
-                                            <label asp-for="ExperienceLevel">Experience</label>
-                                            <select asp-for="ExperienceLevel" class="form-select">
-                                                <option value="1">1 Year</option>
-                                                <option value="2">2 Years</option>
-                                                <option value="1">3 Years</option>
-                                                <option value="2">4 Years</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="row row-cols-1">
+                                    <div id="DescriptionEditor" style="height: 300px;"></div>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
                                 </div>
 
-                                <div class="row row-cols-sm-2 row-cols-1 g-3">
-                                    <div class="position-relative">
-                                        <div class="rt-input-group">
-                                            <label asp-for="Salary">Salary</label>
-                                            <input asp-for="Salary" placeholder="Enter salary" required>
-                                        </div>
-                                        <span asp-validation-for="Salary" class="text-danger"></span>
-                                    </div>
-                                    <div class="position-relative">
-                                        <!-- Job Schedule Input -->
-                                        <div class="rt-input-group">
-                                            <label for="schedule">Working Schedule</label>
-                                            <select asp-for="LocationRequirement" class="form-select">
-                                                <option value="" disabled selected>Select working schedule</option>
-                                                <option value="Full-time">Full-time</option>
-                                                <option value="Part-time">Part-time</option>
-                                                <option value="Remote">Remote</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="rt-input-group">
-                                    <label asp-for="Opening">Opening</label>
-                                    <input asp-for="Opening" placeholder="Enter number of opening" min="@Model.Opening" required>
-                                </div>
-                                <span asp-validation-for="Opening" class="text-danger"></span>
+                                <!-- Hidden field to post back the HTML -->
+                                <input type="hidden" asp-for="Description" id="Description">
                             </div>
                         </div>
                     </div>
@@ -157,8 +205,8 @@
 </div>
 @section Scripts {
     <script>
-        const skillList = @Html.Raw(Json.Serialize(ViewBag.SkillList));
-        const initSkills = @Html.Raw(Json.Serialize(ViewBag.InitSkills));
+        const skillList = @Html.Raw(JsonConvert.SerializeObject(ViewBag.SkillList));
+        const initSkills = @Html.Raw(JsonConvert.SerializeObject(ViewBag.InitSkills));
         document.addEventListener("DOMContentLoaded", () => {
             initializeTagManager({
                 inputSelector: "#skillInput",
@@ -167,6 +215,36 @@
                 selectedItemsInputSelector: "#SelectedSkill",
                 itemsList: skillList,
                 initSkillList: initSkills
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Configure toolbar
+            var toolbarOptions = [
+                [{ 'header': [6, false] }],
+                [{ 'size': [] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                ['blockquote'],
+                ['link'],
+                ['clean']
+            ];
+
+            // Init Quill
+            var quill = new Quill('#DescriptionEditor', {
+                theme: 'snow',
+                placeholder: 'Enter job description...',
+                modules: {
+                    toolbar: toolbarOptions
+                }
+            });
+            var html = document.querySelector('#Description').value;
+            if (html && html.trim() !== "") {
+                quill.root.innerHTML = html;
+            }
+            // Sync to hidden field
+            document.querySelector('form').addEventListener('submit', function () {
+                document.querySelector('#Description').value = quill.root.innerHTML;
             });
         });
         $.validator.setDefaults({ ignore: [] });

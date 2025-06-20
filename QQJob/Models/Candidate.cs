@@ -11,8 +11,7 @@ namespace QQJob.Models
         public string? JobTitle { get; set; }
         public string? Description { get; set; }
         public string? WorkingType { get; set; }
-        public string? ResumePath { get; set; }
-
+        public Resume? Resume { get; set; }
         // Navigation Property
         public AppUser User { get; set; }
         public ICollection<Education> Educations { get; set; }

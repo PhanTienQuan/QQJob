@@ -151,7 +151,7 @@
                     </div>
 
                     <!-- Job Description -->
-                    <div id="description" class="mb-30 list-style-dot">
+                    <div id="description" class="mb-30">
                         @Html.Raw(Model.Description)
                     </div>
 
@@ -166,29 +166,38 @@
                         </div>
                     </div>
 
-                    <!-- Share Options -->
-                    <div class="d-flex flex-wrap gap-4 mt-40 mb-30">
-                        <div class="d-flex gap-3 align-items-center">
-                            <span class="h6 fw-semibold">Share</span>
-                            <div class="rts__social d-flex gap-3">
-                                <a href="https://facebook.com" target="_blank" aria-label="facebook">
-                                    <i class="fa-brands fa-facebook"></i>
-                                </a>
-                                <a href="https://instagram.com" target="_blank" aria-label="instagram">
-                                    <i class="fa-brands fa-instagram"></i>
-                                </a>
-                                <a href="https://linkedin.com" target="_blank" aria-label="linkedin">
-                                    <i class="fa-brands fa-linkedin"></i>
-                                </a>
-                                <a href="https://pinterest.com" target="_blank" aria-label="pinterest">
-                                    <i class="fa-brands fa-pinterest"></i>
-                                </a>
-                                <a href="https://youtube.com" target="_blank" aria-label="youtube">
-                                    <i class="fa-brands fa-youtube"></i>
-                                </a>
+                    @if (Model.SocialLinks != null && Model.SocialLinks.Any())
+                    {
+                        <!-- Share Options -->
+                        <div class="d-flex flex-wrap gap-4 mt-40 mb-30">
+                            <div class="d-flex gap-3 align-items-center">
+                                <span class="h6 fw-semibold">Employer feed: </span>
+                                <div class="rts__social d-flex gap-3">
+                                    @foreach (var link in Model.SocialLinks)
+                                    {
+                                        var platform = link.Platform.ToLowerInvariant();
+                                        var iconClass = platform switch
+                                        {
+                                            "facebook" => "fa-facebook",
+                                            "instagram" => "fa-instagram",
+                                            "linkedin" => "fa-linkedin",
+                                            "pinterest" => "fa-pinterest",
+                                            "youtube" => "fa-youtube",
+                                            _ => "fa-globe"
+                                        };
+
+                                        var url = link.Url.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                        ? link.Url
+                                        : $"https://{link.Url}";
+
+                                        <a href="@url" target="_blank" aria-label="@platform">
+                                            <i class="fa-brands @iconClass"></i>
+                                        </a>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
 

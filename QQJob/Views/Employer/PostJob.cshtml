@@ -16,74 +16,6 @@
         font-size: 0.875rem;
         border-radius: 0.25rem;
     }
-
-    .ql-toolbar {
-        border-radius: 0.375rem; /* rounded corners */
-        border-color: #ced4da; /* match form input border */
-    }
-
-    .ql-container {
-        border-radius: 0.375rem;
-        border-color: #ced4da;
-        font-family: inherit; /* match your site font */
-        font-size: 1rem; /* match input size */
-    }
-
-    .ql-editor {
-        min-height: 200px;
-        color: #000;
-    }
-
-    .ql-align.ql-picker.ql-icon-picker svg {
-        vertical-align: unset !important;
-    }
-    /* Make toolbar responsive */
-    .ql-toolbar.ql-snow {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px; /* optional spacing between buttons */
-    }
-
-    /* Prevent font dropdown text from wrapping */
-    .ql-toolbar .ql-picker.ql-font .ql-picker-label {
-        white-space: nowrap;
-        max-width: 150px; /* optional, so long names don't break toolbar */
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .ql-editor h6 {
-        font-weight: 600 !important;
-        font-size: 20px !important;
-    }
-
-    .ql-editor p {
-        font-size: 15px !important;
-    }
-
-    .ql-editor li {
-        list-style: none;
-        padding-left: 30px;
-        margin-bottom: 15px;
-        font-weight: 500;
-        position: relative;
-    }
-
-    .ql-editor li::before {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translate(0, -50%);
-        height: 6px;
-        width: 6px !important;
-        border-radius: 50%;
-        background-color: var(--rts-button-1);
-        content: "" !important;
-    }
-
-    .ql-editor ul{
-        list-style: none;
-    }
 </style>
  <!-- content area -->
 <div class="dashboard__content d-flex template-dashboard ">
@@ -228,15 +160,15 @@
                     </div>
                 </div>
                 <!-- address area -->
-                <h6 class="fw-medium mt-30 mb-20" id="jobdescription">Job Detail</h6>
+                <h6 class="fw-medium mt-30 mb-20" id="jobdescription">Job Description</h6>
                 <div class="social__links radius-16 p-30 bg-white">
                     <div class="info__field">
                         <div class="row row-cols-sm-1 row-cols-1 g-3">
                             <div class="info__field">
-                                <div class="row row-cols-1 mb-3">
-                                    <div class="rt-input-group">
+                                <div class="row row-cols-1">
+                                    @* <div class="rt-input-group">
                                         <label for="DescriptionEditor">Job Description</label>
-                                    </div>
+                                    </div> *@
                                     <div id="DescriptionEditor" style="height: 300px;"></div>
                                     <span asp-validation-for="Description" class="text-danger"></span>
                                 </div>

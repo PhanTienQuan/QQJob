@@ -29,7 +29,7 @@ namespace QQJob
                 options.LogTo(_ => { },LogLevel.None);
             });
 
-            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"]);
+            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"],serviceId: "openai-chat-completion");
 
             kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
 
@@ -62,6 +62,7 @@ namespace QQJob
             builder.Services.AddScoped<IJobSimilarityMatrixRepository,JobSimilarityMatrixRepository>();
             builder.Services.AddScoped<CustomRepository,CustomRepository>();
             builder.Services.AddScoped<EmbeddingAI>();
+            builder.Services.AddScoped<TextCompletionAI>();
 
 
             builder.Services.AddTransient<ISenderEmail,EmailSender>();

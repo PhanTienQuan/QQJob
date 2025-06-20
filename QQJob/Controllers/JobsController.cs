@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
 
@@ -84,6 +86,7 @@ namespace QQJob.Controllers
                 LocationRequirement = job.LocationRequirement,
                 SalaryType = job.SalaryType,
                 RelatedJobs = relatedJobView,
+                SocialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink)
             };
             return View(jobDetailViewModel);
         }

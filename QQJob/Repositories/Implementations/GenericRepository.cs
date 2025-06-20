@@ -55,9 +55,18 @@ namespace QQJob.Repositories.Implementations
             return await _dbSet.AnyAsync(predicate);
         }
 
-        public async Task DeleteAllAsync()
+        public void DeleteAll()
         {
             _dbSet.RemoveRange(_dbSet);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+        public void ClearChangeTracker()
+        {
+            _context.ChangeTracker.Clear();
         }
     }
 }

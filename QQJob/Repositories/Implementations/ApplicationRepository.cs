@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Implementations
 {
@@ -28,6 +30,57 @@ namespace QQJob.Repositories.Implementations
             .Include(a => a.Job)
             .Include(a => a.Candidate)
             .ToListAsync();
+        }
+        public async Task<(IEnumerable<Application> applications, PagingModel pagingModel)> GetApplicationsAsync(int currentPage,int pageSize,Expression<Func<Application,bool>>? predicate,string? searchValue = null,ApplicationStatus? searchStatus = null,DateTime? appliedDate = null)
+        {
+            var query = _context.Applications.AsQueryable();
+
+            if(predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            if(!string.IsNullOrEmpty(searchValue))
+            {
+                searchValue = searchValue.ToLower();
+                query = query.Where(a => a.Candidate.User.FullName.ToLower().Contains(searchValue) ||
+                                         a.Job.JobTitle.ToLower().Contains(searchValue)
+                );
+            }
+
+            if(searchStatus.HasValue)
+            {
+                query = query.Where(a =>
+                    a.Status == searchStatus
+                );
+            }
+
+            if(appliedDate.HasValue)
+            {
+                query = query.Where(a => a.ApplicationDate >= appliedDate);
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var applications = await query
+                .OrderByDescending(j => j.ApplicationDate)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .Include(a => a.Candidate)
+                .ThenInclude(c => c.User)
+                .Include(a => a.Candidate.Resume)
+                .Include(a => a.Job)
+                .ThenInclude(j => j.Employer)
+                .ToListAsync();
+
+            var pagingModel = new PagingModel
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return (applications, pagingModel);
         }
     }
 }

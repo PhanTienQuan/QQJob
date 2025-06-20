@@ -12,6 +12,8 @@ namespace QQJob.Repositories.Interfaces
         void Delete(T entity);
         Task<bool> AnyAsync(Expression<Func<T,bool>> predicate);
         Task SaveChangesAsync();
-        Task DeleteAllAsync();
+        void DeleteAll();
+        Task AddRangeAsync(IEnumerable<T> entities);
+        void ClearChangeTracker();
     }
 }

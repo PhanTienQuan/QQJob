@@ -10,6 +10,7 @@ using QQJob.ViewModels.EmployerViewModels;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace QQJob.Controllers
@@ -58,7 +59,7 @@ namespace QQJob.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConvertToPdf(IFormFile file)
+        public IActionResult ConvertToPdf(IFormFile file)
         {
             if(file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -77,7 +78,6 @@ namespace QQJob.Controllers
                 });
                 return BadRequest(new { error = "Failed to convert DOCX to PDF." });
             }
-
             // Return URL to PDF
             var pdfUrl = Url.Content($"~/uploads/{pdfFileName}");
             return Json(new { pdfUrl });
@@ -529,6 +529,24 @@ namespace QQJob.Controllers
         public async Task<IActionResult> EditJob(EditJobViewModel model)
         {
             var job = await _jobRepository.GetByIdAsync(model.Id);
+            var skills = await _skillRepository.GetAllAsync();
+            ViewBag.SkillList = skills.Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            ViewBag.InitSkills = job.Skills.Select(skill => new
+            {
+                Id = skill.SkillId,
+                Name = skill.SkillName
+            }).ToList();
+
+            if(!ModelState.IsValid)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Some field are wrong!",type = "error" });
+                return View(model);
+            }
 
             var jobDetailViewModel = new EditJobViewModel()
             {
@@ -549,30 +567,69 @@ namespace QQJob.Controllers
             if(ObjectComparer.AreEqual(model,jobDetailViewModel))
             {
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "Nothing changed!",type = "none" });
-                return RedirectToAction("EditJob");
+                return RedirectToAction("JobsPosted");
             }
 
-            var skills = await _skillRepository.GetAllAsync();
-            ViewBag.SkillList = skills.Select(skill => new
-            {
-                Id = skill.SkillId,
-                Name = skill.SkillName
-            }).ToList();
+            var selectedSkill = new List<Skill>();
 
-            ViewBag.InitSkills = job.Skills.Select(skill => new
+            foreach(var id in model.SelectedSkill.Split(","))
             {
-                Id = skill.SkillId,
-                Name = skill.SkillName
-            }).ToList();
-
-            if(!ModelState.IsValid)
-            {
-                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Some field are wrong!",type = "error" });
-                return View(model);
+                var skill = await _skillRepository.GetByIdAsync(int.Parse(id));
+                if(skill != null) // Ensure skill is not null before adding
+                {
+                    selectedSkill.Add(skill);
+                }
             }
+            bool isUpdated = false;
+            job.Slug = job.JobTitle != model.JobTitle ? await GenerateUniqueSlugAsync(model.JobTitle) : job.Slug;
+            job.JobTitle = UpdateIfDifferent(job.JobTitle,model.JobTitle.Trim(),ref isUpdated);
+            job.City = UpdateIfDifferent(job.City,model.City.Trim(),ref isUpdated);
+            job.Description = UpdateIfDifferent(job.Description,model.Description.Trim(),ref isUpdated);
+            job.CloseDate = UpdateIfDifferent(job.CloseDate,model.Close,ref isUpdated);
+            job.Salary = UpdateIfDifferent(job.Salary,model.Salary.Trim(),ref isUpdated);
+            job.SalaryType = UpdateIfDifferent(job.SalaryType,model.SalaryType.Trim(),ref isUpdated);
+            job.JobType = UpdateIfDifferent(job.JobType,model.JobType.Trim(),ref isUpdated);
+            job.ExperienceLevel = UpdateIfDifferent(job.ExperienceLevel,model.ExperienceLevel.Trim(),ref isUpdated);
+            job.SalaryType = UpdateIfDifferent(job.SalaryType,model.SalaryType.Trim(),ref isUpdated);
+            job.Opening = UpdateIfDifferent(job.Opening,model.Opening,ref isUpdated);
+            job.Skills = UpdateIfDifferent(job.Skills,selectedSkill,ref isUpdated);
+            job.UpdateAt = DateTime.Now;
 
-            return RedirectToAction("Index");
+            jobRepository.Update(job);
+            await jobRepository.SaveChangesAsync();
+
+            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Update Successful!",type = "success" });
+            return RedirectToAction("JobsPosted");
         }
+        [HttpPost]
+        public async Task<IActionResult> CloseJob(int jobId)
+        {
+            var job = await jobRepository.GetByIdAsync(jobId);
+            if(job == null) return NotFound();
+
+            job.Status = Status.Closed;
+            await jobRepository.SaveChangesAsync();
+
+            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job closed successfully!",type = "success" });
+            return RedirectToAction("JobsPosted","Employer");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReopenJob(int jobId)
+        {
+            var job = await jobRepository.GetByIdAsync(jobId);
+            if(job == null) return NotFound();
+
+            job.Status = Status.Approved;
+            job.PostDate = DateTime.Now;
+            job.CloseDate = DateTime.Now.AddDays(1);
+
+            await jobRepository.SaveChangesAsync();
+
+            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
+            return RedirectToAction("EditJob","Employer",new { id = jobId });
+        }
+
         [HttpGet]
         public async Task<IActionResult> Message()
         {
@@ -586,6 +643,183 @@ namespace QQJob.Controllers
             };
             return View(messageViewModel);
         }
+        [HttpGet]
+        public async Task<IActionResult> ApplicantList(int page = 1,int pageSize = 5)
+        {
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var (applicants, pagingModel) = await _applicationRepository.GetApplicationsAsync(page,pageSize,j => j.Job.EmployerId == id);
+
+            var model = new ApplicantListViewModel()
+            {
+                Applicants = new List<ApplicantViewModel>()
+            };
+
+            foreach(var applicant in applicants)
+            {
+                model.Applicants.Add(new ApplicantViewModel
+                {
+                    ApplicationId = applicant.ApplicationId,
+                    JobId = applicant.JobId,
+                    CandidateId = applicant.CandidateId,
+                    ApplicationDate = applicant.ApplicationDate,
+                    Status = applicant.Status,
+                    ApplicantSlug = applicant.Candidate.User.Slug,
+                    CandidateName = applicant.Candidate.User.FullName,
+                    JobSlug = applicant.Job.Slug,
+                    JobTitle = applicant.Job.JobTitle,
+                    Skills = applicant.Candidate.Skills ?? []
+                });
+            }
+            var fakeApplicant = new ApplicantViewModel
+            {
+                ApplicationId = 0, // not real
+                JobId = 0,
+                CandidateId = "acksakcas",
+                ApplicationDate = DateTime.Now.AddDays(20),
+                Status = ApplicationStatus.Rejected,
+                ApplicantSlug = "random-fake-applicant",
+                CandidateName = "John Doe",
+                JobSlug = "test-job",
+                JobTitle = "Senior QA Engineer",
+                Skills = new List<Skill>
+                {
+                    new Skill { SkillName = "Selenium" },
+                    new Skill { SkillName = "Cypress" },
+                    new Skill { SkillName = "Postman" }
+                },
+                AiRanking = 4.5f
+            };
+
+            model.Applicants.Add(fakeApplicant);
+
+            model.Paging = pagingModel;
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetApplicationListPartial(PagingModel paging,string? searchValue = null,ApplicationStatus? searchStatus = null,DateTime? fromDate = null)
+        {
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var current = paging.CurrentPage;
+
+            var (applicants, pagingModel) = await _applicationRepository.GetApplicationsAsync(paging.CurrentPage,paging.PageSize,j => j.Job.EmployerId == id,searchValue,searchStatus,fromDate);
+            var model = new ApplicantListViewModel()
+            {
+                Applicants = new List<ApplicantViewModel>()
+            };
+
+            foreach(var applicant in applicants)
+            {
+                model.Applicants.Add(new ApplicantViewModel
+                {
+                    ApplicationId = applicant.ApplicationId,
+                    JobId = applicant.JobId,
+                    CandidateId = applicant.CandidateId,
+                    ApplicationDate = applicant.ApplicationDate,
+                    Status = applicant.Status,
+                    ApplicantSlug = applicant.Candidate.User.Slug,
+                    CandidateName = applicant.Candidate.User.FullName,
+                    JobSlug = applicant.Job.Slug,
+                    JobTitle = applicant.Job.JobTitle,
+                    Skills = applicant.Candidate.Skills ?? []
+                });
+            }
+
+            model.Paging = pagingModel;
+            model.SearchValue = searchValue;
+            model.SearchStatus = searchStatus;
+            model.FromDate = fromDate;
+
+            return PartialView("_ApplicantList",model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> MoveToNextStatusAjax([FromBody] JsonElement data)
+        {
+            int applicationId = data.GetProperty("applicationId").GetInt32();
+
+            var app = await _applicationRepository.GetByIdAsync(applicationId);
+            if(app == null)
+            {
+                return Json(new { success = false,message = "Application not found." });
+            }
+
+            if(app.Status == ApplicationStatus.Rejected || app.Status == ApplicationStatus.Accepted)
+            {
+                return Json(new { success = false,message = "Application is already finalized." });
+            }
+
+            // Move to next status
+            if(app.Status < ApplicationStatus.Interviewed)
+            {
+                app.Status = (ApplicationStatus)((int)app.Status + 1);
+            }
+            else if(app.Status == ApplicationStatus.Interviewed)
+            {
+                app.Status = ApplicationStatus.Accepted;
+            }
+
+            await _applicationRepository.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = $"Application moved to {app.Status}.",
+                newStatus = app.Status.ToString()
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectApplicationAjax([FromBody] JsonElement data)
+        {
+            int applicationId = data.GetProperty("applicationId").GetInt32();
+
+            var app = await _applicationRepository.GetByIdAsync(applicationId);
+            if(app == null)
+            {
+                return Json(new { success = false,message = "Application not found." });
+            }
+
+            app.Status = ApplicationStatus.Rejected;
+            await _applicationRepository.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Application rejected.",
+                newStatus = app.Status.ToString()
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ChatWith(string chatUserId)
+        {
+            string referer = Request.Headers["Referer"].ToString();
+            var chatWithUser = await appUserRepository.GetByIdAsync(chatUserId);
+            if(chatWithUser == null)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "User not found!",type = "error" });
+                return Redirect(referer);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var chatSession = new ChatSession
+            {
+                User1Id = userId,
+                User2Id = chatUserId,
+                CreateAt = DateTime.Now
+            };
+            await chatSessionRepository.AddAsync(chatSession);
+            await chatSessionRepository.SaveChangesAsync();
+
+            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
+            MessageViewModel messageViewModel = new()
+            {
+                Sessions = sessions,
+                CurrentChatSession = chatSession,
+                CurrentUser = await appUserRepository.GetByIdAsync(userId),
+            };
+            return View("Message",messageViewModel);
+        }
+
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
         {

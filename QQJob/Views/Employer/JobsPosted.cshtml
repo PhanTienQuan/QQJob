@@ -89,5 +89,18 @@
             $("#Paging_CurrentPage").val(selectedPage);
             searchForm.submit();
         }
+        var closeJobModal = document.getElementById('confirmCloseJobModal');
+        closeJobModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var jobId = button.getAttribute('data-job-id');
+            document.getElementById('closeJobId').value = jobId;
+        });
+
+        var reopenJobModal = document.getElementById('confirmReopenJobModal');
+        reopenJobModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var jobId = button.getAttribute('data-job-id');
+            document.getElementById('reopenJobId').value = jobId;
+        });
     </script>
 }
