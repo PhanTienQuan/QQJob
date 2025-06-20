@@ -17,5 +17,6 @@ namespace QQJob.ViewModels.EmployerViewModels
         public UserStatus IsVerified { get; set; }
         public List<SocialLink>? SocialLinks { get; set; }
         public IFormFile? AvatarFile { get; set; }
+        public string? CompanyEvidentUrl { get; set; }
     }
 }

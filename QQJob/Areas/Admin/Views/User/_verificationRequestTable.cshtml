@@ -14,7 +14,7 @@
                                placeholder="Search" />
 
                         <div class="input-group-btn">
-                            <button type="submit" class="btn btn-default">
+                            <button type="submit" class="btn btn-default" onclick="evidentSearch()">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
@@ -33,10 +33,6 @@
                         <th >
                             @Html.DisplayNameFor(model => model.User.UserName)
                         </th>
-
-                        <th>
-                            @Html.DisplayNameFor(model => model.FoundedDate)
-                        </th>
                         <th>
                             Status
                         </th>
@@ -44,7 +40,6 @@
 
                     @foreach (var item in Model)
                     {
-                        var Date = item.FoundedDate.ToShortDateString() == "1/1/0001" ? "Not set" : item.FoundedDate.ToShortDateString();
                         <tr>
                             <td>
                                 @Html.DisplayFor(modelItem => item.EmployerId)
@@ -52,14 +47,14 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.User.UserName)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => Date)
-                            </td>
                             <td class="text-center">
                                 @switch (item.User.IsVerified)
                                 {
                                     case UserStatus.Unverified:
                                         <span class="label label-warning">Unverified</span>
+                                        break;
+                                    case UserStatus.Pending:
+                                        <span class="label label-info">Pending</span>
                                         break;
                                     case UserStatus.Verified:
                                         <span class="label label-success">Verified</span>
@@ -67,12 +62,15 @@
                                     case UserStatus.Suspended:
                                         <span class="label label-danger">Suspended</span>
                                         break;
+                                    case UserStatus.Rejected:
+                                        <span class="label label-default">Rejected</span>
+                                        break;
                                 }
                             </td>
                             <td class="text-center">
-                                <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
-                                <a href='#' class='btn btn-sm btn-success  @(item.User.IsVerified == UserStatus.Unverified ? "disabled" : "")'>Approve</a>
-                                <a href='#' class='btn btn-sm btn-danger'> @(item.User.IsVerified == UserStatus.Verified ? "Cancel" : "Deny") </a>
+                                <a asp-area="Admin" asp-controller="User" asp-action="Evident" asp-route-UserId="@item.EmployerId" class='btn btn-sm btn-primary'>Check</a>
+                                <a href="#" class="btn btn-sm btn-success" data-employer-id="@item.EmployerId" onclick="approveVerification(this); return false;">Approve</a>
+                                <a href="#" class="btn btn-sm btn-danger" data-employer-id="@item.EmployerId" onclick="denyVerification(this); return false;">Deny</a>
                             </td>
                         </tr>
                     }

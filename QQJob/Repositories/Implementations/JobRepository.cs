@@ -26,9 +26,8 @@ namespace QQJob.Repositories.Implementations
             {
                 searchValue = searchValue.ToLower();
                 query = query.Where(j =>
-                    j.Title.ToLower().Contains(searchValue) ||
-                    j.Address.ToLower().Contains(searchValue) ||
-                    (j.JobDescription != null && j.JobDescription.ToLower().Contains(searchValue))
+                    j.JobTitle.ToLower().Contains(searchValue) ||
+                    j.City.ToLower().Contains(searchValue)
                 );
             }
 
@@ -77,7 +76,7 @@ namespace QQJob.Repositories.Implementations
         public async Task<IEnumerable<Job>> SearchJobsAsync(string keyword)
         {
             return await _context.Set<Job>()
-                .Where(j => j.Title.Contains(keyword) || j.JobDescription.Contains(keyword))
+                .Where(j => j.JobTitle.Contains(keyword))
                 .ToListAsync();
         }
         public async Task<Job> GetByIdAsync(int id)
@@ -89,7 +88,7 @@ namespace QQJob.Repositories.Implementations
         {
             return predicate == null
                 ? null
-                : await _context.Jobs.Where(predicate).Include(job => job.Skills).ToListAsync();
+                : await _context.Jobs.Where(predicate).Include(job => job.Skills).Include(j => j.Employer).ThenInclude(e => e.User).ToListAsync();
         }
 
         public async Task<Job?> GetJobDetail(Expression<Func<Job,bool>>? predicate = null)

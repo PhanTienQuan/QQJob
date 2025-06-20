@@ -13,6 +13,7 @@ namespace QQJob.Models
         public DateTime FoundedDate { get; set; }
         public string? CompanySize { get; set; }
         public string? CompanyField { get; set; }
+        public CompanyEvident? CompanyEvident { get; set; }
 
         // Navigation Property
         public AppUser User { get; set; }

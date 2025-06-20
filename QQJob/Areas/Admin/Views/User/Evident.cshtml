@@ -1,0 +1,85 @@
+﻿@model EvidentViewModel
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            All User
+            @* <small>preview of simple tables</small> *@
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a href="#">Manage User</a></li>
+            <li class="active">All User</li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            @if (Model.EvidentUrl != null)
+            {
+                var url = Model.EvidentUrl.ToLower();
+
+                if (url.EndsWith(".pdf"))
+                {
+                    <iframe src="@Model.EvidentUrl" width="100%" style="border:none; min-height:700px;"></iframe>
+                }
+                else if (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp"))
+                {
+                    <img src="@Model.EvidentUrl" alt="Company Evidence" style="max-width:100%; border-radius:8px; height:auto; display:block;" />
+                }
+                else
+                {
+                    <a href="@Model.EvidentUrl" download target="_blank" rel="noopener noreferrer">Download Evidence</a>
+                }
+            }
+        </div>
+        <div class="row" style="margin-top:20px;">
+            <div class="col-md-12 text-center">
+                <button id="approveBtn" class="btn btn-success" data-employer-id="@Model.UserId">Approve</button>
+                <button id="rejectBtn" class="btn btn-danger" data-employer-id="@Model.UserId" style="margin-left:10px;">Reject</button>
+                <span id="evidentStatus" style="margin-left:20px;"></span>
+            </div>
+        </div>
+    </section>
+    <!-- /.content -->
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#approveBtn').click(function () {
+                var employerId = $(this).data('employer-id');
+                $.ajax({
+                    url: '@Url.Action("ApproveVerification", "User", new { area = "Admin" })',
+                    type: 'POST',
+                    data: { employerId: employerId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Redirect to VerificationRequestList
+                            window.location.href = '@Url.Action("VerificationRequestList", "User", new { area = "Admin" })';
+                        }
+                    }
+                });
+            });
+
+            $('#rejectBtn').click(function () {
+                var employerId = $(this).data('employer-id');
+                $.ajax({
+                    url: '@Url.Action("DenyVerification", "User", new { area = "Admin" })',
+                    type: 'POST',
+                    data: { employerId: employerId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Redirect to VerificationRequestList
+                            window.location.href = '@Url.Action("VerificationRequestList", "User", new { area = "Admin" })';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

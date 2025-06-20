@@ -1,4 +1,7 @@
 ﻿@model IEnumerable<Employer>
+@{
+    ViewData["Title"] = "Verification Request";
+}
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -18,13 +21,54 @@
             <li class="active">Verification request</li>
         </ol>
     </section>
-    <form asp-area="Admin" asp-action="Evidential" asp-controller="User" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="file" />
-        <button type="submit">Submit</button>
-    </form>
     <!-- Main content -->
     <section class="content">
         @Html.Partial("_VerificationRequestTable", Model)
     </section>
     <!-- /.content -->
 </div>
+@section Scripts {
+    <script>
+        function evidentSearch(){
+            var searchString = $('input[name="table_search"]').val();
+            console.log("Search String: " + searchString);
+            $.ajax({
+                url: '@Url.Action("EvidentSearch", "User", new { area = "Admin" })',
+                type: 'POST',
+                data: { searchString: searchString},
+                success: function (result) {
+                    $('.content').html(result);
+                }
+            });
+        }
+        function approveVerification(btn) {
+            var employerId = $(btn).data('employer-id');
+            $.ajax({
+                url: '@Url.Action("ApproveVerification", "User", new { area = "Admin" })',
+                type: 'POST',
+                data: { employerId: employerId },
+                success: function (response) {
+                    if (response.success) {
+                        // Optionally update the status cell in the row
+                        $(btn).closest('tr').find('td:eq(2)').html('<span class="label label-success">Verified</span>');
+                    }
+                }
+            });
+        }
+
+        function denyVerification(btn) {
+            var employerId = $(btn).data('employer-id');
+            $.ajax({
+                url: '@Url.Action("DenyVerification", "User", new { area = "Admin" })',
+                type: 'POST',
+                data: { employerId: employerId },
+                success: function (response) {
+                    if (response.success) {
+                        // Update the status cell to show "Rejected"
+                        $(btn).closest('tr').find('td:eq(2)').html('<span class="label label-default">Rejected</span>');
+                    }
+                }
+            });
+        }
+    </script>
+}

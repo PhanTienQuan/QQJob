@@ -6,9 +6,8 @@ using QQJob.ViewModels;
 
 namespace QQJob.Controllers
 {
-    public class JobsController(IJobRepository jobRepository,IEmployerRepository employerRepository):Controller
+    public class JobsController(IJobRepository jobRepository,IEmployerRepository employerRepository,IJobSimilarityMatrixRepository jobSimilarityMatrixRepository):Controller
     {
-        private readonly IJobRepository _jobRepository = jobRepository;
         public IActionResult Index()
         {
             //var jobs = await _jobRepository.GetJobsAsync(1, 5);
@@ -31,36 +30,66 @@ namespace QQJob.Controllers
             //ViewBag.Jobs = joblist;
             return View();
         }
-        public async Task<IActionResult> Detail(int id)
+        [HttpGet]
+        [Route("jobs/{id}/{slug}")]
+        public async Task<IActionResult> Detail(int id,string slug)
         {
-            var job = await _jobRepository.GetByIdAsync(id);
+            var job = await jobRepository.GetByIdAsync(id);
+            if(job == null)
+            {
+                return NotFound();
+            }
+
+            // If slug does not match — redirect to correct URL (SEO)
+            if(job.Slug != slug)
+            {
+                return RedirectToRoute(new
+                {
+                    id = job.JobId,
+                    slug = job.Slug
+                });
+            }
+
             var employer = await employerRepository.GetByIdAsync(job.EmployerId);
-            Console.WriteLine("hours: " + job.WorkingHours);
+            var relatedJobIds = await jobSimilarityMatrixRepository.GetRelatedJobIdsAsync(job.JobId);
+            var relatedJobs = await jobRepository.FindJobs(j => relatedJobIds.Contains(j.JobId));
+            var relatedJobView = relatedJobs.Select(j => new RelatedJobViewModel()
+            {
+                Id = j.JobId,
+                Avatar = j.Employer.User.Avatar,
+                City = j.City,
+                JobType = j.JobType,
+                Title = j.JobTitle,
+                Skills = j.Skills.Select(s => s.SkillName).Take(3).ToList() ?? [],
+                Opening = j.Opening,
+                Slug = j.Slug
+            }).ToList();
+
             var jobDetailViewModel = new JobDetailViewModel()
             {
                 Id = job.JobId,
                 EmployerId = job.EmployerId,
-                Title = job.Title,
-                Address = job.Address,
-                JobDes = JsonConvert.DeserializeObject<JobDescription>(job.JobDescription),
-                Open = job.PostDate,
-                Close = job.CloseDate,
+                JobTitle = job.JobTitle,
+                City = job.City,
+                Description = job.Description,
+                PostDate = job.PostDate,
+                CloseDate = job.CloseDate,
                 AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
                 Status = job.Status,
                 Skills = job.Skills,
                 Salary = job.Salary,
-                Opening = job.OpenPosition,
-                Experience = job.Experience,
-                Qualification = job.Qualification,
-                Benefits = job.Benefits,
-                WorkingHours = job.WorkingHours,
-                WorkingType = job.WorkingType,
-                PayType = job.PayType,
-                Website = employer.Website
+                Opening = job.Opening,
+                ExperienceLevel = job.ExperienceLevel,
+                Website = employer.Website,
+                ImgUrl = employer.User.Avatar,
+                JobType = job.JobType,
+                LocationRequirement = job.LocationRequirement,
+                SalaryType = job.SalaryType,
+                RelatedJobs = relatedJobView,
+                SocialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink)
             };
-
-            ViewBag.Job = jobDetailViewModel;
-            return View();
+            return View(jobDetailViewModel);
         }
+
     }
 }

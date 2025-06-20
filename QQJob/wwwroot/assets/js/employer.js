@@ -92,7 +92,7 @@
         });
     }
 }
-
+const allowedPlatforms = ["Facebook", "LinkedIn", "Instagram", "Pinterest", "YouTube"];
 function initializeSocialLinksManager({
     socialLinksContainerSelector,
     addSocialLinkBtnSelector,
@@ -100,23 +100,20 @@ function initializeSocialLinksManager({
     initialLinks = [],
     errorMessage
 }) {
+    const allowedPlatforms = ["Facebook", "LinkedIn", "Instagram", "Pinterest", "YouTube"];
     const socialLinksContainer = document.querySelector(socialLinksContainerSelector);
     const addSocialLinkBtn = document.querySelector(addSocialLinkBtnSelector);
 
-    // Add new social link functionality
     addSocialLinkBtn.addEventListener("click", (event) => {
-        event.preventDefault(); // Prevent default button action
-
+        event.preventDefault();
         const currentLinks = socialLinksContainer.querySelectorAll(".rt-input-group").length;
-
         if (currentLinks < maxSocialLinks) {
-            createSocialLinkGroup("", ""); // Create an empty input group
+            createSocialLinkGroup("", ""); // Empty new link
         } else {
             showToastMessage(errorMessage, "warning");
         }
     });
 
-    // Function to create a new social link group
     function createSocialLinkGroup(platform = "", url = "") {
         const currentLinks = socialLinksContainer.querySelectorAll(".rt-input-group").length;
         const container = document.createElement("div");
@@ -124,31 +121,71 @@ function initializeSocialLinksManager({
         const newSocialLink = document.createElement("div");
         newSocialLink.className = "rt-input-group";
 
-        // Hidden platform input
         const platformInput = document.createElement("input");
         platformInput.setAttribute("hidden", true);
         platformInput.type = "hidden";
+
+        // Determine default platform
+        const selectedPlatforms = Array.from(socialLinksContainer.querySelectorAll("input[type='hidden']"))
+            .map(input => input.value)
+            .filter(v => v);
+        const availablePlatforms = allowedPlatforms.filter(p => !selectedPlatforms.includes(p));
+        platform = platform || (availablePlatforms.length > 0 ? availablePlatforms[0] : "");
         platformInput.value = platform;
 
-        // Label for platform
         const label = document.createElement("label");
         label.textContent = platform || `New Social link ${currentLinks + 1}`;
+        label.style.cursor = "pointer";
+
         label.addEventListener("dblclick", () => {
-            const input = document.createElement("input");
-            input.type = "text";
-            input.value = label.textContent;
-            input.addEventListener("blur", () => {
-                label.textContent = input.value || label.textContent;
-                platformInput.value = input.value || platformInput.value;
-                label.style.display = "";
-                input.remove();
+            const select = document.createElement("select");
+            select.className = "form-select mb-2";
+
+            const selectedNow = Array.from(socialLinksContainer.querySelectorAll("input[type='hidden']"))
+                .map(input => input.value)
+                .filter(v => v && v !== platform); // keep current one available
+
+            const availableNow = allowedPlatforms.filter(p => !selectedNow.includes(p));
+
+            availableNow.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p;
+                option.textContent = p;
+                if (p === platform) option.selected = true;
+                select.appendChild(option);
             });
+
+            let isRemoved = false;
+
+            select.addEventListener("change", () => {
+
+                platform = select.value;
+                platformInput.value = platform;
+                label.textContent = platform;
+                updateAllPlatformOptions();
+                reindexInputs();
+
+                if (isRemoved) return;
+                isRemoved = true;
+                label.style.display = "";
+                select.remove();
+            });
+
+            select.addEventListener("blur", () => {
+                if (isRemoved) return;
+                isRemoved = true;
+
+                label.style.display = "";
+                select.remove();
+            });
+
+
+
             label.style.display = "none";
-            newSocialLink.insertBefore(input, label);
-            input.focus();
+            newSocialLink.insertBefore(select, label);
+            select.focus();
         });
 
-        // Input for URL
         const urlInput = document.createElement("input");
         urlInput.type = "text";
         urlInput.placeholder = "Enter URL";
@@ -156,23 +193,21 @@ function initializeSocialLinksManager({
         urlInput.value = url;
         urlInput.className = "form-control pe-5";
 
-        // Remove icon
         const removeIcon = document.createElement("span");
         removeIcon.innerHTML = "<i class='fa-solid fa-xmark'></i>";
         removeIcon.className = "remove-icon";
         removeIcon.style.cursor = "pointer";
         removeIcon.onclick = () => {
-            socialLinksContainer.removeChild(container); // Remove the input group
-            reindexInputs(); // Re-index remaining inputs
+            socialLinksContainer.removeChild(container);
+            updateAllPlatformOptions();
+            reindexInputs();
         };
 
-        // Data validation
         const dataValidationSpan = document.createElement("span");
         dataValidationSpan.className = "text-danger field-validation-valid";
         dataValidationSpan.setAttribute("data-valmsg-for", `SocialLinks[${currentLinks}].Url`);
         dataValidationSpan.setAttribute("data-valmsg-replace", true);
 
-        // Append elements
         newSocialLink.appendChild(label);
         newSocialLink.appendChild(platformInput);
         newSocialLink.appendChild(urlInput);
@@ -181,44 +216,56 @@ function initializeSocialLinksManager({
         container.appendChild(dataValidationSpan);
 
         socialLinksContainer.appendChild(container);
-        reindexInputs(); // Re-index inputs after adding a new one
+        updateAllPlatformOptions();  // FIX: make sure after adding, options are updated
+        reindexInputs();
     }
 
-    // Function to re-index all input groups
+    function updateAllPlatformOptions() {
+        const selectedPlatforms = Array.from(socialLinksContainer.querySelectorAll("select"))
+            .map(select => select.value);
+
+        const selects = socialLinksContainer.querySelectorAll("select");
+        selects.forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = "";
+            allowedPlatforms.forEach(p => {
+                if (p === currentValue || !selectedPlatforms.includes(p)) {
+                    const option = document.createElement("option");
+                    option.value = p;
+                    option.textContent = p;
+                    if (p === currentValue) option.selected = true;
+                    select.appendChild(option);
+                }
+            });
+        });
+    }
+
     function reindexInputs() {
         const inputGroups = socialLinksContainer.querySelectorAll(".rt-input-group");
         inputGroups.forEach((group, index) => {
-            // Re-index platform input
             const platformInput = group.querySelector("input[type='hidden']");
             platformInput.id = `SocialLinks_${index}__Platform`;
             platformInput.name = `SocialLinks[${index}].Platform`;
 
-            // Re-index URL input
             const urlInput = group.querySelector("input[type='text']");
             urlInput.id = `SocialLinks_${index}__Url`;
             urlInput.name = `SocialLinks[${index}].Url`;
 
-            // Update label "for" attribute
-            const label = group.querySelector("label");
-            label.setAttribute("for", platformInput.id);
-
-            // Update validation
             const validateSpan = group.parentElement.querySelector("span[data-valmsg-for]");
             validateSpan.setAttribute("data-valmsg-for", `SocialLinks[${index}].Url`);
         });
     }
 
-    // Function to populate existing social links
     function populateSocialLinks() {
-        socialLinksContainer.innerHTML = ""; // Clear container
+        socialLinksContainer.innerHTML = "";
         initialLinks.forEach(link => {
             createSocialLinkGroup(link.Platform, link.Url);
         });
     }
 
-    // Initialize existing social links
     populateSocialLinks();
 }
+
 
 function initializeSkillTagsManager({
     tagsSelector,
@@ -326,3 +373,20 @@ function toggleCustomField(selectElement, customFieldId) {
         customField.querySelector("input").value = "";
     }
 };
+
+function markNotificationRead(id, el) {
+    fetch('/Notification/MarkAsRead?id=' + id, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (response.ok) {
+            el.classList.remove('unread');
+            // Optionally update the notification count
+            let countSpan = document.querySelector('.notification__count');
+            if (countSpan) {
+                let count = parseInt(countSpan.textContent) || 1;
+                countSpan.textContent = Math.max(0, count - 1);
+            }
+        }
+    });
+}

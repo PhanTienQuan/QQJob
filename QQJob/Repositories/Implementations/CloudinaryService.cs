@@ -23,20 +23,19 @@ namespace QQJob.Repositories.Implementations
             _cloudinary = new Cloudinary(cloudinaryConfig);
         }
 
-        public async Task<string> UploadEvidentAsync(IFormFile file)
+        public async Task<string> UploadEvidentAsync(IFormFile file,string userId)
         {
             if(file == null || file.Length == 0)
             {
-                return "Invalid file";
+                return "Invalid file! Try again.";
             }
 
-            var uploadParams = new ImageUploadParams()
+            var uploadParams = new RawUploadParams()
             {
                 File = new FileDescription(file.FileName,file.OpenReadStream()),
-                EagerTransforms = new List<Transformation> {
-                        new Transformation().Width(250).Height(250).Crop("fill").Gravity("auto").FetchFormat("jpg")
-                    },
-                AssetFolder = "Evident"
+                AssetFolder = "company_evidents",
+                PublicId = $"company_{userId}_evident",
+                Overwrite = true
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -46,13 +45,25 @@ namespace QQJob.Repositories.Implementations
                 throw new Exception($"Upload to Cloudinary failed: {uploadResult?.Error.Message}");
             }
 
-            var url = uploadResult.Eager?.FirstOrDefault()?.SecureUrl.AbsoluteUri;
-            if(!string.IsNullOrEmpty(url))
-            {
-                return url;
-            }
-
             return uploadResult.SecureUrl.AbsoluteUri;
+        }
+
+        public async Task<bool> DeleteFile(string publicUrl)
+        {
+            try
+            {
+                var publicId = publicUrl.Split("/").ToList().Last();
+                var result = await _cloudinary.DestroyAsync(new DeletionParams(publicId)
+                {
+                    ResourceType = ResourceType.Raw
+                });
+                return result.Result == "ok";
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
 
         public async Task<string> UpdateAvatar(IFormFile file,string userId)
@@ -79,5 +90,6 @@ namespace QQJob.Repositories.Implementations
                 throw new Exception($"Upload to Cloudinary failed: {uploadResult.Error.Message}");
             }
         }
+
     }
 }

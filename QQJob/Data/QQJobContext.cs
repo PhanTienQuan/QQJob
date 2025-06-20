@@ -18,9 +18,11 @@ namespace QQJob.Data
         public DbSet<SavedJob> SavedJobs { get; set; }
         public DbSet<ViewJobHistory> ViewJobHistories { get; set; }
         public DbSet<Notification> NotificationHistories { get; set; }
-        public DbSet<Message> Messages { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<CompanyEvident> CompanyEvidents { get; set; }
+        public DbSet<JobEmbedding> JobEmbeddings { get; set; }
+        public DbSet<JobSimilarityMatrix> JobSimilarityMatrix { get; set; }
         public QQJobContext(DbContextOptions<QQJobContext> options)
             : base(options)
         {
@@ -29,6 +31,8 @@ namespace QQJob.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -91,21 +95,9 @@ namespace QQJob.Data
 
             // Các ràng buộc bổ sung
             modelBuilder.Entity<Job>()
-                .Property(j => j.Title)
+                .Property(j => j.JobTitle)
                 .IsRequired()
                 .HasMaxLength(255);
-
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.Sender)
-                .WithMany()
-                .HasForeignKey(m => m.SenderId)
-                .OnDelete(DeleteBehavior.Restrict);  // This prevents cascading deletes on Sender
-
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.Receiver)
-                .WithMany()
-                .HasForeignKey(m => m.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             //Application
             modelBuilder.Entity<Application>()

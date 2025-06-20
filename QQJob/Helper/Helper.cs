@@ -99,6 +99,22 @@ namespace QQJob.Helper
 
             return char.ToUpper(result[0]) + result.Substring(1);
         }
+
+        public static string DisplayDate(DateTime date)
+        {
+            var today = DateTime.Today;
+            var yesterday = today.AddDays(-1);
+            string displayDate;
+
+            if(date == today)
+                displayDate = "Today";
+            else if(date == yesterday)
+                displayDate = "Yesterday";
+            else
+                displayDate = date.ToString("dd MMMM");
+
+            return displayDate;
+        }
         public static string ShortenURL(string url)
         {
             string trimmed = url.Replace("https://","").Replace("http://","");

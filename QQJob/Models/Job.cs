@@ -5,22 +5,21 @@ namespace QQJob.Models
     public class Job
     {
         public int JobId { get; set; }
-        public string? Title { get; set; }
-        public string? Address { get; set; }
-        public float Experience { get; set; }
+        public string? JobTitle { get; set; }
         public string? Salary { get; set; }
-        public string? JobDescription { get; set; }
-        public string? Qualification { get; set; }
-        public string? Benefits { get; set; }
+        public string? SalaryType { get; set; } // e.g., Year, Hour, etc.
+        public string? City { get; set; }
+        public string? LocationRequirement { get; set; } // e.g., Remote, Onsite, Hybrid
+        public string? JobType { get; set; } // e.g., Fulltime, Part-time, Contract
+        public string? ExperienceLevel { get; set; } // e.g., Junior, Mid, Senior
+        public string? Description { get; set; }
         public DateTime PostDate { get; set; }
         public DateTime CloseDate { get; set; }
+        public DateTime? UpdateAt { get; set; }
         public Status Status { get; set; }
         public string? Slug { get; set; }
-        public int OpenPosition { get; set; }
-        public long ViewCount { get; set; }
-        public string? PayType { get; set; }
-        public string? WorkingHours { get; set; }
-        public string? WorkingType { get; set; }
+        public int Opening { get; set; }
+        public int ViewCount { get; set; }
         // Foreign Key
         public string? EmployerId { get; set; }
         public Employer? Employer { get; set; }

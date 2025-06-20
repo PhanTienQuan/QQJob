@@ -14,7 +14,7 @@ namespace QQJob.Dtos
             CreateMap<Candidate,CandidateDto>();
             CreateMap<Employer,EmployerDto>();
             CreateMap<Application,ApplicationDto>()
-                .ForMember(dest => dest.JobTitle,opt => opt.MapFrom(src => src.Job.Title))
+                .ForMember(dest => dest.JobTitle,opt => opt.MapFrom(src => src.Job.JobTitle))
                 .ForMember(dest => dest.AppliedAt,opt => opt.MapFrom(src => src.ApplicationDate));
         }
     }

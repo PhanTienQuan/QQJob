@@ -5,6 +5,7 @@
         Unverified,
         Pending,
         Verified,
-        Suspended
+        Suspended,
+        Rejected
     }
 }
