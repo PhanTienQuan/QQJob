@@ -51,11 +51,18 @@
     <partial name="_Header" />
 
     @RenderBody()
-    @if (currentController != "Employer" && currentController != "Candidate")
+    
+    @if(IsSectionDefined("Footer"))
     {
-        <partial name="_Footer" />
+        @RenderSection("Footer")
     }
-
+    else
+    {
+        @if (currentController != "Employer" && currentController != "Candidate")
+        {
+            <partial name="_Footer" />
+        }
+    }
     <partial name="_ChatBox" />
     <partial name="_ForgotPasswordModal" />
     <!-- THEME PRELOADER START -->

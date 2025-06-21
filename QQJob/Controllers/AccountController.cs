@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
@@ -224,9 +225,9 @@ namespace QQJob.Controllers
                 }
                 else
                 {
-                    var logins = await userManager.GetLoginsAsync(user);
-                    if(logins.Any())
+                    if(!await userManager.HasPasswordAsync(user))
                     {
+                        var logins = await userManager.GetLoginsAsync(user);
                         var provider = logins.First().LoginProvider;
                         ModelState.AddModelError("All",$"This account uses {provider} login. Please sign in with {provider}.");
                         return Json(new
@@ -495,6 +496,197 @@ namespace QQJob.Controllers
             return slug;
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if(user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var changePasswordViewModel = new ChangePasswordViewModel
+            {
+                HasPassword = await userManager.HasPasswordAsync(user)
+            };
+            return View(changePasswordViewModel);
+        }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel changePasswordViewModel)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if(user == null)
+            {
+                ModelState.AddModelError(string.Empty,"Invalid User.");
+                return View();
+            }
+            changePasswordViewModel.HasPassword = await userManager.HasPasswordAsync(user);
+            if(!changePasswordViewModel.HasPassword)
+            {
+                // If the user does not have a password, set the new password directly
+                var result = await userManager.AddPasswordAsync(user,changePasswordViewModel.Password);
+                if(result.Succeeded)
+                {
+                    TempData["Message"] = JsonConvert.SerializeObject(new
+                    {
+                        type = "success",
+                        message = "Password set successfully. You can now log in."
+                    });
+                    return RedirectToAction("Index","Home");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty,string.Join(", ",result.Errors.Select(e => e.Description)));
+                    return View(changePasswordViewModel);
+                }
+            }
+            else
+            {
+                // If the user has a password, change it
+                var result = await userManager.ChangePasswordAsync(user,changePasswordViewModel.CurrentPassword,changePasswordViewModel.Password);
+                if(result.Succeeded)
+                {
+                    TempData["Message"] = JsonConvert.SerializeObject(new
+                    {
+                        type = "success",
+                        message = "Password updated successfully."
+                    });
+                    return RedirectToAction("Index","Home");
+                }
+                else
+                {
+                    TempData["Message"] = JsonConvert.SerializeObject(new
+                    {
+                        type = "error",
+                        message = string.Join(", ",result.Errors.Select(e => e.Description))
+                    });
+                    ModelState.AddModelError(string.Empty,string.Join(", ",result.Errors.Select(e => e.Description)));
+                    return View(changePasswordViewModel);
+                }
+            }
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> DeleteProfile()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if(user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var deleteProfileViewModel = new DeleteProfileViewModel
+            {
+                HasPassword = await userManager.HasPasswordAsync(user),
+                DeteleAt = user.MarkedForDeletionAt
+            };
+            return View(deleteProfileViewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteProfile(DeleteProfileViewModel deleteProfileViewModel)
+        {
+            var user = await userManager.GetUserAsync(User);
+            deleteProfileViewModel.HasPassword = await userManager.HasPasswordAsync(user);
+            deleteProfileViewModel.DeteleAt = user.MarkedForDeletionAt;
+
+            if(deleteProfileViewModel.HasPassword)
+            {
+                if(await userManager.CheckPasswordAsync(user,deleteProfileViewModel.Password) == false)
+                {
+                    ModelState.AddModelError("Password","Incorrect password.");
+                    return View(deleteProfileViewModel);
+                }
+                else
+                {
+                    user.MarkedForDeletionAt = DateTime.Now.AddDays(30);
+                    await userManager.UpdateAsync(user);
+                    TempData["Message"] = JsonConvert.SerializeObject(new
+                    {
+                        type = "success",
+                        message = "Your profile has been marked for deletion 30 days later."
+                    });
+                    return RedirectToAction("DeleteProfile");
+                }
+            }
+
+            return View();
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ReauthenticateExternal()
+        {
+            var user = await userManager.GetUserAsync(User);
+            var logins = await userManager.GetLoginsAsync(user);
+
+            var redirectUrl = Url.Action(nameof(ConfirmDeleteExternal),"Account");
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(logins[0].LoginProvider,redirectUrl);
+            return Challenge(properties,logins[0].LoginProvider);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ConfirmDeleteExternal()
+        {
+            // 1. Get info about the external login just completed
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if(info == null)
+            {
+                return RedirectToAction("DeleteProfile");
+            }
+
+            // 2. Get the currently logged-in user
+            var currentUser = await userManager.GetUserAsync(User);
+
+            // 3. Get ALL external logins linked to this user
+            var userLogins = await userManager.GetLoginsAsync(currentUser);
+
+            // 4. Find the login info for THIS provider (Google, Facebook, etc.)
+            var matchedLogin = userLogins.FirstOrDefault(l => l.LoginProvider == info.LoginProvider);
+
+            // 5. Check that the provider key matches (only allow if same account)
+            if(matchedLogin == null || matchedLogin.ProviderKey != info.ProviderKey)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new
+                {
+                    type = "error",
+                    message = $"You must re-authenticate using the same {info.LoginProvider} account linked to your profile."
+                });
+                return RedirectToAction("DeleteProfile");
+            }
+
+            // 6. Proceed with marking for deletion
+            currentUser.MarkedForDeletionAt = DateTime.Now.AddDays(30);
+            await userManager.UpdateAsync(currentUser);
+
+            var vm = new DeleteProfileViewModel
+            {
+                DeteleAt = currentUser.MarkedForDeletionAt,
+                HasPassword = false
+            };
+            return View("DeleteProfile",vm);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> CancelDeleteProfile()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if(user == null)
+            {
+                return NotFound("User not found.");
+            }
+            // Reset deletion flag
+            user.MarkedForDeletionAt = null;
+            await userManager.UpdateAsync(user);
+            TempData["Message"] = JsonConvert.SerializeObject(new
+            {
+                type = "success",
+                message = "Your profile deletion has been cancelled."
+            });
+            return RedirectToAction("Index","Home");
+        }
     }
 }

@@ -9,6 +9,8 @@
         System,
         VerificationApproved,
         VerificatiomnRejected,
-        PostJob
+        PostJob,
+        JobClosed,
+        UserDeleted,
     }
 }
