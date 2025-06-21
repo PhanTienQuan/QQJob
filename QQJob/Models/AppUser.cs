@@ -9,6 +9,7 @@ namespace QQJob.Models
         public string? Avatar { get; set; }
         public string? Slug { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? MarkedForDeletionAt { get; set; }
         public UserStatus IsVerified { get; set; }
         public bool IsPremium { get; set; }
         public DateTime? LastLogin { get; set; }

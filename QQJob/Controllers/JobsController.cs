@@ -47,7 +47,6 @@ namespace QQJob.Controllers
             };
 
             var skills = await skillRepository.GetAllAsync();
-            Console.WriteLine(skills.Count());
             ViewBag.Skills = skills;
             return View(jobListViewModel);
         }
