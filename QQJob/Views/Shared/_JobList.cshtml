@@ -1,0 +1,61 @@
+﻿@model JobListViewModel
+<div class="top__query mb-40 d-flex flex-wrap gap-4 gap-xl-0 justify-content-between align-items-center" id="top">
+    <span class="text-dark font-20 fw-medium">
+        Showing @(((Model.Paging.CurrentPage - 1) * Model.Paging.PageSize) + 1)
+        -
+        @(Math.Min(Model.Paging.CurrentPage * Model.Paging.PageSize, Model.Paging.TotalItems)) of @Model.Paging.TotalItems results
+    </span>
+</div>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active list__style" role="tabpanel" id="list">
+        <div class="row g-30">
+            @* List Items *@
+            @if (Model.Jobs != null && Model.Jobs.Any())
+            {
+                foreach (var job in Model.Jobs)
+                {
+                    <div class="col-lg-12">
+                        <div class="rts__job__card__big style__gradient flex-wrap justify-content-between d-flex gap-4 align-items-center">
+                            <div class="d-flex flex-wrap flex-md-nowrap flex-lg-wrap flex-xl-nowrap gap-4 align-items-center">
+                                <div class="company__icon rounded-2">
+                                    <img src="@job.AvatarUrl" alt="">
+                                </div>
+                                <div class="job__meta w-100 d-flex flex-column gap-2">
+                                    <div class="d-flex justify-content-between align-items-center gap-3">
+                                        <a asp-controller="Jobs" asp-action="Detail" asp-route-id="@job.Id" asp-route-slug="@job.Slug" class="job__title h6 mb-0" data-bs-toggle="tooltip" data-bs-placement="right" title="@job.JobTitle">@Helper.DisplayLimitedText(job.JobTitle, 40)</a>
+                                    </div>
+                                    <div class="d-flex gap-3 gap-md-4 flex-wrap mb-2">
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <i class="fa-light fa-location-dot"></i> @job.City
+                                        </div>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <i class="fa-light rt-briefcase"></i> @job.Salary
+                                        </div>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <i class="fa-light fa-clock"></i> @Helper.DisplayTime(job.Open)
+                                        </div>
+                                    </div>
+                                    <div class="job__tags d-flex flex-wrap gap-3">
+                                        @foreach (var skill in job.Skills)
+                                        {
+                                            <a href="#">@skill.SkillName</a>
+                                        }
+                                    </div>
+                                </div>
+                                <button type="button" class="bookmark__btn position-absolute end-0 me-4">
+                                    <i class="rt-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No applications have been received yet.</p>
+            }
+        </div>
+    </div>
+    <pagination current-page="@Model.Paging.CurrentPage" total-pages="@Model.Paging.TotalPages" search-value="@Model.JobTitle" action-name="GenericSearch" controller-name="Jobs"></pagination>
+
+</div>

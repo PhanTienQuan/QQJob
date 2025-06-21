@@ -122,5 +122,50 @@ namespace QQJob.Helper
             string result = char.ToUpper(trimmed[0]) + trimmed.Substring(1);
             return result;
         }
+        public static (int? Min, int? Max) ParseSalaryRange(string? salary)
+        {
+            if(string.IsNullOrWhiteSpace(salary))
+                return (null, null);
+
+            var parts = salary.Split('-');
+            int? min;
+            if(parts.Length == 1)
+            {
+                // Only min
+                min = ParseSalaryNumber(parts[0].Trim());
+                return (min, min);
+            }
+
+
+            var minStr = parts[0].Trim();
+            var maxStr = parts[1].Trim();
+
+            min = string.IsNullOrWhiteSpace(parts[0]) ? null : ParseSalaryNumber(parts[0].Trim());
+            int? max = string.IsNullOrWhiteSpace(parts[1]) ? null : ParseSalaryNumber(parts[1].Trim());
+
+            return (min, max);
+        }
+
+        private static int? ParseSalaryNumber(string value)
+        {
+            value = value.ToLower().Replace("usd","").Trim();
+
+            if(value.EndsWith("k"))
+            {
+                value = value.Replace("k","").Trim();
+                if(double.TryParse(value,out double result))
+                {
+                    return (int)(result * 1000);
+                }
+            }
+            else if(int.TryParse(value,out int result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+
     }
 }
