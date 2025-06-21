@@ -251,17 +251,40 @@
                                                 case UserStatus.Unverified:
                                                     <span class="label label-warning">Unverified</span>
                                                     break;
+                                                case UserStatus.Pending:
+                                                    <span class="label label-info">Pending</span>
+                                                    break;
                                                 case UserStatus.Verified:
                                                     <span class="label label-success">Verified</span>
                                                     break;
                                                 case UserStatus.Suspended:
                                                     <span class="label label-danger">Suspended</span>
                                                     break;
+                                                case UserStatus.Rejected:
+                                                    <span class="label label-danger">Rejected</span>
+                                                    break;
                                             }
                                         </td>
                                         <td class="text-center">
                                             <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
-                                            <a href='#' class='btn btn-sm btn-success  @(item.User.IsVerified == UserStatus.Verified ? "disabled" : "")'>Verified</a>
+                                            @if (item.User.IsVerified == UserStatus.Unverified || item.User.IsVerified == UserStatus.Pending)
+                                            {
+                                                <form method="post" asp-action="Verify" asp-route-UserId="@item.User.Id" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-success">Verify</button>
+                                                </form>
+                                            }
+                                            else if (item.User.IsVerified == UserStatus.Verified)
+                                            {
+                                                <form method="post" asp-action="Suspend" asp-route-UserId="@item.User.Id" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                                                </form>
+                                            }
+                                            else if (item.User.IsVerified == UserStatus.Suspended)
+                                            {
+                                                <form method="post" asp-action="Unsuspend" asp-route-UserId="@item.User.Id" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-info">Unsuspend</button>
+                                                </form>
+                                            }
                                             <form method="post" asp-action="Delete" asp-route-UserId="@item.User.Id">
                                                 <span id="confirmDeleteSpan_@item.User.Id" style="display:none">
                                                     <span>Are you sure you want to Delete?</span>

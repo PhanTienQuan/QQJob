@@ -50,5 +50,23 @@ namespace QQJob.Repositories.Implementations
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<bool> AnyAsync(Expression<Func<T,bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        public void DeleteAll()
+        {
+            _dbSet.RemoveRange(_dbSet);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+        public void ClearChangeTracker()
+        {
+            _context.ChangeTracker.Clear();
+        }
     }
 }

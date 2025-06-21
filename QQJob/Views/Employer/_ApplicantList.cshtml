@@ -1,0 +1,147 @@
+﻿@model ApplicantListViewModel
+@if (Model.Applicants != null && Model.Applicants.Any())
+{
+    foreach (var applicant in Model.Applicants)
+    {
+        <div class="single__applied__job">
+            <div class="single__applied__job__content">
+                <div class="icon">
+                    <img src="~/assets/img/icon/apple.svg" alt="">
+                </div>
+                <div class="content__flex">
+                    <div class="content">
+                        <a href="#"> <h6>@applicant.CandidateName</h6></a>
+                        <div class="content__info">
+                            <span><i class="fa-light fa-location-dot"></i> Applied for<a style="font-weight: bold">@applicant.JobTitle</a></span>
+                            <span><i class="fa-light fa-star"></i>AI Ranked @applicant.AiRanking</span>
+                            <span><i class="fa-light fa-clock"></i> @Helper.DisplayTime(applicant.ApplicationDate)</span>
+                        </div>
+                    </div>
+                    <div class="tags">
+                        @foreach(var skill in applicant.Skills)
+                        {
+                            <a href="#"> <span class="tag">@skill.SkillName</span></a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="action">
+                <!-- View Profile -->
+                <button class="action__btn" title="View Profile">
+                    <i class="fa-solid fa-user"></i>
+                </button>
+
+                <!-- Download CV -->
+                <button class="action__btn" title="Download CV">
+                    <i class="fa-solid fa-file-arrow-down"></i>
+                </button>
+
+                <!-- Message -->
+                <a type="button" class="action__btn" title="Message Candidate" asp-action="ChatWith" asp-controller="Employer" asp-route-chatUserId="@applicant.CandidateId">
+                    <i class="fa-solid fa-message" style="color: black;"></i>
+                </a>
+                
+                <!-- Reject -->
+                @switch (applicant.Status)
+                {
+                    case ApplicationStatus.Pending:
+                        <button type="button"
+                                class="action__btn next-status-btn"
+                                data-application-id="@applicant.ApplicationId"
+                                data-next-title="Have you review this application?"
+                                data-next-status="@((int)ApplicationStatus.Reviewed)"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmNextStatusModal"
+                                title="Review Application">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        break;
+                    case ApplicationStatus.Reviewed:
+                        <button type="button"
+                                class="action__btn next-status-btn"
+                                data-application-id="@applicant.ApplicationId"
+                                data-next-title="Have you interview the applicant?"
+                                data-next-status="@((int)ApplicationStatus.Interviewed)"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmNextStatusModal"
+                                title="Interviewed">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </button>
+                        break;
+                    case ApplicationStatus.Interviewed:
+                        <button type="button"
+                                class="action__btn next-status-btn"
+                                data-application-id="@applicant.ApplicationId"
+                                data-next-title="Sure you want to accept this applicant?"
+                                data-next-status="@((int)ApplicationStatus.Accepted)"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmNextStatusModal"
+                                title="Accept">
+                            <i class="fa-solid fa-handshake"></i>
+                        </button>
+                        break;
+                }
+
+                @if(applicant.Status != ApplicationStatus.Rejected)
+                {
+                    <button type="button"
+                            class="action__btn reject-btn"
+                            data-application-id="@applicant.ApplicationId"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmRejectModal"
+                            title="Reject Application">
+                        <i class="fa-solid fa-xmark" style="color: red;"></i>
+                    </button>
+                }
+
+                <!-- Application status -->
+                <button class="action__operation @(applicant.Status.ToString().ToLower()) @(applicant.Status == ApplicationStatus.Rejected ? "label-danger" : "")"
+                        id="status-badge-@applicant.ApplicationId">
+                    @applicant.Status.ToString()
+                </button>
+            </div>
+
+        </div>
+    }
+    <div class="modal fade" id="confirmNextStatusModal" tabindex="-1" aria-labelledby="confirmNextStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmNextStatusModalLabel">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <span id="nextStatusAction"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmNextStatusBtn">Yes, Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRejectModalLabel">Reject Application</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to reject this application?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRejectBtn">Yes, Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <pagination current-page="@Model.Paging.CurrentPage" total-pages="@Model.Paging.TotalPages" search-value="@Model.SearchValue" action-name="ApplicantList" controller-name="Employer"></pagination>
+}
+else
+{
+    <p>No applications found.</p>
+}

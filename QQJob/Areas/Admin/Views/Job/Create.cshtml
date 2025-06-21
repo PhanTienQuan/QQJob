@@ -9,8 +9,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
-            All User
-            @* <small>preview of simple tables</small> *@
+            Create Job
         </h1>
         <ol class="breadcrumb">
             <li>
@@ -19,8 +18,8 @@
                     Home
                 </a>
             </li>
-            <li><a href="#">Manage User</a></li>
-            <li class="active">All User</li>
+            <li><a href="#">Manage Job</a></li>
+            <li class="active">Create Job</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -30,19 +29,9 @@
                 <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
-                        <label asp-for="Title" class="control-label"></label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Address" class="control-label"></label>
-                        <input asp-for="Address" class="form-control" />
-                        <span asp-validation-for="Address" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Experience" class="control-label"></label>
-                        <input asp-for="Experience" class="form-control" />
-                        <span asp-validation-for="Experience" class="text-danger"></span>
+                        <label asp-for="JobTitle" class="control-label"></label>
+                        <input asp-for="JobTitle" class="form-control" />
+                        <span asp-validation-for="JobTitle" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Salary" class="control-label"></label>
@@ -50,28 +39,63 @@
                         <span asp-validation-for="Salary" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="JobDescription" class="control-label"></label>
-                        <input asp-for="JobDescription" class="form-control" />
-                        <span asp-validation-for="JobDescription" class="text-danger"></span>
+                        <label asp-for="SalaryType" class="control-label"></label>
+                        <select asp-for="SalaryType" class="form-control">
+                            <option value="">Select Salary Type</option>
+                            <option>Year</option>
+                            <option>Month</option>
+                            <option>Hour</option>
+                        </select>
+                        <span asp-validation-for="SalaryType" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Qualification" class="control-label"></label>
-                        <input asp-for="Qualification" class="form-control" />
-                        <span asp-validation-for="Qualification" class="text-danger"></span>
+                        <label asp-for="City" class="control-label"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Benefits" class="control-label"></label>
-                        <input asp-for="Benefits" class="form-control" />
-                        <span asp-validation-for="Benefits" class="text-danger"></span>
+                        <label asp-for="LocationRequirement" class="control-label"></label>
+                        <select asp-for="LocationRequirement" class="form-control">
+                            <option value="">Select Location Requirement</option>
+                            <option>Remote</option>
+                            <option>Onsite</option>
+                            <option>Hybrid</option>
+                        </select>
+                        <span asp-validation-for="LocationRequirement" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="JobType" class="control-label"></label>
+                        <select asp-for="JobType" class="form-control">
+                            <option value="">Select Job Type</option>
+                            <option>Fulltime</option>
+                            <option>Part-time</option>
+                            <option>Contract</option>
+                        </select>
+                        <span asp-validation-for="JobType" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ExperienceLevel" class="control-label"></label>
+                        <select asp-for="ExperienceLevel" class="form-control">
+                            <option value="">Select Experience Level</option>
+                            <option>Junior</option>
+                            <option>Mid</option>
+                            <option>Senior</option>
+                        </select>
+                        <span asp-validation-for="ExperienceLevel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="PostDate" class="control-label"></label>
-                        <input asp-for="PostDate" class="form-control" />
+                        <input asp-for="PostDate" class="form-control" type="date" />
                         <span asp-validation-for="PostDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="CloseDate" class="control-label"></label>
-                        <input asp-for="CloseDate" class="form-control" />
+                        <input asp-for="CloseDate" class="form-control" type="date" />
                         <span asp-validation-for="CloseDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -85,9 +109,9 @@
                         <span asp-validation-for="Slug" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OpenPosition" class="control-label"></label>
-                        <input asp-for="OpenPosition" class="form-control" />
-                        <span asp-validation-for="OpenPosition" class="text-danger"></span>
+                        <label asp-for="Opening" class="control-label"></label>
+                        <input asp-for="Opening" class="form-control" />
+                        <span asp-validation-for="Opening" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="ViewCount" class="control-label"></label>
@@ -104,11 +128,11 @@
                 </form>
             </div>
         </div>
-
     </section>
     <!-- /.content -->
-    
 </div>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
