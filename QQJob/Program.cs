@@ -92,6 +92,7 @@ namespace QQJob
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHostedService<BackgroundServices>();
             builder.Services.AddHostedService<RelatedJobEmbeddingService>();
+            builder.Services.AddHostedService<CleanupBackgroundService>();
             var app = builder.Build();
             Helper.Helper.Initialize(app.Services);
             // Configure the HTTP request pipeline.

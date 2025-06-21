@@ -17,7 +17,6 @@
         max-width: max-content;
         margin-left: 15px;
         border-radius: 6px;
-
         display: inline-block;
         background-color: #4f46e5;
         color: white;
@@ -33,7 +32,7 @@
     .evidence-upload__input {
         display: none;
     }
-    
+
     .select__evidence {
         margin-top: 30px;
     }
@@ -132,7 +131,8 @@
                                 <label for="pv" style="color:black;">Company Field</label>
                                 <div class="my__skillset">
                                     <ul class="skill__tags">
-                                        @if(Model.CompanyField == null){
+                                        @if (Model.CompanyField == null)
+                                        {
                                             <li class="placeholder"><span>Your company have not add any field yet</span></li>
                                         }
                                         <li class="add__btn"><span class="skill__item__add"><i class="fa-regular fa-plus"></i></span></li>
@@ -148,7 +148,6 @@
                 <div class="social__links p-30 radius-16 bg-white" id="social">
                     <div class="info__field">
                         <div class="row row-cols-sm-2 row-cols-1 g-3" id="socialLinksContainer">
-
                         </div>
                         <div class="d-block">
                             <a href="#" id="addSocialLinkBtn" class="added__social__link">Add Another Network</a>
@@ -156,10 +155,21 @@
                     </div>
                 </div>
 
+                <h6 class="fw-medium mt-4 mb-4">Description</h6>
+                <div class="my__details p-30 radius-16 bg-white" id="info">
+                    <div class="info__field">
+                        <div class="row row-cols-1">
+                            <div id="DescriptionEditor" style="height: 300px;"></div>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <!-- Hidden field to post back the HTML -->
+                        <input type="hidden" asp-for="Description" id="Description">
+
+                    </div>
+                </div>
                 <div class="info__field">
                     <button type="submit" class="rts__btn fill__btn mx-0">Save Profile</button>
                 </div>
-
             </form>
             <form id="uploadEvident" asp-controller="Employer" asp-action="UploadEvident" method="post" enctype="multipart/form-data">
                 <div id="evident-wrapper">
@@ -169,23 +179,14 @@
                         @if (Model.CompanyEvidentUrl != null)
                         {
                             var url = Model.CompanyEvidentUrl.ToLower();
-
-                            if (url.EndsWith(".pdf"))
-                            {
-                                <iframe src="@Model.CompanyEvidentUrl" width="100%" height="600px" style="border:none;"></iframe>
-                            }
-                            else if (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp"))
-                            {
-                                <img src="@Model.CompanyEvidentUrl" alt="Company Evidence" style="max-width:100%; border-radius:8px;" />
-                            }
-                            else
-                            {
-                                <a href="@Model.CompanyEvidentUrl" download target="_blank" rel="noopener noreferrer">Download Evidence</a>
-                            }
+                            
+                            <div class="info__field mb-3">
+                                <button type="button" id="view-evident-btn" class="rts__btn fill__btn mx-0" data-url="@Model.CompanyEvidentUrl" data-type="@(url.EndsWith(".pdf") ? "pdf" : (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp")) ? "img" : "file")">
+                                    View Evidence
+                                </button>
+                            </div>
+                            <div id="evident-preview"></div>
                         }
-                    </div>
-                    <div id="summary">
-
                     </div>
                     <div class="info__field">
                         <div class="button-row">
@@ -299,6 +300,37 @@
         const socialLinks = @Html.Raw(JsonConvert.SerializeObject(Model.SocialLinks ?? new List<SocialLink>()));
         const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
         document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("view-evident-btn");
+
+            btn.addEventListener("click", function () {
+                const preview = document.getElementById("evident-preview");
+                const url = btn.getAttribute("data-url");
+                const type = btn.getAttribute("data-type");
+                preview.innerHTML = ""; // Clear previous preview
+
+                if (type === "pdf") {
+                    const iframe = document.createElement("iframe");
+                    iframe.src = url;
+                    iframe.style.width = "100%";
+                    iframe.style.height = "600px";
+                    iframe.style.border = "none";
+                    preview.appendChild(iframe);
+                } else if (type === "img") {
+                    const img = document.createElement("img");
+                    img.src = url;
+                    img.style.maxWidth = "100%";
+                    img.style.borderRadius = "8px";
+                    preview.appendChild(img);
+                } else {
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.textContent = "Download Evidence";
+                    a.download = "";
+                    a.target = "_blank";
+                    a.rel = "noopener noreferrer";
+                    preview.appendChild(a);
+                }
+            });
             initializeSocialLinksManager({
                 socialLinksContainerSelector: "#socialLinksContainer",
                 addSocialLinkBtnSelector: "#addSocialLinkBtn",
@@ -306,7 +338,6 @@
                 initialLinks: socialLinks,
                 errorMessage: "Your company can only have 5 social links!"
             });
-
             initializeSkillTagsManager({
                 tagsSelector: ".skill__tags",
                 addBtnSelector: ".add__btn",
@@ -315,6 +346,34 @@
                 inputPlaceholder: "Enter your field",
                 emptyPlaceholder: "Your company has not added any fields yet"
             });
+            var toolbarOptions = [
+                [{ 'header': [6, false] }],
+                [{ 'size': [] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                ['blockquote'],
+                ['link'],
+                ['clean']
+            ];
+
+            // Init Quill
+            var quill = new Quill('#DescriptionEditor', {
+                theme: 'snow',
+                placeholder: 'Enter job description...',
+                modules: {
+                    toolbar: toolbarOptions
+                }
+            });
+
+            // Sync to hidden field
+            document.querySelector('form').addEventListener('submit', function () {
+                document.querySelector('#Description').value = quill.root.innerHTML;
+            });
+            var html = document.querySelector('#Description').value;
+            if (html && html.trim() !== "") {
+                quill.root.innerHTML = html;
+            }
         });
         document.getElementById('AvatarFile').addEventListener('change', function(event) {
             const fileInput = event.target;

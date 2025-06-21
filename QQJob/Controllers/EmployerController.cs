@@ -26,15 +26,11 @@ namespace QQJob.Controllers
         INotificationRepository notificationRepository
         ):Controller
     {
-        private readonly IEmployerRepository _employerRepository = employerRepository;
-        private readonly IApplicationRepository _applicationRepository = applicationRepository;
-        private readonly ISkillRepository _skillRepository = skillRepository;
-        private readonly IJobRepository _jobRepository = jobRepository;
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _employerRepository.GetByIdAsync(userId);
+            var user = await employerRepository.GetByIdAsync(userId);
             var dashboardViewModel = new DashboardViewModel
             {
                 PostedJobCount = 0,
@@ -92,13 +88,13 @@ namespace QQJob.Controllers
                 return RedirectToAction("Login","Account");
             }
 
-            var employer = await _employerRepository.GetByIdAsync(eId);
+            var employer = await employerRepository.GetByIdAsync(eId);
             if(employer == null)
             {
                 return NotFound("Employer profile not found.");
             }
 
-            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? new List<SocialLink>() : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
+            List<SocialLink>? socialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink);
 
             var model = new EmployerProfileViewModel
             {
@@ -114,7 +110,8 @@ namespace QQJob.Controllers
                 SocialLinks = socialLinks,
                 CompanyField = employer.CompanyField,
                 IsVerified = employer.User.IsVerified,
-                CompanyEvidentUrl = employer.CompanyEvident?.Url
+                CompanyEvidentUrl = employer.CompanyEvident?.Url,
+                Description = employer?.Description,
             };
 
             return View(model);
@@ -125,7 +122,7 @@ namespace QQJob.Controllers
         {
             if(!ModelState.IsValid) return BadRequest(ModelState);
 
-            var employer = await _employerRepository.GetByIdAsync(model.Id);
+            var employer = await employerRepository.GetByIdAsync(model.Id);
             if(employer == null)
             {
                 return View(model);
@@ -156,12 +153,12 @@ namespace QQJob.Controllers
             employer.CompanyField = UpdateIfDifferent(employer.CompanyField,model.CompanyField,ref isUpdated);
             var socialLinksJson = JsonConvert.SerializeObject(model.SocialLinks);
             employer.User.SocialLink = UpdateIfDifferent(employer.User.SocialLink,socialLinksJson,ref isUpdated);
-
+            employer.Description = UpdateIfDifferent(employer.Description,model.Description,ref isUpdated);
 
             if(isUpdated)
             {
-                _employerRepository.Update(employer);
-                await _employerRepository.SaveChangesAsync();
+                employerRepository.Update(employer);
+                await employerRepository.SaveChangesAsync();
                 TempData["Message"] = JsonConvert.SerializeObject(new { message = "Profile updated successfully!",type = "success" });
             }
             else
@@ -296,7 +293,7 @@ namespace QQJob.Controllers
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var (jobs, pagingModel) = await _jobRepository.GetJobsAsync(page,pageSize,j => j.EmployerId == id);
+            var (jobs, pagingModel) = await jobRepository.GetJobsAsync(page,pageSize,j => j.EmployerId == id);
 
             var model = new PostedJobsViewModel()
             {
@@ -329,7 +326,7 @@ namespace QQJob.Controllers
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var current = paging.CurrentPage;
-            var (jobs, pagingModel) = await _jobRepository.GetJobsAsync(paging.CurrentPage,paging.PageSize,j => j.EmployerId == id,searchValue,searchStatus,fromDate,toDate);
+            var (jobs, pagingModel) = await jobRepository.GetJobsAsync(paging.CurrentPage,paging.PageSize,j => j.EmployerId == id,searchValue,searchStatus,fromDate,toDate);
 
             var model = new PostedJobsViewModel()
             {
@@ -364,7 +361,7 @@ namespace QQJob.Controllers
         [HttpGet]
         public async Task<IActionResult> PostJob()
         {
-            var skills = await _skillRepository.GetAllAsync();
+            var skills = await skillRepository.GetAllAsync();
             ViewBag.SkillList = skills.Select(skill => new
             {
                 Id = skill.SkillId,
@@ -381,7 +378,7 @@ namespace QQJob.Controllers
         [HttpPost]
         public async Task<IActionResult> PostJob(PostJobViewModel model)
         {
-            var skills = await _skillRepository.GetAllAsync();
+            var skills = await skillRepository.GetAllAsync();
 
             ViewBag.SkillList = skills.Select(skill => new
             {
@@ -398,13 +395,13 @@ namespace QQJob.Controllers
 
             foreach(var id in model.SelectedSkill.Split(","))
             {
-                var skill = await _skillRepository.GetByIdAsync(int.Parse(id));
+                var skill = await skillRepository.GetByIdAsync(int.Parse(id));
                 if(skill != null) // Ensure skill is not null before adding
                 {
                     selectedSkill.Add(skill);
                 }
             }
-            var employer = await _employerRepository.GetByIdAsync(model.EmployerId);
+            var employer = await employerRepository.GetByIdAsync(model.EmployerId);
             var confirmed = employer.User.IsVerified;
             var status = confirmed == UserStatus.Verified ? Status.Approved : Status.Pending;
 
@@ -427,8 +424,8 @@ namespace QQJob.Controllers
                 Slug = await GenerateUniqueSlugAsync(model.JobTitle)
             };
 
-            await _jobRepository.AddAsync(newJob);
-            await _jobRepository.SaveChangesAsync();
+            await jobRepository.AddAsync(newJob);
+            await jobRepository.SaveChangesAsync();
 
             var notification = new Notification
             {
@@ -483,7 +480,7 @@ namespace QQJob.Controllers
             var slug = baseSlug;
             int counter = 1;
 
-            while(await _jobRepository.AnyAsync(u => u.Slug == slug))
+            while(await jobRepository.AnyAsync(u => u.Slug == slug))
             {
                 slug = $"{baseSlug}-{counter++}";
             }
@@ -494,7 +491,7 @@ namespace QQJob.Controllers
         [HttpGet]
         public async Task<IActionResult> EditJob(int id)
         {
-            var job = await _jobRepository.GetByIdAsync(id);
+            var job = await jobRepository.GetByIdAsync(id);
 
             var jobDetailViewModel = new EditJobViewModel()
             {
@@ -510,7 +507,7 @@ namespace QQJob.Controllers
                 LocationRequirement = job.LocationRequirement,
                 SalaryType = job.SalaryType,
             };
-            var skills = await _skillRepository.GetAllAsync();
+            var skills = await skillRepository.GetAllAsync();
             ViewBag.SkillList = skills.Select(skill => new
             {
                 Id = skill.SkillId,
@@ -528,8 +525,8 @@ namespace QQJob.Controllers
         [HttpPost]
         public async Task<IActionResult> EditJob(EditJobViewModel model)
         {
-            var job = await _jobRepository.GetByIdAsync(model.Id);
-            var skills = await _skillRepository.GetAllAsync();
+            var job = await jobRepository.GetByIdAsync(model.Id);
+            var skills = await skillRepository.GetAllAsync();
             ViewBag.SkillList = skills.Select(skill => new
             {
                 Id = skill.SkillId,
@@ -574,7 +571,7 @@ namespace QQJob.Controllers
 
             foreach(var id in model.SelectedSkill.Split(","))
             {
-                var skill = await _skillRepository.GetByIdAsync(int.Parse(id));
+                var skill = await skillRepository.GetByIdAsync(int.Parse(id));
                 if(skill != null) // Ensure skill is not null before adding
                 {
                     selectedSkill.Add(skill);
@@ -648,7 +645,7 @@ namespace QQJob.Controllers
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var (applicants, pagingModel) = await _applicationRepository.GetApplicationsAsync(page,pageSize,j => j.Job.EmployerId == id);
+            var (applicants, pagingModel) = await applicationRepository.GetApplicationsAsync(page,pageSize,j => j.Job.EmployerId == id);
 
             var model = new ApplicantListViewModel()
             {
@@ -702,7 +699,7 @@ namespace QQJob.Controllers
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var current = paging.CurrentPage;
 
-            var (applicants, pagingModel) = await _applicationRepository.GetApplicationsAsync(paging.CurrentPage,paging.PageSize,j => j.Job.EmployerId == id,searchValue,searchStatus,fromDate);
+            var (applicants, pagingModel) = await applicationRepository.GetApplicationsAsync(paging.CurrentPage,paging.PageSize,j => j.Job.EmployerId == id,searchValue,searchStatus,fromDate);
             var model = new ApplicantListViewModel()
             {
                 Applicants = new List<ApplicantViewModel>()
@@ -737,7 +734,7 @@ namespace QQJob.Controllers
         {
             int applicationId = data.GetProperty("applicationId").GetInt32();
 
-            var app = await _applicationRepository.GetByIdAsync(applicationId);
+            var app = await applicationRepository.GetByIdAsync(applicationId);
             if(app == null)
             {
                 return Json(new { success = false,message = "Application not found." });
@@ -758,7 +755,7 @@ namespace QQJob.Controllers
                 app.Status = ApplicationStatus.Accepted;
             }
 
-            await _applicationRepository.SaveChangesAsync();
+            await applicationRepository.SaveChangesAsync();
 
             return Json(new
             {
@@ -773,14 +770,14 @@ namespace QQJob.Controllers
         {
             int applicationId = data.GetProperty("applicationId").GetInt32();
 
-            var app = await _applicationRepository.GetByIdAsync(applicationId);
+            var app = await applicationRepository.GetByIdAsync(applicationId);
             if(app == null)
             {
                 return Json(new { success = false,message = "Application not found." });
             }
 
             app.Status = ApplicationStatus.Rejected;
-            await _applicationRepository.SaveChangesAsync();
+            await applicationRepository.SaveChangesAsync();
 
             return Json(new
             {
