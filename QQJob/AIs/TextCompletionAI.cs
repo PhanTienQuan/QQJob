@@ -1,6 +1,8 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Newtonsoft.Json;
+using QQJob.Dtos;
 
 namespace QQJob.AIs
 {
@@ -19,6 +21,41 @@ namespace QQJob.AIs
             var aiSummary = await agent.InvokeAsync(resumeText).FirstAsync();
             return aiSummary.Message.Content ?? "N/A";
         }
+        public async Task<JobSearchIntent> ExtractJobSearchIntent(string keyword)
+        {
+            string prompt = $$"""
+                You are a job search AI.
+                Given a user query, extract structured filters.
+                Return JSON with these fields:
+                {
+                    "JobTitle": string,
+                    "City": string,
+                    "MinSalary": number,
+                    "MaxSalary": number,
+                    "IncludeSkills": [ string ],
+                    "ExcludeSkills": [ string ],
+                    "JobType": string,
+                    "ExperienceLevel": string
+                }
+
+                If the value is not specified, return null or an empty array.
+                ONLY return exact JSON. No explanation.
+                """;
+
+            var agent = CreateAgent("resume-sumary-ai",prompt);
+            var response = await agent.InvokeAsync(keyword).FirstAsync();
+
+            if((response.Message.Content == null) || response.Message.Content.Trim() == "")
+            {
+                return new JobSearchIntent();
+            }
+
+            // Parse JSON to JobSearchIntent
+            var intent = JsonConvert.DeserializeObject<JobSearchIntent>(response.Message.Content);
+
+            return intent ?? new JobSearchIntent();  // fallback
+        }
+
         public ChatCompletionAgent CreateAgent(string agentName,string instructions,List<Delegate>? method = null)
         {
             var agentKernel = kernel.Clone();

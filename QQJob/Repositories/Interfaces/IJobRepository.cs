@@ -1,4 +1,5 @@
-﻿using QQJob.Models;
+﻿using QQJob.Dtos;
+using QQJob.Models;
 using QQJob.Models.Enum;
 using System.Linq.Expressions;
 
@@ -12,5 +13,6 @@ namespace QQJob.Repositories.Interfaces
         Task<Job> GetByIdAsync(int id);
         Task<IEnumerable<Job>?> FindJobs(Expression<Func<Job,bool>>? predicate);
         Task<(IEnumerable<Job> jobs, PagingModel pagingModel)> GetJobsAsync(int currentPage,int pageSize,Expression<Func<Job,bool>>? predicate,string? searchValue = null,Status? searchStatus = null,DateTime? fromDate = null,DateTime? toDate = null);
+        Task<List<Job>> GetJobsByIdsAsync(JobSearchIntent intent);
     }
 }

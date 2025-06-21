@@ -8,9 +8,14 @@ namespace QQJob.AIs
 {
     public class EmbeddingAI(IJobEmbeddingRepository jobEmbeddingRepository,IJobSimilarityMatrixRepository jobSimilarityMatrixRepository,IJobRepository jobRepository,Kernel kernel)
     {
-        public async Task GenerateEmbeddings()
+        public async Task<float[]> GetTextEmbbeding(string text)
         {
             var embeddingGen = kernel.GetRequiredService<IEmbeddingGenerator<string,Embedding<float>>>("embedding-generator");
+            var vector = await embeddingGen.GenerateVectorAsync(text);
+            return vector.ToArray();
+        }
+        public async Task GenerateEmbeddings()
+        {
             var jobs = await jobRepository.GetAllAsync();
             var embeddings = await jobEmbeddingRepository.GetAllAsync();
             var jobsWithoutEmbedding = jobs
@@ -31,18 +36,17 @@ namespace QQJob.AIs
                 var skillsText = job.Skills != null
                     ? string.Join(",",job.Skills.Select(s => s.SkillName))
                     : string.Empty;
-                var text = $"{job.JobTitle}. {job.Description}. Skills: {skillsText}.";
-                var vector = await embeddingGen.GenerateVectorAsync(text);
+                var text = $"{job.JobTitle}. {job.Description}. Skills: {skillsText}. LocationRequirement: {job.LocationRequirement}. JobType: {job.JobType}, Salary: {job.Salary}, SalaryType: {job.SalaryType}, City: {job.City}. ExperienceLevel: {job.ExperienceLevel}";
+                var vector = await GetTextEmbbeding(text);
 
-                var embeddingJson = JsonConvert.SerializeObject(vector.ToArray());
+                var embeddingJson = JsonConvert.SerializeObject(vector);
 
-                await jobEmbeddingRepository.AddAsync(new JobEmbedding
+                await jobEmbeddingRepository.AddOrUpdateAsync(new JobEmbedding
                 {
                     JobId = job.JobId,
                     Embedding = embeddingJson,
                     UpdatedAt = DateTime.Now
                 });
-                await jobEmbeddingRepository.SaveChangesAsync();
             }
 
         }

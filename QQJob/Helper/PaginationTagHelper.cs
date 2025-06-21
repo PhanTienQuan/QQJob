@@ -9,7 +9,6 @@ namespace QQJob.Helper
         public int TotalPages { get; set; }
         public string ActionName { get; set; }
         public string ControllerName { get; set; }
-        public string SearchValue { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string? SearchStatus { get; set; }
@@ -17,11 +16,10 @@ namespace QQJob.Helper
         public override void Process(TagHelperContext context,TagHelperOutput output)
         {
             output.TagName = "div";
-            output.Attributes.SetAttribute("class","rts__pagination d-block mx-auto pt-40 max-content");
+            output.Attributes.SetAttribute("class","rts__pagination d-block mx-auto pt-40 max-content paging");
 
             var ul = new TagBuilder("ul");
             ul.AddCssClass("d-flex gap-2");
-            string searchValue = (!string.IsNullOrEmpty(SearchValue) ? $"&searchValue={SearchValue}" : "");
 
             // Previous button
             var prevLi = new TagBuilder("li");
