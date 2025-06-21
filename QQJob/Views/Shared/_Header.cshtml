@@ -167,4 +167,22 @@
             </div>
         </div>
     </div>
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+        <div class="offcanvas-header border-bottom py-3 px-4">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasLabel" style="color: green; font-size: 1.5rem;">QQJob</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body px-4 py-4" style="background-color: #fff;">
+            <ul class="list-unstyled">
+                <li class="mb-3">
+                    <a asp-controller="Home" asp-action="Index" class="nav-link fw-medium" style="font-size: 1.1rem; color: #0B0D28;">Home</a>
+                </li>
+                <li class="mb-3">
+                    <a asp-controller="Jobs" asp-action="Index" class="nav-link fw-medium" style="font-size: 1.1rem; color: #0B0D28;">Browse Jobs</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
 </header>

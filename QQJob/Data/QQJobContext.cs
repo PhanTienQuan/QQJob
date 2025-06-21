@@ -157,6 +157,11 @@ namespace QQJob.Data
             modelBuilder.Entity<ChatMessage>()
                 .HasIndex(cm => new { cm.ChatId,cm.SentAt });
 
+            modelBuilder.Entity<JobEmbedding>(entity =>
+            {
+                entity.HasKey(e => e.JobId);
+                entity.Property(e => e.JobId).ValueGeneratedNever();  // IMPORTANT: no auto-increment
+            });
         }
     }
 }

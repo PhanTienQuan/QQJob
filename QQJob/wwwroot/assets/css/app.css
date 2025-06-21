@@ -71,8 +71,11 @@
 .applied__status span {
     white-space: nowrap;
 }
-.active{
+.paging .active{
     background-color: lightgray;
+}
+.paging li:hover {
+    cursor: pointer;
 }
 .unread .notification__content p {
     font-weight: bold !important;
@@ -213,6 +216,55 @@
     color: #fff !important; /* white on hover */
 }
 
-.dashboard__left .dash__menu ul li a:hover i {
+/*.dashboard__left .dash__menu ul li a:hover i {
     color: var(--rts-button-1);
+}*/
+
+.search__item textarea {
+    padding: 15px 20px;
+    padding-left: 45px;
+    border-radius: 4px;
+    border: 0;
+    position: relative;
+    width: 100%;
 }
+/*.dashboard__left.active {
+    z-index: 9999 !important;
+}
+body {
+    padding-right: 0 !important;
+}*/
+@media (min-width: 768px) {
+    .skills-scroll {
+        display: flex !important;
+        flex-wrap: wrap;
+        max-height: 160px; /* Show up to ~4 rows (adjust as needed) */
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .skills-scroll {
+        display: grid !important;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(2, 1fr);
+        grid-auto-columns: max-content;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-height: 70px; /* Fit 2 rows */
+        gap: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .skills-scroll::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+
+
