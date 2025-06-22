@@ -1,0 +1,34 @@
+@model QQJob.ViewModels.CandidateViewModels.ApplyJobViewModel
+<!-- APPLY JOB MODAL -->
+<div class="modal similar__modal fade" id="applyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="max-content similar__form form__padding">
+                <div class="d-flex mb-3 align-items-center justify-content-between">
+                    <h6 class="mb-0">Apply for this Position</h6>
+                    <button type="button" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-regular fa-xmark text-primary"></i>
+                    </button>
+                </div>
+                <form asp-page-handler="Apply" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3" id="applyForm">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="CoverLetter" class="fw-medium text-dark mb-3">Cover Letter</label>
+                        <textarea asp-for="CoverLetter" class="form-control" rows="4" placeholder="Write your cover letter here..."></textarea>
+                        <span asp-validation-for="CoverLetter" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CV" class="fw-medium text-dark mb-3">Upload CV</label>
+                        <input asp-for="CV" type="file" class="form-control" accept=".pdf,.doc,.docx" />
+                        <span asp-validation-for="CV" class="text-danger"></span>
+                    </div>
+                    <div class="form-group my-3">
+                        <button class="rts__btn w-100 fill__btn" type="submit">
+                            Apply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
