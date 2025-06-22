@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
+using QQJob.ViewModels;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace QQJob.Controllers
 {
-    public class MessageController(IChatMessageRepository chatMessageRepository,IChatSessionRepository chatSessionRepository):Controller
+    [Authorize]
+    public class MessageController(IChatMessageRepository chatMessageRepository,IChatSessionRepository chatSessionRepository,IAppUserRepository appUserRepository,UserManager<AppUser> userManager):Controller
     {
         [HttpGet]
         public async Task<JsonResult> GetMessages(Guid chatId,int skip = 0,int take = 10,Guid? previousChatId = null,string? currentUserId = null)
@@ -82,5 +88,83 @@ namespace QQJob.Controllers
             });
             return Json(new { sessions = sessionData });
         }
+        [HttpGet]
+        public async Task<IActionResult> ChatWith(string chatUserId)
+        {
+            string referer = Request.Headers["Referer"].ToString();
+
+            var chatWithUser = await appUserRepository.GetByIdAsync(chatUserId);
+            var currentUser = await userManager.GetUserAsync(User);
+
+            // Check user exists
+            if(chatWithUser == null)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "User not found!",type = "error" });
+                return Redirect(referer);
+            }
+
+            // Check not chatting with self
+            if(chatWithUser.Id == currentUser.Id)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Can't chat with yourself!",type = "error" });
+                return Redirect(referer);
+            }
+
+            // Find existing session
+            var oldChatSession = await chatSessionRepository.FindAsync(s =>
+                (s.User1Id == chatUserId && s.User2Id == currentUser.Id) ||
+                (s.User2Id == chatUserId && s.User1Id == currentUser.Id));
+
+            ChatSession chatSession;
+            if(oldChatSession.Any())
+            {
+                chatSession = oldChatSession.First();
+            }
+            else
+            {
+                chatSession = new ChatSession
+                {
+                    User1Id = currentUser.Id,
+                    User2Id = chatUserId,
+                    CreateAt = DateTime.Now
+                };
+                await chatSessionRepository.AddAsync(chatSession);
+                await chatSessionRepository.SaveChangesAsync();
+            }
+
+            var sessions = await chatSessionRepository.GetChatSession(currentUser.Id,10,10);
+
+            MessageViewModel messageViewModel = new()
+            {
+                Sessions = sessions,
+                CurrentChatSession = chatSession,
+                CurrentUser = currentUser
+            };
+
+            return View("Index",messageViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index(Guid? chatSessionId = null)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
+
+            ChatSession? currentSession = null;
+            if(chatSessionId.HasValue)
+            {
+                currentSession = sessions?.FirstOrDefault(s => s.ChatId == chatSessionId);
+            }
+            currentSession ??= sessions?.FirstOrDefault() ?? new ChatSession();
+
+            var model = new MessageViewModel
+            {
+                Sessions = sessions,
+                CurrentChatSession = currentSession,
+                CurrentUser = await appUserRepository.GetByIdAsync(userId)
+            };
+            return View(model);
+        }
+
     }
 }

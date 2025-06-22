@@ -41,11 +41,14 @@
                                     <li class="navigation__menu--item has-child" role="menuitem">
                                         <a asp-controller="Home" asp-action="Index" class="navigation__menu--item__link">Home</a>
                                     </li>
+                                    <!-- Other Menus -->
+                                    <li class="navigation__menu--item has-child" role="menuitem">
+                                        <a asp-controller="Home" asp-action="EmployerList" class="navigation__menu--item__link">Employers</a>
+                                    </li>
                                     <!-- Browse Jobs -->
                                     <li class="navigation__menu--item has-child" role="menuitem">
                                         <a asp-controller="Jobs" asp-action="Index" class="navigation__menu--item__link">Browse Jobs</a>
                                     </li>
-                                    <!-- Other Menus -->
                                 </ul>
                             </nav>
                         </div>
@@ -141,7 +144,7 @@
                                         {
                                             <li><a class="dropdown-item" class="nav-link" asp-controller="@userRole" asp-action="Index">Dashboard</a></li>
                                             <li><a class="dropdown-item" class="nav-link" asp-controller="@userRole" asp-action="Profile">Profile</a></li>
-                                            <li><a class="dropdown-item" class="nav-link" asp-controller="@userRole" asp-action="Message">Message</a></li>
+                                            <li><a class="dropdown-item" class="nav-link" asp-controller="Message" asp-action="Index">Message</a></li>
                                             @if (User.IsInRole("Candidate"))
                                             {
                                                 <li><a class="dropdown-item" class="nav-link" asp-controller="Candidate" asp-action="Resume">Resume</a></li>

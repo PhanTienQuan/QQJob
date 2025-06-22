@@ -3,6 +3,7 @@ using QQJob.Data;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace QQJob.Repositories.Implementations
 {
@@ -56,6 +57,8 @@ namespace QQJob.Repositories.Implementations
                 .Include(e => e.User)
                 .Include(e => e.Jobs)
                 .ThenInclude(j => j.Applications)
+                .Include(e => e.Jobs)
+                    .ThenInclude(j => j.Skills)
                 .Include(e => e.Follows)
                 .Include(e => e.CompanyEvident)
                 .Where(e => e.EmployerId == id)
@@ -66,6 +69,66 @@ namespace QQJob.Repositories.Implementations
             return await _context.Employers
                 .Include(e => e.User)
                 .FirstOrDefaultAsync(e => e.User.Slug == slug);
+        }
+
+        public async Task<IEnumerable<Employer>> GetAllWithDetailAsync()
+        {
+            return await _dbSet
+                .Include(e => e.User)
+                .Include(e => e.Jobs)
+                .ThenInclude(j => j.Applications)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<Employer> employers, PagingModel pagingModel)> GetJobsAsync(int currentPage,int pageSize,string? employerName = null,string? field = null,DateTime? foundDate = null,Expression<Func<Employer,bool>>? predicate = null)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if(predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            if(!string.IsNullOrEmpty(employerName))
+            {
+                employerName = employerName.ToLower();
+                query = query.Where(e =>
+                    e.User.FullName != null && e.User.FullName.ToLower().Contains(employerName)
+                );
+            }
+
+            if(!string.IsNullOrEmpty(field))
+            {
+                field = field.ToLower();
+                query = query.Where(e =>
+                    !string.IsNullOrEmpty(e.CompanyField) &&
+                    (e.CompanyField.Contains(field) || field.Contains(e.CompanyField))
+                );
+            }
+
+            if(foundDate.HasValue)
+            {
+                query = query.Where(j => j.FoundedDate == foundDate.Value);
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var employers = await query
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .Include(e => e.User)
+                .Include(e => e.Jobs)
+                .ToListAsync();
+
+            var pagingModel = new PagingModel
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return (employers, pagingModel);
         }
     }
 }

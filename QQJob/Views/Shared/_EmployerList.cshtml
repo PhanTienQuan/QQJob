@@ -1,0 +1,108 @@
+﻿@model EmployerListViewModel
+<!-- search form -->
+<div class="top__query mb-40 d-flex flex-wrap gap-4 gap-xl-0 justify-content-between align-items-center">
+    <span class="text-dark font-20 fw-medium">
+        Showing @(((Model.Paging.CurrentPage - 1) * Model.Paging.PageSize) + 1)
+        -
+        @(Math.Min(Model.Paging.CurrentPage * Model.Paging.PageSize, Model.Paging.TotalItems)) of @Model.Paging.TotalItems results
+    </span>
+    <div class="d-flex flex-wrap align-items-center gap-4">
+        <div class="d-flex align-items-center gap-3" id="nav-tab" role="tablist">
+            <button class="rts__btn no__fill__btn list-style nav-link active" data-bs-toggle="tab" data-bs-target="#list"> <i class="rt-list"></i> List</button>
+            <button class="rts__btn no__fill__btn grid-style nav-link" data-bs-toggle="tab" data-bs-target="#grid"> <i class="rt-hamburger"></i> Grid</button>
+        </div>
+    </div>
+</div>
+<!-- search form end -->
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade" role="tabpanel" id="grid">
+        <div class="row g-30">
+            @if(Model.Employers != null && Model.Employers.Any())
+            {
+                @foreach (var e in Model.Employers)
+                {
+                    <div class="col-lg-6 col-md-6">
+                        <div class="rts__job__card rounded-2 style__four">
+                            <div class="company__icon mx-auto rounded-0">
+                                <img src="@e.AvatarUrl" alt="">
+                            </div>
+                            <div class="h6 job__title mt-3 mb-2">
+                                <a asp-controller="Home" asp-action="EmployerDetail" aria-label="name" asp-route-id="@e.Id" asp-route-slug="@e.Slug">
+                                    @Helper.DisplayLimitedText(e.Name, 10)
+                                </a>
+                            </div>
+                            <p>@e.Fields?.First()</p>
+                            <div class="d-flex justify-content-center gap-3 mt-3">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="fa-light fa-briefcase"></i> Posted @($"{e.PostedJobsCount} Job{(e.PostedJobsCount == 1 ? "" : "s")}")
+                                </div>
+                            </div>
+                            <a href="#" class="rts__btn fill__btn rounded-2" title="View">
+                                <i class="fa-light fa-eye"></i>
+                            </a>
+                            <a href="#" class="rts__btn fill__btn rounded-2" title="Follow">
+                                <i class="fa-regulightlar fa-heart"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-lg-6 col-md-6">
+                    <div class="rts__job__card rounded-2 style__four">
+                        <p class="text-center text-muted">No employers found.</p>
+                    </div>
+                </div>
+            }
+            
+        </div>
+    </div>
+    <div class="tab-pane grid__style fade show active" role="tabpanel" id="list">
+        <div class="row g-30">
+            @if(Model.Employers != null && Model.Employers.Any())
+            {
+                @foreach (var e in Model.Employers)
+                {
+                    <div class="col-lg-12">
+                        <div class="rts__single__employer employer__style__two flex-wrap gap-4 d-flex justify-content-between align-items-center">
+                            <div class="flex-wrap d-flex gap-4 align-items-center">
+                                <div class="icon rounded-0">
+                                    <img src="@e.AvatarUrl" alt="">
+                                </div>
+                                <div class="content">
+                                    <a class="h6 mb-0 d-block fw-semibold text-dark" asp-controller="Home" asp-action="EmployerDetail" asp-route-id="@e.Id" asp-route-slug="@e.Slug">@e.Name</a>
+                                    <span class="d-block">@e.Fields?.First()</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <i class="fa-light fa-briefcase text-dark"></i>Posted @($"{e.PostedJobsCount} Job{(e.PostedJobsCount <= 1 ? "" : "s")}")
+
+                            </div>
+                            <div class="flex-wrap d-flex gap-4 align-items-center">
+                                <a class="apply__btn style__two" title="View">
+                                    <i class="fa-light fa-eye"></i>
+                                </a>
+                                <a class="apply__btn style__two" title="Follow">
+                                    <i class="fa-light fa-heart"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-lg-6 col-md-6">
+                    <div class="rts__job__card rounded-2 style__four">
+                        <p class="text-center text-muted">No employers found.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- pagination -->
+<pagination current-page="@Model.Paging.CurrentPage" total-pages="@Model.Paging.TotalPages" action-name="EmployerList" controller-name="Home"></pagination>
+<!-- pagination end -->
