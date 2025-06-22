@@ -50,7 +50,9 @@
                     <div class="breadcrumb__apply max-content">
                         @if (User.IsInRole("Candidate"))
                         {
-                            <a href="#" class="rts__btn apply__btn be-1 fill__btn">Apply This Possition</a>
+                            <a href="#" class="rts__btn apply__btn be-1 fill__btn" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                Apply This Position
+                            </a>
                         }
                     </div>
                 </div>
@@ -283,3 +285,5 @@
     </div>
 </div>
 <!-- Related Jobs End -->
+
+@await Html.PartialAsync("_ApplyModal", new QQJob.ViewModels.CandidateViewModels.ApplyJobViewModel { JobId = Model.Id })

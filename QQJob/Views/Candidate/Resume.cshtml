@@ -1,4 +1,9 @@
-﻿    <!-- content area -->
+﻿@model QQJob.ViewModels.CandidateViewModels.ResumeViewModal
+@{
+    ViewBag.Title = "Upload Resume";
+    var tempMessage = TempData["Message"] as string;
+}
+<!-- content area -->
 <div class="dashboard__content d-flex template-dashboard ">
     <partial name="_LeftMenu" />
     <div class="dashboard__right">
@@ -9,42 +14,30 @@
             </div>
             <!-- sidebar menu end -->
             <div class="my__profile__tab radius-16 bg-white">
-                <div class="my__details" id="info">
-                    <div class="info__top align-items-start flex-column">
-
-                        <div class="select__image">
-                            <label for="file" class="file-upload__label__two">
-                                <span>
-                                    <i class="fa-light fa-file-arrow-up"></i>
-                                    <b><u>Click To Upload</u></b> Or Drag and Drop
-                                    <br>
-                                    Meximum File Size 10 Mb
-                                </span>
-                            </label>
-                            <input type="file" class="file-upload__input__two" id="file" required>
+                <form asp-action="Resume" asp-controller="Candidate" method="post" enctype="multipart/form-data">
+                    <div class="my__details" id="info">
+                        <div class="mt-4" id="preview-container">
+                            @if (!string.IsNullOrEmpty(Model.ResumeUrl))
+                            {
+                                <label>Preview:</label>
+                                <iframe id="resumePreview" src="@Model.ResumeUrl" width="100%" height="600px" style="border:1px solid #ccc;"></iframe>
+                            }
+                            else
+                            {
+                                <iframe id="resumePreview" style="display:none;" width="100%" height="600px" style="border:1px solid #ccc;"></iframe>
+                            }
                         </div>
-                        <div class="cv__included d-flex gap-30">
-                            <div class="single__item">
-                                <div class="d-flex justify-content-between">
-                                    <span>Resume</span>
-                                    <span><i class="fa-regular fa-xmark"></i></span>
-                                </div>
-                                <div class="file__type font-20 mt-2 fw-semibold">
-                                    PDF
-                                </div>
-                            </div>
-                            <div class="single__item">
-                                <div class="d-flex justify-content-between">
-                                    <span>Cover Letter</span>
-                                    <span><i class="fa-regular fa-xmark"></i></span>
-                                </div>
-                                <div class="file__type font-20 mt-2 fw-semibold">
-                                    PDF
-                                </div>
+                        <div class="info__top align-items-start flex-column">
+                            @if (!string.IsNullOrEmpty(tempMessage))
+                            {
+                                <div class="alert alert-success">@tempMessage</div>
+                            }
+                            <div class="info__field">
+                                <button type="submit" class="rts__btn fill__btn mx-0">Upload New Resume</button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
 
             <!-- education -->
@@ -54,6 +47,7 @@
                     <div class="accordion-item">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c8" aria-expanded="false" aria-controls="c8">
                             SSC
+                        </button>
                         </button>
                         <div id="c8" class="accordion-collapse collapse" data-bs-parent="#rts-accordion">
                             <div class="accordion-body p-0 mt-3 mb-20">
@@ -213,3 +207,20 @@
     </div>
 </div>
 <!-- content area end -->
+@section Scripts {
+    <script>
+        // Preview PDF when select a new CV
+        document.getElementById('ResumeFile').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            var preview = document.getElementById('resumePreview');
+            if (file && file.type === "application/pdf") {
+                var fileURL = URL.createObjectURL(file);
+                preview.src = fileURL;
+                preview.style.display = "block";
+            } else {
+                preview.src = "";
+                preview.style.display = "none";
+            }
+        });
+    </script>
+}

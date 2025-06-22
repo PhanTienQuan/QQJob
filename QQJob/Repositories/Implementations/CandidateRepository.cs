@@ -14,11 +14,25 @@ namespace QQJob.Repositories.Implementations
         public async Task<Candidate?> GetCandidateWithDetailsAsync(string candidateId)
         {
             return await _context.Set<Candidate>()
+                .Include(c => c.User)
                 .Include(c => c.Educations)
                 .Include(c => c.Awards)
                 .Include(c => c.Skills)
                 .Include(c => c.CandidateExps)
+                .Include(c => c.Resume)
                 .FirstOrDefaultAsync(c => c.CandidateId == candidateId);
+        }
+
+        public async Task<Candidate?> GetCandidateWithDetailsByUserIdAsync(string userId)
+        {
+            return await _context.Set<Candidate>()
+                .Include(c => c.User)
+                .Include(c => c.Educations)
+                .Include(c => c.Awards)
+                .Include(c => c.Skills)
+                .Include(c => c.CandidateExps)
+                .Include(c => c.Resume)
+                .FirstOrDefaultAsync(c => c.User.Id == userId);
         }
     }
 }
