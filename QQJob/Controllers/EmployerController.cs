@@ -5,7 +5,6 @@ using QQJob.Helper;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
-using QQJob.ViewModels;
 using QQJob.ViewModels.EmployerViewModels;
 using System.Globalization;
 using System.Security.Claims;
@@ -626,20 +625,6 @@ namespace QQJob.Controllers
             TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
             return RedirectToAction("EditJob","Employer",new { id = jobId });
         }
-
-        [HttpGet]
-        public async Task<IActionResult> Message()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
-            MessageViewModel messageViewModel = new MessageViewModel()
-            {
-                Sessions = sessions,
-                CurrentChatSession = sessions != null ? sessions.FirstOrDefault() : new ChatSession(),
-                CurrentUser = await appUserRepository.GetByIdAsync(userId),
-            };
-            return View(messageViewModel);
-        }
         [HttpGet]
         public async Task<IActionResult> ApplicantList(int page = 1,int pageSize = 5)
         {
@@ -786,36 +771,7 @@ namespace QQJob.Controllers
                 newStatus = app.Status.ToString()
             });
         }
-        [HttpGet]
-        public async Task<IActionResult> ChatWith(string chatUserId)
-        {
-            string referer = Request.Headers["Referer"].ToString();
-            var chatWithUser = await appUserRepository.GetByIdAsync(chatUserId);
-            if(chatWithUser == null)
-            {
-                TempData["Message"] = JsonConvert.SerializeObject(new { message = "User not found!",type = "error" });
-                return Redirect(referer);
-            }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var chatSession = new ChatSession
-            {
-                User1Id = userId,
-                User2Id = chatUserId,
-                CreateAt = DateTime.Now
-            };
-            await chatSessionRepository.AddAsync(chatSession);
-            await chatSessionRepository.SaveChangesAsync();
-
-            var sessions = await chatSessionRepository.GetChatSession(userId,10,10);
-            MessageViewModel messageViewModel = new()
-            {
-                Sessions = sessions,
-                CurrentChatSession = chatSession,
-                CurrentUser = await appUserRepository.GetByIdAsync(userId),
-            };
-            return View("Message",messageViewModel);
-        }
 
         [NonAction]
         private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)

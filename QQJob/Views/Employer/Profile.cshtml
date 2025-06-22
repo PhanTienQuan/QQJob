@@ -181,11 +181,15 @@
                             var url = Model.CompanyEvidentUrl.ToLower();
                             
                             <div class="info__field mb-3">
-                                <button type="button" id="view-evident-btn" class="rts__btn fill__btn mx-0" data-url="@Model.CompanyEvidentUrl" data-type="@(url.EndsWith(".pdf") ? "pdf" : (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp")) ? "img" : "file")">
+                                <a id="view-evident-btn" class="mx-0" data-url="@Model.CompanyEvidentUrl" data-type="@(url.EndsWith(".pdf") ? "pdf" : (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp")) ? "img" : "file")">
                                     View Evidence
-                                </button>
+                                </a>
                             </div>
                             <div id="evident-preview"></div>
+                        }
+                        else
+                        {
+                            
                         }
                     </div>
                     <div class="info__field">
@@ -303,7 +307,7 @@
             const btn = document.getElementById("view-evident-btn");
 
             btn.addEventListener("click", function () {
-                const preview = document.getElementById("evident-preview");
+                const preview = document.getElementById("evident");
                 const url = btn.getAttribute("data-url");
                 const type = btn.getAttribute("data-type");
                 preview.innerHTML = ""; // Clear previous preview

@@ -55,7 +55,7 @@ namespace QQJob.Services
         }
         public async Task CloseJob(IJobRepository jobRepository,INotificationRepository notificationRepository)
         {
-            var jobs = await jobRepository.FindAsync(j => j.CloseDate <= DateTime.Now);
+            var jobs = await jobRepository.FindAsync(j => j.CloseDate <= DateTime.Now && j.Status != Models.Enum.Status.Closed);
             if(jobs != null)
             {
                 foreach(var job in jobs)

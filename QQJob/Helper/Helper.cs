@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using System.Text.RegularExpressions;
 namespace QQJob.Helper
 {
     public static class Helper
@@ -164,6 +165,12 @@ namespace QQJob.Helper
             }
 
             return null;
+        }
+        public static string ParseCurrency(string salary)
+        {
+            if(string.IsNullOrWhiteSpace(salary)) return "";
+            var match = Regex.Match(salary,@"([A-Za-z]+)$"); // match word at end
+            return match.Success ? match.Groups[1].Value : "";
         }
 
 
