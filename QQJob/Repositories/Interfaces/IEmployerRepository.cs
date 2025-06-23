@@ -1,4 +1,5 @@
-﻿using QQJob.Models;
+﻿using QQJob.Dtos;
+using QQJob.Models;
 using QQJob.Models.Enum;
 using System.Linq.Expressions;
 
@@ -14,6 +15,7 @@ namespace QQJob.Repositories.Interfaces
         Task<Employer?> GetBySlugAsync(string slug);
         Task<IEnumerable<Employer>> GetAllWithDetailAsync();
         Task<(IEnumerable<Employer> employers, PagingModel pagingModel)> GetJobsAsync(int currentPage,int pageSize,string? employerName = null,string? field = null,DateTime? foundDate = null,Expression<Func<Employer,bool>>? predicate = null);
+        Task<IEnumerable<Employer>> ChatBoxSearchEmployersAsync(ChatBoxSearchIntent intent);
     }
 }
 

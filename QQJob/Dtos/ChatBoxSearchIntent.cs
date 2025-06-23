@@ -3,6 +3,7 @@
     public class ChatBoxSearchIntent
     {
         public string? IntentType { get; set; }
+        public string? ActionType { get; set; }
         public string? JobTitle { get; set; }
         public string? EmployerName { get; set; }
         public string? City { get; set; }

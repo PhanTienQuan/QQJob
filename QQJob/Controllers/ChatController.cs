@@ -1,68 +1,33 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
 using QQJob.AIs;
 using QQJob.Dtos;
 using QQJob.Models;
-using QQJob.Repositories.Implementations;
 using QQJob.Repositories.Interfaces;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
+using System.Net;
 using System.Text;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace QQJob.Controllers
 {
     [ApiController]
     [Route("api/chat")]
-    public class ChatController(Kernel kernel,IWebHostEnvironment env,CustomRepository customRepository,IMapper mapper,UserManager<AppUser> userManager,IJobEmbeddingRepository jobEmbeddingRepository,EmbeddingAI embeddingAI,TextCompletionAI textCompletionAI,IJobRepository jobRepository,IJobEmbeddingRepository jobEmbeddingRepository1):ControllerBase
+    public class ChatController(
+        Kernel kernel,
+        UserManager<AppUser> userManager,
+        IJobEmbeddingRepository jobEmbeddingRepository,
+        EmbeddingAI embeddingAI,
+        TextCompletionAI textCompletionAI,
+        IJobRepository jobRepository,
+        IEmployerRepository employerRepository):ControllerBase
     {
-        private readonly Kernel _kernel = kernel;
-        private readonly string _schemaPath = Path.Combine(env.ContentRootPath,"wwwroot","prompts","schema.json");
-        private readonly CustomRepository _customRepository = customRepository;
-        private Dictionary<string,Dictionary<string,string>>? _cachedSchema;
-        private readonly IMapper _mapper = mapper;
-        private static ChatCompletionAgent? generatePredicateAgent = null;
-
-        IEmbeddingGenerator<string,Embedding<float>> embeddingGen = kernel.GetRequiredService<IEmbeddingGenerator<string,Embedding<float>>>("embedding-generator");
-
-        private static readonly Dictionary<string,(Type Model, Type Dto)> TableDtoMap = new()
-        {
-            ["Job"] = (typeof(Job), typeof(JobDto)),
-            ["Candidate"] = (typeof(Candidate), typeof(CandidateDto)),
-            ["Employer"] = (typeof(Employer), typeof(EmployerDto)),
-            ["Application"] = (typeof(Models.Application), typeof(ApplicationDto)),
-            ["Skill"] = (typeof(Skill), typeof(SkillDto))
-        };
-
-        public ChatCompletionAgent CreateAgent(string agentName,string instructions,Delegate? method = null)
-        {
-            Kernel agentKernel = _kernel.Clone();
-            // Create plug-in from a static function
-            if(method != null)
-            {
-                var functionFromMethod = agentKernel.CreateFunctionFromMethod(method);
-                agentKernel.ImportPluginFromFunctions(agentName,[functionFromMethod]);
-            }
-            return
-                new ChatCompletionAgent()
-                {
-                    Name = agentName,
-                    Instructions = instructions,
-                    Kernel = agentKernel,
-                    Arguments = new KernelArguments(
-                        new OpenAIPromptExecutionSettings()
-                        {
-                            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-                        })
-                };
-        }
+        const int MAX_MESSAGE_LENGTH = 500;
+        const int MAX_HISTORY = 20;
+        // In production, use IMemoryCache, Redis, or DB instead
+        private static PostJobSession session = new();
 
         [HttpPost]
         public async Task<IActionResult> Chat([FromBody] Message request)
@@ -70,23 +35,31 @@ namespace QQJob.Controllers
             if(request == null || string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest(new { Error = "Empty message content." });
 
-            if(request.Sender == null || string.IsNullOrWhiteSpace(request.Sender))
+            if(request.Content.Length > MAX_MESSAGE_LENGTH)
+                return BadRequest(new { Error = "Message too long." });
+
+            var logined = await userManager.GetUserAsync(User);
+            if(request.Sender == null || string.IsNullOrWhiteSpace(request.Sender) || logined == null)
                 return Ok(new
                 {
                     Message = "Sorry,You have to login before using our chat bot."
                 });
 
+            request.Content = SafeHtml(request.Content.Trim());
+
             var userMessage = request.Content;
             var sessionHistory = request.History ?? [];
             List<ChatMessageContent> chatHistory = [];
-
             if(sessionHistory.Count != 0)
             {
+                if(sessionHistory.Count > MAX_HISTORY)
+                    sessionHistory = [.. sessionHistory.TakeLast(MAX_HISTORY)];
                 foreach(var content in sessionHistory)
                 {
                     var role = content.Role == "Bot" ? AuthorRole.Assistant : AuthorRole.User;
                     chatHistory.Add(new(role,content.Content));
                 }
+
             }
 
             var user = await userManager.FindByIdAsync(request.Sender);
@@ -102,8 +75,16 @@ namespace QQJob.Controllers
                     case "GREETING":
                     case "THANK_YOU":
                     case "ACKNOWLEDGMENT":
-                    case "ACTION":
                     case "UNRELATED":
+                    case "ACTION":
+                    //switch(chatIntent.ActionType)
+                    //{
+                    //    case "POST_JOB":
+                    //        var response = await textCompletionAI.ExtractPostJobSession(chatHistory,session,[PrintPostJobSession,SaveProgress]);
+                    //        return Ok(new { Message = response });
+                    //    default:
+                    //        return Ok(new { Message = "Sorry, that action is not supported in chat yet." });
+                    //}
                     default:
                         return Ok(new { Message = await GenerateFriendlyReplyAsync(chatIntent.IntentType,userMessage) });
 
@@ -115,31 +96,11 @@ namespace QQJob.Controllers
                             Message = await SearchJobs(chatIntent)
                         });
                     case "EMPLOYER_SEARCH":
-                        break;
+                        return Ok(new
+                        {
+                            Message = await SearchEmployer(chatIntent)
+                        });
                 }
-                //get posible tables used in the user query
-                var tableNames = await PredictTablesAsync(userMessage);
-                var firstTable = tableNames.FirstOrDefault();
-
-                //generate limit from user query if stated, if not default to 3
-                var limitResult = await ExtractLimitAsync(userMessage);
-
-                //generate predicate
-                var predicateResult = await GeneratePredicateAsync(tableNames,chatHistory);
-
-                //get data from the first table with the generated predicate
-                var result = await GetDataFromPredicate(predicateResult,firstTable,limitResult);
-
-                if(result == null)
-                {
-                    return Ok(new
-                    {
-                        Message = "Sorry, I couldn't find anything that matches your request at the moment."
-                    });
-                }
-
-                var html = await GenerateHtmlResponse(userMessage,result);
-                return Ok(new { Message = html,Result = result,Limit = limitResult,Predicate = predicateResult.ToString() });
             }
             catch(Exception ex)
             {
@@ -147,7 +108,6 @@ namespace QQJob.Controllers
                 return StatusCode(500,new { Error = "Something went wrong while processing your request." });
             }
         }
-
         public async Task<string?> SearchJobs(ChatBoxSearchIntent intent)
         {
             var jobs = await jobRepository.ChatBoxJobsSearchAsync(intent);
@@ -186,196 +146,40 @@ namespace QQJob.Controllers
                     <div class='chat-card'>
                         <p>
                             <strong>Title: <a href='/Jobs/Detail/{job.JobId}/{job.Slug}' target='_blank'>{job.JobTitle}</a></strong><br>
-                            Posted by {job.Employer?.User.FullName}<br>
+                            <a href='/Home/EmployerDetail/{job.Employer.EmployerId}/{job.Employer.User.Slug}'>Posted by {job.Employer?.User.FullName}</a><br>
                             City: {job.City} <br>Salary: {job.Salary}<br>Job Type: {job.JobType}<br>
                         </p>
                     </div>");
             }
             return sb.ToString();
         }
-
-
-
-        private async Task<List<string>> PredictTablesAsync(string userMessage)
+        public async Task<string?> SearchEmployer(ChatBoxSearchIntent intent)
         {
-            var prompt = $@"
-                Analyze the following user query and identify relevant database tables.
-                Available tables: Job, Candidate, Employer, Application, Skill, Award, Education, Follow, SavedJob, ViewJobHistory, CandidateExp.
+            var employers = await employerRepository.ChatBoxSearchEmployersAsync(intent);
 
-                User Query:
-                ""{userMessage}""
-
-                Return only the relevant table names as a comma-separated list, without any explanation.";
-
-            var result = await _kernel.InvokePromptAsync(prompt);
-            var tableList = result.GetValue<string>()?.Trim();
-
-
-            var knownTables = new Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "Application", typeof(Application) },
-                { "AppUser", typeof(AppUser) },
-                { "Award", typeof(Award) },
-                { "Candidate", typeof(Candidate) },
-                { "CandidateExp", typeof(CandidateExp) },
-                { "Education", typeof(Education) },
-                { "Employer", typeof(Employer) },
-                { "Follow", typeof(Follow) },
-                { "Job", typeof(Job) },
-                { "SavedJob", typeof(SavedJob) },
-                { "Skill", typeof(Skill) },
-                { "ViewJobHistory", typeof(ViewJobHistory) }
-            };
-
-            var selectedTables = tableList?
-                .Split(',',StringSplitOptions.RemoveEmptyEntries)
-                .Select(t => t.Trim())
-                .Where(knownTables.ContainsKey)
-                .ToList() ?? new List<string>();
-
-            if(!selectedTables.Any())
-            {
-                Console.WriteLine("[Warning] No valid tables found. Defaulting to 'Job'.");
-                selectedTables.Add(nameof(Job));
-            }
-
-            return selectedTables;
+            return GenerateEmployerHtml(employers.FirstOrDefault());
         }
-        private async Task<string?> ClassifyUserIntentAsync(string message)
+        public string GenerateEmployerHtml(Employer employer)
         {
-            var prompt = $@"
-            You are a classifier for a job recruitment assistant chatbot. Given a user message, classify the intent into one of these categories:
+            if(employer == null)
+                return "<div class='chat-card'><p>Employer not found.</p></div>";
 
-            1. GREETING — The user is saying hello, hi, hey, good morning, etc.
-            2. THANK_YOU — The user is saying thank you or showing appreciation.
-            3. ACKNOWLEDGMENT — The user is saying ok, got it, cool, sure, fine, etc.
-            4. QUERY — The user wants to view or filter data (e.g. jobs, candidates).
-            5. INSTRUCTION — The user asks how to do something (e.g. post a job).
-            6. ACTION — The user asks to perform a change (e.g. delete saved jobs).
-            7. UNRELATED — The message is not about recruitment or polite interaction.
-
-            Examples:
-            - ""hi there"" → GREETING
-            - ""thanks a lot"" → THANK_YOU
-            - ""ok"" → ACKNOWLEDGMENT
-            - ""got it, thanks"" → ACKNOWLEDGMENT
-            - ""list React jobs in Hanoi"" → QUERY
-            - ""how do I post a job?"" → INSTRUCTION
-            - ""apply to this job for me"" → ACTION
-            - ""tell me a joke"" → UNRELATED
-
-            Message:
-            {message}
-
-            Return only one of the following:
-            GREETING, THANK_YOU, ACKNOWLEDGMENT, QUERY, INSTRUCTION, ACTION, UNRELATED
-            ";
-
-            var result = await _kernel.InvokePromptAsync(prompt);
-            return result.GetValue<string>()?.Trim().ToUpperInvariant();
-        }
-        private async Task<int> ExtractLimitAsync(string userMessage)
-        {
-            var prompt = $@"
-                From the following user request:
-                ""{userMessage}""
-
-                Extract the number of desired results.
-                - If unspecified, return 3 by default.
-                - Only return the number (integer). Do not include any explanation.";
-
-            var result = await _kernel.InvokePromptAsync(prompt);
-            return int.TryParse(result.GetValue<string>()?.Trim(),out var limit) ? limit : 3;
-        }
-        private async Task<LambdaExpression> GeneratePredicateAsync(List<string> tableNames,List<ChatMessageContent> chatHistory)
-        {
-            try
-            {
-                var initPrompt = await BuildInitPromptAsync(tableNames);
-                var primaryTable = tableNames.First();
-                tableNames.Remove(primaryTable);
-
-                var finalPrompt = $@"
-                    {initPrompt}
-
-                    Now, based on the user's message, **generate a C# LINQ predicate (lambda expression) to filter the records** (read-only query).
-                    Follow these guidelines:
-                    - **Use only filtering logic.** Do NOT produce code that updates, deletes, or modifies data.
-                    - **Prioritize the user's query and context** (including chat history) when forming the predicate.
-                    - **Use navigation properties if relevant** (e.g., `Job.Employer.CompanySize`) to filter by related data.
-                    - **Return only the C# predicate string** (the lambda expression) **with no extra explanation** or commentary.
-
-                    **Example format:**  
-                    `Application => Application.Job.Title.Contains(""Java"") && Application.Candidate.Description.Contains(""Remote"")`
-                    - Return the LINQ predicate for the `{primaryTable}` table only.
-                    - Secondary table needed to include in `{primaryTable}`: `{tableNames.ToString()}`
-                    - If the message asks about related data (like Employer of a Job), return a filter that narrows the base table (e.g., Job).
-                    - Do not return navigation entity as the predicate root — always filter the main entity.
-                    - If the message is asking for a specific item (""the first"" or ""top""), generate a predicate that would match that item.
-                    Return the LINQ predicate for the `{primaryTable}` table only.";
-
-
-                generatePredicateAgent ??= CreateAgent("generatePredicateAgent","You are an assistant that generates LINQ predicates for a given table using schema and user context.");
-                chatHistory.Insert(0,new ChatMessageContent(AuthorRole.System,finalPrompt));
-                var response = await generatePredicateAgent.InvokeAsync(chatHistory).FirstAsync();
-                var predicateString = response.Message.Content ?? "";
-
-                var primaryType = Type.GetType($"QQJob.Models.{primaryTable}");
-                if(primaryType == null)
-                    throw new InvalidOperationException($"Entity type QQJob.Models.{primaryTable} not found.");
-
-                var parameter = Expression.Parameter(primaryType,primaryType.Name);
-                return DynamicExpressionParser.ParseLambda(new ParsingConfig(),[parameter],typeof(bool),predicateString);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"[Predicate Error] {ex.Message}");
-                var fallbackParam = Expression.Parameter(typeof(Job),"job");
-                return Expression.Lambda<Func<Job,bool>>(Expression.Constant(true),fallbackParam);
-            }
-        }
-        private async Task<string> BuildInitPromptAsync(List<string> tableNames)
-        {
-            // Intro and purpose
-            string intro = "You are an AI assistant that helps users filter job-related data from a relational database.\n";
-            intro += "Here are the schemas of the referenced tables:\n";
-
-            // Include each table's schema in a formatted way
-            foreach(var table in tableNames)
-            {
-                var schema = await GetTableSchemaAsync(table);
-                intro += $"### Table: `{table}`\n{schema}\n\n";  // Provide table schema in markdown format
-            }
-
-            return intro.Trim();
-        }
-        private async Task<string> GetTableSchemaAsync(string tableName)
-        {
-            try
-            {
-                var schemaDictionary = await GetSchemaAsync();
-
-                if(schemaDictionary != null && schemaDictionary.TryGetValue(tableName,out var tableSchema))
-                {
-                    return string.Join("\n",tableSchema.Select(kv => $"- `{kv.Key}` ({kv.Value})"));
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"[Schema Error] {ex.Message}");
-            }
-
-            return $"Table `{tableName}` not found in schema.";
-        }
-        public async Task<Dictionary<string,Dictionary<string,string>>?> GetSchemaAsync()
-        {
-            if(_cachedSchema != null) return _cachedSchema;
-            if(!System.IO.File.Exists(_schemaPath))
-                throw new FileNotFoundException("Schema file not found.");
-
-            var json = await System.IO.File.ReadAllTextAsync(_schemaPath);
-            _cachedSchema = JsonConvert.DeserializeObject<Dictionary<string,Dictionary<string,string>>?>(json);
-            return _cachedSchema;
+            var sb = new StringBuilder();
+            sb.Append($@"
+                <div class='chat-card'>
+                    <p>
+                        <strong>
+                            <a href='/Home/EmployerDetail/{employer.EmployerId}?{employer.User?.Slug}' target='_blank'>
+                                {employer.User?.FullName ?? "Unknown Employer"}
+                            </a>
+                        </strong><br>
+                        Field: {(employer.CompanyField ?? "Not specified")}<br>
+                        Jobs posted: {employer.Jobs?.Count ?? 0}<br>
+                        Email: {employer.User?.Email ?? "N/A"}
+                    </p>
+                </div>
+            ");
+            return sb.ToString();
         }
         private async Task<string> GenerateFriendlyReplyAsync(string? intent,string userMessage)
         {
@@ -395,81 +199,8 @@ namespace QQJob.Controllers
             - Keep it under 2 short sentences.
             - Return only the reply text, no explanation.";
 
-            var result = await _kernel.InvokePromptAsync(prompt);
+            var result = await kernel.InvokePromptAsync(prompt);
             return result.GetValue<string>()?.Trim() ?? "Okay.";
-        }
-        private async Task<string> GenerateHtmlResponse(string userMessage,object queryResult)
-        {
-            var json = JsonConvert.SerializeObject(queryResult,new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-
-            if(json == "[]" || string.IsNullOrWhiteSpace(json) || json == "{}")
-                return "<p>Sorry, I couldn’t find any matching results.</p>";
-
-            string prompt = $@"
-                You're a helpful assistant on a recruitment platform. Convert this JSON data into a compact, readable HTML response **for a small chat window UI**.
-
-                User asked:
-                {userMessage}
-
-                Here is the structured data (JSON):
-                {json}
-
-                Instructions:
-                - Start the response with a friendly phrase like ""Here’s what I found for you:"".
-                - If the data is about a Candidate, include only name, experience, skills, and slug.
-                - If about a Job, show job title, location, salary, required experience, slug.
-                - If about an Application, show candidate name, job title, and apply date.
-                - Format results using <div> blocks for each item (job, candidate, etc.).
-                - Use short labels: <strong> for field names, all inline.
-                - Use <strong> only — do not use <ul>, <li>, <p> tags.
-                - Always include clickable links if 'slug' is present for that data set, don't add slug to the html if slug field is null or empty.
-                - Do NOT return broken links (e.g., <a href='/job/'>) or placeholder slugs.
-                - Do not add social/profile links.
-                - Do not add Employer website link.
-                - Omit null, empty, or system/system-generated fields.
-                - Never fabricate fields or values not found in the JSON input.
-                - Style for clarity: group related information in clean visual sections.
-                - Format all date fields as dd/mm/yyyy.
-                - Return ONLY HTML (no explanations, no comments, no backticks).
-                ";
-
-            var result = await _kernel.InvokePromptAsync(prompt);
-            return result.GetValue<string>()?.Trim() ?? "<p>Sorry, I couldn't find any useful information to display.</p>";
-        }
-        private async Task<object?> GetDataFromPredicate(LambdaExpression lambdaExpression,string? firstTable,int limitResult)
-        {
-            if(firstTable == null || !TableDtoMap.TryGetValue(firstTable,out var types))
-            {
-                return null;
-            }
-
-            var genericPredicateType = typeof(Expression<>).MakeGenericType(
-                typeof(Func<,>).MakeGenericType(types.Model,typeof(bool))
-            );
-            var delegateType = typeof(Func<,>).MakeGenericType(types.Model,typeof(bool));
-
-            var lambda = Expression.Lambda(delegateType,lambdaExpression.Body,lambdaExpression.Parameters);
-
-            var method = typeof(CustomRepository).GetMethod("QueryDatabase")!.MakeGenericMethod(types.Model,types.Dto);
-
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            var task = (Task<object>)method.Invoke(_customRepository,
-            [
-                lambda,
-                limitResult,
-                _mapper
-            ]);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var dtoResult = await task;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-            return dtoResult;
         }
         private async Task<string?> GenerateInstructions(string intent,string userMessage,string role)
         {
@@ -526,6 +257,7 @@ namespace QQJob.Controllers
             User said:
             "{userMessage}"
             
+            User is a {role}.
             The user's intent is categorized as **{intent}**
             Based on the user’s question, return the best-matching capability from the list below:
             {capabilityList}
@@ -534,52 +266,36 @@ namespace QQJob.Controllers
             If nothing matches, return NONE.
             """;
 
-            var response = await _kernel.InvokePromptAsync(systemPrompt);
+            var response = await kernel.InvokePromptAsync(systemPrompt);
             var result = response.GetValue<string>()?.Trim();
             if(result != null && InstructionResponses.TryGetValue(result,out var finalResult))
             {
                 return finalResult;
             }
 
-            return "Sorry, you have to login first before you can do that action.";
+            return $"You can't do that action as a {role}";
         }
-        //[HttpPost]
-        //[Route("chat2")]
-        //public async Task<IActionResult> Chat2([FromBody] Message request)
-        //{
-        //    var kernel = _kernel.Clone();
-        //    var chatCompletion = kernel.GetRequiredService<IChatCompletionService>("openai-chat-completion");
-        //    OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
-        //    {
-        //        FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-        //    };
-
-        //    //var vector = await embeddingGen.GenerateVectorAsync(request.Content);
-        //    //var embeddingJson = JsonConvert.SerializeObject(vector.ToArray());
-        //    //var jobs = await jobEmbeddingRepository.GetAllAsync();
-        //    //List<int> jobsList = new List<int>();
-        //    //foreach(var job in jobs)
-        //    //{
-        //    //    var jobVector = JsonConvert.DeserializeObject<float[]>(job.Embedding);
-        //    //    var similarity = embeddingAI.CosineSimilarity(jobVector,vector.ToArray());
-        //    //    Console.WriteLine("Calculating: " + similarity);
-        //    //    if(similarity > 0.35) // Threshold for similarity
-        //    //    {
-        //    //        jobsList.Add(job.JobId);
-        //    //        Console.WriteLine($"Found similar job: {job.JobId} with similarity {similarity}");
-        //    //    }
-        //    //}
-
-        //    return Ok(new
-        //    {
-        //        Message = embeddingJson,
-        //        Jobs = JsonConvert.SerializeObject(jobsList,new JsonSerializerSettings
-        //        {
-        //            Formatting = Formatting.Indented,
-        //            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        //        })
-        //    });
-        //}
+        private static string SafeHtml(string input)
+        {
+            return WebUtility.HtmlEncode(input);
+        }
+        public void PrintPostJobSession()
+        {
+            Console.WriteLine("ChatController Test Method Called");
+            Console.WriteLine(JsonConvert.SerializeObject(session));
+        }
+        public void SaveProgress(string json)
+        {
+            var s = JsonConvert.DeserializeObject<PostJobSession>(json);
+            session = s;
+            Console.WriteLine("Save progress");
+        }
+        public void SavePost(string json)
+        {
+            var s = JsonConvert.DeserializeObject<PostJobSession>(json);
+            session = s;
+            Console.WriteLine("Save post");
+        }
         public class Message
         {
             public string? Sender { get; set; }
