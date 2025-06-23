@@ -91,5 +91,29 @@ namespace QQJob.Repositories.Implementations
             }
         }
 
+        public async Task<string> UploadResumeAsync(IFormFile file, string userId)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return "Invalid file! Try again.";
+            }
+
+            var uploadParams = new RawUploadParams()
+            {
+                File = new FileDescription(file.FileName, file.OpenReadStream()),
+                AssetFolder = "candidate_resumes",
+                PublicId = $"candidate_{userId}_resume",
+                Overwrite = true
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult == null || uploadResult.SecureUrl == null)
+            {
+                throw new Exception($"Upload to Cloudinary failed: {uploadResult?.Error?.Message}");
+            }
+
+            return uploadResult.SecureUrl.AbsoluteUri;
+        }
     }
 }

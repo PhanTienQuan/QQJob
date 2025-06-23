@@ -1,5 +1,30 @@
 @model QQJob.ViewModels.CandidateViewModels.ApplyJobViewModel
 <!-- APPLY JOB MODAL -->
+<style>
+    #applyModal .modal-dialog {
+        max-width: 800px;
+        width: 100%;
+    }
+    #applyModal .modal-content {
+        min-height: 500px;
+    }
+    #applyModal .max-content,
+    #applyModal .similar__form {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    #CoverLetterEditor {
+        width: 100% !important;
+        min-height: 300px !important;
+        height: 300px !important;
+    }
+    .ql-container {
+        width: 100% !important;
+    }
+    .ql-toolbar {
+        width: 100% !important;
+    }
+</style>
 <div class="modal similar__modal fade" id="applyModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -10,17 +35,25 @@
                         <i class="fa-regular fa-xmark text-primary"></i>
                     </button>
                 </div>
-                <form asp-page-handler="Apply" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3" id="applyForm">
+                <form asp-action="ApplyJob" asp-controller="Jobs" method="post" class="d-flex flex-column gap-3" id="applyForm">
+                    <input type="hidden" asp-for="JobId" />
                     <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="CoverLetter" class="fw-medium text-dark mb-3">Cover Letter</label>
-                        <textarea asp-for="CoverLetter" class="form-control" rows="4" placeholder="Write your cover letter here..."></textarea>
+                        <div id="CoverLetterEditor" style="height: 200px;">@Html.Raw(Model.CoverLetter)</div>
+                        <input type="hidden" asp-for="CoverLetter" id="CoverLetter" />
                         <span asp-validation-for="CoverLetter" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="CV" class="fw-medium text-dark mb-3">Upload CV</label>
-                        <input asp-for="CV" type="file" class="form-control" accept=".pdf,.doc,.docx" />
-                        <span asp-validation-for="CV" class="text-danger"></span>
+                        <label class="fw-medium text-dark mb-3">Attach Your Current CV</label>
+                        @if (!string.IsNullOrEmpty(Model.ResumeUrl))
+                        {
+                            <a href="@Model.ResumeUrl" target="_blank">View Resume</a>
+                        }
+                        else
+                        {
+                            <span class="text-danger">No CV uploaded in your profile.</span>
+                        }
                     </div>
                     <div class="form-group my-3">
                         <button class="rts__btn w-100 fill__btn" type="submit">
@@ -32,3 +65,29 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script>
+        var quill = new Quill('#CoverLetterEditor', {
+            theme: 'snow',
+            placeholder: 'Write your cover letter here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [6, false] }],
+                    [{ 'size': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['blockquote'],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+        // Sync Quill content to hidden input on submit
+        document.querySelector('#applyForm').addEventListener('submit', function () {
+            document.querySelector('#CoverLetter').value = quill.root.innerHTML;
+        });
+    </script>
+}

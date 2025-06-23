@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using QQJob.AIs;
+using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
+using QQJob.ViewModels.CandidateViewModels;
+using System.Security.Claims;
 
 namespace QQJob.Controllers
 {
@@ -14,7 +19,9 @@ namespace QQJob.Controllers
         EmbeddingAI embeddingAI,
         IJobEmbeddingRepository jobEmbeddingRepository,
         TextCompletionAI textCompletionAI,
-        ISkillRepository skillRepository
+        ISkillRepository skillRepository,
+        ICandidateRepository candidateRepository,
+        IApplicationRepository applicationRepository
         ):Controller
     {
         public async Task<IActionResult> Index(int currentPage = 1,int pageSize = 5)
@@ -85,6 +92,14 @@ namespace QQJob.Controllers
                 Slug = j.Slug
             }).ToList();
 
+            string? resumeUrl = null;
+            if (User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
+                resumeUrl = candidate?.Resume?.Url;
+            }
+
             var jobDetailViewModel = new JobDetailViewModel()
             {
                 Id = job.JobId,
@@ -108,8 +123,120 @@ namespace QQJob.Controllers
                 RelatedJobs = relatedJobView,
                 SocialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink)
             };
+
+            jobDetailViewModel.IsSaved = false;
+            if (User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
+                if (candidate == null)
+                    return Json(new { success = false, message = "Candidate not found" });
+
+                if (candidate.SavedJobs == null)
+                    candidate.SavedJobs = new List<SavedJob>();
+
+                if (candidate?.SavedJobs != null)
+                {
+                    jobDetailViewModel.IsSaved = candidate.SavedJobs.Any(sj => sj.JobId == id);
+                }
+            }
+
+            ViewBag.ResumeUrl = resumeUrl;
+
             return View(jobDetailViewModel);
         }
+
+        [HttpPost]
+        [Route("jobs/{id}/save")]
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> SaveJob(int id)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                    return Json(new { success = false, message = "Not logged in" });
+
+                var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
+                if (candidate == null)
+                    return Json(new { success = false, message = "Candidate not found" });
+
+                if (candidate.SavedJobs == null)
+                    candidate.SavedJobs = new List<SavedJob>();
+
+                var alreadySaved = candidate.SavedJobs.Any(sj => sj.JobId == id);
+                if (alreadySaved)
+                {
+                    var savedJob = candidate.SavedJobs.First(sj => sj.JobId == id);
+                    candidate.SavedJobs.Remove(savedJob);
+                    candidateRepository.Update(candidate);
+                    await candidateRepository.SaveChangesAsync();
+                    return Json(new { success = true, saved = false, message = "Removed from favorites." });
+                }
+                else
+                {
+                    candidate.SavedJobs.Add(new SavedJob
+                    {
+                        JobId = id,
+                        CandidateId = userId,
+                        SaveDate = DateTime.UtcNow
+                    });
+                    candidateRepository.Update(candidate);
+                    await candidateRepository.SaveChangesAsync();
+                    return Json(new { success = true, saved = true, message = "Job saved to favorites!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi ra console hoặc trả về message cho client
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Candidate")]
+        public async Task<IActionResult> ApplyJob(ApplyJobViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
+                model.ResumeUrl = candidate?.Resume?.Url;
+                return PartialView("_ApplyModal", model);
+            }
+
+            var userIdApply = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var candidateApply = await candidateRepository.GetCandidateWithDetailsAsync(userIdApply);
+            if (candidateApply == null)
+            {
+                return Json(new { success = false, message = "Candidate not found." });
+            }
+
+            var hasApplied = await applicationRepository.FindAsync(app => app.JobId == model.JobId && app.CandidateId == userIdApply);
+
+            if (hasApplied != null && hasApplied.Count() > 0)
+            {
+                return Json(new { success = false, message = "You have already applied for this job." });
+            }
+
+            var application = new Application
+            {
+                JobId = model.JobId,
+                CandidateId = userIdApply,
+                CoverLetter = model.CoverLetter,
+                Status = ApplicationStatus.Pending,
+                ApplicationDate = DateTime.Now
+            };
+
+            candidateApply.Applications ??= new List<Application>();
+            candidateApply.Applications.Add(application);
+
+            candidateRepository.Update(candidateApply);
+            await candidateRepository.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Application submitted successfully!" });
+        }
+
         [HttpGet]
         public async Task<IActionResult> GenericSearch(
             [Bind(Prefix = "Paging")] PagingModel pagingModel,
