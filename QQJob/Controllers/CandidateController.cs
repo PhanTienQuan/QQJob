@@ -211,7 +211,7 @@ namespace QQJob.Controllers
             string resumeUrl;
             try
             {
-                resumeUrl = await _cloudinaryService.UploadEvidentAsync(model.ResumeFile,userId);
+                resumeUrl = await _cloudinaryService.UploadResumeAsync(model.ResumeFile,userId);
             }
             catch
             {

@@ -23,6 +23,8 @@ namespace QQJob.ViewModels
         public string? Website { get; set; }
         public string? LocationRequirement { get; set; }
         public string? JobType { get; set; }
+        public bool IsSaved { get; set; }
+        public List<SavedJob> CandidateSavedJobs { get; set; }
         public List<SocialLink>? SocialLinks { get; set; } = [];
         public List<RelatedJobViewModel>? RelatedJobs { get; set; } = [];
     }
