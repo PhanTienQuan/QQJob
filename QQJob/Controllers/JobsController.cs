@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QQJob.AIs;
+using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
@@ -14,7 +16,8 @@ namespace QQJob.Controllers
         EmbeddingAI embeddingAI,
         IJobEmbeddingRepository jobEmbeddingRepository,
         TextCompletionAI textCompletionAI,
-        ISkillRepository skillRepository
+        ISkillRepository skillRepository,
+        UserManager<AppUser> userManager
         ):Controller
     {
         public async Task<IActionResult> Index(int currentPage = 1,int pageSize = 5)
@@ -69,8 +72,11 @@ namespace QQJob.Controllers
                     slug = job.Slug
                 });
             }
-
-            var employer = await employerRepository.GetByIdAsync(job.EmployerId);
+            var currentUser = await userManager.GetUserAsync(User);
+            if(job.Status != Status.Approved && (currentUser == null || job.EmployerId != currentUser.Id))
+            {
+                return RedirectToAction("Index"); // Only employer can view pending job details
+            }
             var relatedJobIds = await jobSimilarityMatrixRepository.GetRelatedJobIdsAsync(job.JobId);
             var relatedJobs = await jobRepository.FindJobs(j => relatedJobIds.Contains(j.JobId));
             var relatedJobView = relatedJobs.Select(j => new RelatedJobViewModel()
@@ -100,13 +106,13 @@ namespace QQJob.Controllers
                 Salary = job.Salary,
                 Opening = job.Opening,
                 ExperienceLevel = job.ExperienceLevel,
-                Website = employer.Website,
-                ImgUrl = employer.User.Avatar,
+                Website = job.Employer.Website,
+                ImgUrl = job.Employer.User.Avatar,
                 JobType = job.JobType,
                 LocationRequirement = job.LocationRequirement,
                 SalaryType = job.SalaryType,
                 RelatedJobs = relatedJobView,
-                SocialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink)
+                SocialLinks = string.IsNullOrWhiteSpace(job.Employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(job.Employer.User.SocialLink)
             };
             return View(jobDetailViewModel);
         }
@@ -118,7 +124,9 @@ namespace QQJob.Controllers
             string? City,
             string? ExperienceLevel,
             string? Salary,
-            List<string>? Skills)
+            List<string>? Skills,
+            bool StrictSearch = false
+            )
         {
             // Get Salary range
             var (min, max) = Helper.Helper.ParseSalaryRange(Salary);
@@ -133,9 +141,9 @@ namespace QQJob.Controllers
                 MaxSalary = max,
                 IncludeSkills = Skills ?? [],
                 ExcludeSkills = [],
-                JobType = null
+                JobType = null,
+                StrictSearch = StrictSearch
             };
-
             // If there is AI Query → enrich intent
             if(!string.IsNullOrWhiteSpace(AiSearchQuery))
             {
@@ -145,9 +153,11 @@ namespace QQJob.Controllers
                 intent.ExperienceLevel ??= aiIntent.ExperienceLevel;
                 intent.MinSalary = aiIntent.MinSalary > 0 ? aiIntent.MinSalary : intent.MinSalary;
                 intent.MaxSalary = aiIntent.MaxSalary > 0 ? aiIntent.MaxSalary : intent.MaxSalary;
-                intent.IncludeSkills = intent.IncludeSkills.Union(aiIntent.IncludeSkills).ToList();
+                intent.IncludeSkills = [.. intent.IncludeSkills.Union(aiIntent.IncludeSkills)];
+                intent.StrictSearch = aiIntent.StrictSearch || intent.StrictSearch;
             }
 
+            Console.WriteLine(JsonConvert.SerializeObject(intent));
             // Get jobs
             var jobs = await jobRepository.GetJobsByIdsAsync(intent);
 

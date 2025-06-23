@@ -14,12 +14,14 @@ using QQJob.Repositories.Implementations;
 using QQJob.Repositories.Interfaces;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using System.Text;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace QQJob.Controllers
 {
     [ApiController]
     [Route("api/chat")]
-    public class ChatController(Kernel kernel,IWebHostEnvironment env,CustomRepository customRepository,IMapper mapper,UserManager<AppUser> userManager,IJobEmbeddingRepository jobEmbeddingRepository,EmbeddingAI embeddingAI):ControllerBase
+    public class ChatController(Kernel kernel,IWebHostEnvironment env,CustomRepository customRepository,IMapper mapper,UserManager<AppUser> userManager,IJobEmbeddingRepository jobEmbeddingRepository,EmbeddingAI embeddingAI,TextCompletionAI textCompletionAI,IJobRepository jobRepository,IJobEmbeddingRepository jobEmbeddingRepository1):ControllerBase
     {
         private readonly Kernel _kernel = kernel;
         private readonly string _schemaPath = Path.Combine(env.ContentRootPath,"wwwroot","prompts","schema.json");
@@ -68,12 +70,17 @@ namespace QQJob.Controllers
             if(request == null || string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest(new { Error = "Empty message content." });
 
+            if(request.Sender == null || string.IsNullOrWhiteSpace(request.Sender))
+                return Ok(new
+                {
+                    Message = "Sorry,You have to login before using our chat bot."
+                });
+
             var userMessage = request.Content;
+            var sessionHistory = request.History ?? [];
+            List<ChatMessageContent> chatHistory = [];
 
-            var sessionHistory = request.History ?? new();
-
-            List<ChatMessageContent> chatHistory = new List<ChatMessageContent>();
-            if(sessionHistory.Any())
+            if(sessionHistory.Count != 0)
             {
                 foreach(var content in sessionHistory)
                 {
@@ -88,8 +95,9 @@ namespace QQJob.Controllers
 
             try
             {
-                var intentResult = await ClassifyUserIntentAsync(userMessage);
-                switch(intentResult)
+                var chatIntent = await textCompletionAI.GetChatIntent(chatHistory);
+                Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
+                switch(chatIntent.IntentType)
                 {
                     case "GREETING":
                     case "THANK_YOU":
@@ -97,11 +105,16 @@ namespace QQJob.Controllers
                     case "ACTION":
                     case "UNRELATED":
                     default:
-                        return Ok(new { Message = await GenerateFriendlyReplyAsync(intentResult,userMessage),Intent = intentResult });
+                        return Ok(new { Message = await GenerateFriendlyReplyAsync(chatIntent.IntentType,userMessage) });
 
                     case "INSTRUCTION":
-                        return Ok(new { Message = await GenerateInstructions(intentResult,userMessage,roles == null ? "anonymous" : roles.First()) });
-                    case "QUERY":
+                        return Ok(new { Message = await GenerateInstructions(chatIntent.IntentType,userMessage,roles == null ? "anonymous" : roles.First()) });
+                    case "JOB_SEARCH":
+                        return Ok(new
+                        {
+                            Message = await SearchJobs(chatIntent)
+                        });
+                    case "EMPLOYER_SEARCH":
                         break;
                 }
                 //get posible tables used in the user query
@@ -134,6 +147,54 @@ namespace QQJob.Controllers
                 return StatusCode(500,new { Error = "Something went wrong while processing your request." });
             }
         }
+
+        public async Task<string?> SearchJobs(ChatBoxSearchIntent intent)
+        {
+            var jobs = await jobRepository.ChatBoxJobsSearchAsync(intent);
+            Console.WriteLine("Jobs: " + jobs.Count);
+            if(jobs == null || jobs.Count == 0)
+            {
+                return "Sorry, I couldn’t find any matching jobs.";
+            }
+
+            var jobEmbeddings = await jobEmbeddingRepository.GetAllAsync();
+            var vector = await embeddingAI.GetTextEmbbeding(intent.OriginalQuery);
+            var rankedJobs = jobs.Select(j =>
+            {
+                var embeddingRow = jobEmbeddings.FirstOrDefault(e => e.JobId == j.JobId);
+                var embeddingVector = embeddingRow != null ? JsonConvert.DeserializeObject<float[]>(embeddingRow.Embedding) ?? [] : [];
+                var similarity = vector == null ? 1.0f : embeddingAI.CosineSimilarity(vector,embeddingVector);
+
+                return new { Job = j,Similarity = similarity };
+            })
+            .OrderByDescending(j => j.Similarity)
+            .Take(intent.TopN)
+            .ToList();
+
+            return GenerateJobHtml(rankedJobs.Select(r => r.Job).ToList());
+        }
+        public string GenerateJobHtml(List<Job> jobs)
+        {
+            if(jobs == null || jobs.Count == 0)
+                return "<div class='chat-card'><p>No jobs found for your search.</p></div>";
+
+            var sb = new StringBuilder();
+            sb.Append($"<div class='chat-card'><p>I found {jobs.Count} job{(jobs.Count > 1 ? "s" : "")} based on your query:</p></div>");
+            foreach(var job in jobs)
+            {
+                sb.Append($@"
+                    <div class='chat-card'>
+                        <p>
+                            <strong>Title: <a href='/Jobs/Detail/{job.JobId}/{job.Slug}' target='_blank'>{job.JobTitle}</a></strong><br>
+                            Posted by {job.Employer?.User.FullName}<br>
+                            City: {job.City} <br>Salary: {job.Salary}<br>Job Type: {job.JobType}<br>
+                        </p>
+                    </div>");
+            }
+            return sb.ToString();
+        }
+
+
 
         private async Task<List<string>> PredictTablesAsync(string userMessage)
         {
