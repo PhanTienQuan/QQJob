@@ -1,0 +1,179 @@
+﻿@model EmployerDetailViewModel
+@{
+    ViewBag.Title = $"Employer {Model.Name} Details";
+    var jobCount = Model.Jobs?.Count() ?? 0;
+}
+<style>
+    h6 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+</style>
+<!-- breadcrumb area -->
+<div class="rts__section breadcrumb__background">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 position-relative d-flex justify-content-md-between justify-content-center align-items-center">
+                <div class="breadcrumb__area max-content breadcrumb__padding">
+                    <div class="rts__job__card__big bg-transparent p-0 position-relative z-1 flex-wrap justify-content-between d-flex gap-4 align-items-center">
+                        <div class="d-flex gap-4 align-items-center flex-md-row flex-column mx-auto mx-md-0">
+                            <div class="company__icon rounded-2 bg-white">
+                                <img class="" src="@Model.AvatarUrl" alt="">
+                            </div>
+                            <div class="job__meta w-100 d-flex text-center text-md-start flex-column gap-2">
+                                <div class="">
+                                    <h3 class="job__title fw-bold h3 mb-0">@Model.Name</h3>
+                                </div>
+                                <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        @Model.CompanyField
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-briefcase"></i> Posted @($"{jobCount} Job{(jobCount <= 1 ? "" : "s")}")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="breadcrumb__apply max-content">
+                        <a href="#" class="rts__btn apply__btn be-1 fill__btn">Follow</a>
+                    </div>
+                </div>
+                <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
+                    <div class="shape__one common">
+                    </div>
+                    <div class="shape__two common">
+                        <img src="~/assets/img/breadcrumb/shape-2.svg" alt="">
+                    </div>
+                    <div class="shape__three common">
+                        <img src="~/assets/img/breadcrumb/shape-3.svg" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumb area end -->
+<!-- job list one -->
+<div class="rts__section section__padding">
+    <div class="container">
+        <div class="row g-30">
+            <div class="col-xl-8 col-lg-7">
+                <div class="employer__details" id="description">
+                    @Html.Raw(Model.Description)
+                </div>
+            </div>
+            <div class="col-lg-5 col-xl-4  d-flex flex-column gap-40 ">
+                <div class="job__overview">
+                    <h6 class="fw-semibold mb-20">Employer Overview</h6>
+                    <div class="job__overview__content">
+                        <ul>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-calender"></i> Founded in</span>
+                                <span class="text">
+                                    @(
+                                        Model.FoundedDate != null && Model.FoundedDate != DateTime.MinValue
+                                        ? Model.FoundedDate?.ToString("dd/MM/yyyy")
+                                        : "Not specify"
+                                    )
+                                </span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="fa-light fa-user"></i> Team Member</span>
+                                <span class="text">
+                                    @(
+                                        Model.CompanySize ?? "Not specify"
+                                    )
+                                </span>
+                            </li>
+
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-price-tag"></i> Project Budget</span>
+                                <span class="text">@Model.Spending</span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-briefcase"></i> Company Field</span>
+                                <span class="text"> @Model.CompanyField</span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-branch"></i> Phone</span>
+                                <span class="text"> @Model.Phone</span>
+                            </li>
+
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-branch"></i> Website</span>
+                                <span class="text"> <a href="@Model.Website">@Model.Website</a></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="job__contact">
+                    <h6 class="fw-semibold mb-20">Contact Us</h6>
+                    <a class="rts__btn apply__btn w-100" asp-action="ChatWith" asp-controller="Message" asp-route-chatUserId="@Model.Id">Go to Message</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- job list one end -->
+<!-- opening job -->
+<div class="rts__section pb-120">
+    <div class="container">
+        <div class="row justify-content-center mb-60">
+            <div class="col-xl-6 col-lg-10">
+                <div class="rts__section__content text-center">
+                    <h3 class="rts__section__title section__mb">@Model.Jobs.Count() Opening Jobs</h3>
+                    <p class="rts__section__desc">From entry-level positions to executive roles browse through.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row g-30">
+            @foreach(var job in Model.Jobs)
+            {
+                <!-- single item -->
+                <div class="col-lg-12">
+                    <div class="rts__job__card__big style__gradient__two
+                        flex-wrap d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-4 flex-column flex-md-row mb-3 mb-md-0 justify-content-start align-items-center">
+                            <div class="job__meta">
+                                <div class="d-flex align-items-center gap-3">
+                                    <a href="job-details-2.html" class="job__title h6 fw-semibold">@job.JobTitle</a>
+                                </div>
+                                <div class="d-flex gap-3 flex-wrap gap-lg-4 fw-medium">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-location-dot"></i> @job.City
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light rt-briefcase"></i> @job.JobType
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-clock"></i> @Helper.DisplayDate(job.PostDate)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4 flex-wrap align-items-center justify-content-between w-100">
+                            <div class="job__tags d-flex flex-wrap gap-3">
+                                @foreach (var skill in job.Skills)
+                                {
+                                    <a href="#">@skill.SkillName</a>
+                                }
+                            </div>
+                            <div class="job__actions d-flex gap-3 align-items-center">
+                                <div class="job__sallery d-flex gap-2 align-items-center">
+                                    <i class="fa-sharp rt-price-tag"></i> @job.Salary <span>@job.SalaryType</span>
+                                </div>
+                                <button class="apply__btn">Apply Now</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- single item end -->
+            }
+        </div>
+    </div>
+</div>
+<!-- opening job end -->
+ 

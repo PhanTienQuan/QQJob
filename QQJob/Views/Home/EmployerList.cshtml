@@ -1,0 +1,114 @@
+﻿@model EmployerListViewModel
+@{
+    ViewBag.Title = "Employer List";
+    int startYear = 1900;
+    int currentYear = DateTime.Now.Year;
+}
+<style>
+    .nice-select.open .list {
+        height: 20vh !important;
+        overflow-y: scroll;
+    }
+
+    .nice-select .list {
+        height: 20vh !important;
+        overflow-y: scroll;
+    }
+</style>
+<!-- breadcrumb area end -->
+<!-- job list one -->
+<div class="rts__section section__padding">
+    <div class="container">
+        <div class="row g-30">
+            <div class="col-lg-5 col-xl-4">
+                <div class="job__search__section mb-40">
+                    <form method="get" data-ajax="true" data-ajax-method="get" data-ajax-update="#employerListContent" data-ajax-complete="restoreTab()" data-ajax-mode="replace" data-ajax-url="@Url.Action("EmployerList","Home")" class="d-flex flex-column row-30" id="searchForm">
+                        <div class="search__item">
+                            <label asp-for="SearchEmployerName" class="mb-3 font-20 fw-medium text-dark text-capitalize"></label>
+                            <div class="position-relative">
+                                <input type="text" asp-for="SearchEmployerName" placeholder="Find Top Employer">
+                                <i class="fa-light fa-magnifying-glass"></i>
+                            </div>
+                        </div>
+                        <!-- job location -->
+                        <div class="search__item">
+                            <label asp-for="SearchField" class="mb-3 font-20 fw-medium text-dark text-capitalize"></label>
+                            <div class="position-relative">
+                                <input type="text" asp-for="SearchField" placeholder="Find Top Employer By Field">
+                                <i class="fa-light fa-location-dot"></i>
+                            </div>
+                        </div>
+                        <!-- founded date -->
+                        <div class="search__item">
+                            <label for="found" class="mb-3 font-20 fw-medium text-dark text-capitalize">Founded Date</label>
+                            <div class="position-relative">
+                                <select class="nice-select" asp-for="SearchFoundedDate">
+                                    <option value="" class="selected">Founded Date</option>
+                                    @for (int year = currentYear; year >= startYear; year--)
+                                    {
+                                        <option value="@year">@year</option>
+                                    }
+                                </select>
+                                <i class="rt-briefcase"></i>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="rts__btn no__fill__btn max-content mx-auto job__search__btn font-sm" aria-label="Search">Find Job</button>
+                        @Html.HiddenFor(m => m.Paging.CurrentPage)
+                        @Html.HiddenFor(m => m.Searching)
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-8 col-xl-8" id="employerListContent">
+                <partial name="_EmployerList" model="Model" />
+            </div>
+        </div>
+    </div>
+</div>
+<!-- job list one end -->
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        // Initialize Nice Select
+        $(document).ready(function () {
+            $('.nice-select').niceSelect();
+            function pagingSelect(selectedPage){
+                $("#Paging_CurrentPage").val(selectedPage);
+                $('#searchForm').trigger('submit');
+            }
+
+            function debounce(func, delay) {
+                let timeout;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+            $('#SearchEmployerName, #SearchField').on('input', debounce(function () {
+                $("#Searching").val("true");
+                $('#searchForm').trigger('submit');
+            }, 500));
+            $('#SearchFoundedDate').on('change', function () {
+                $("#Searching").val("true");
+                $('#searchForm').trigger('submit');
+            });
+        });
+        $(document).on('click', '#nav-tab button', function () {
+            var tab = $(this).data('bs-target');
+            localStorage.setItem('employerTab', tab);
+        });
+
+        // Restore tab after AJAX (partial update)
+        function restoreTab() {
+            var savedTab = localStorage.getItem('employerTab');
+            if (savedTab) {
+                $('#nav-tab .nav-link').removeClass('active');
+                $('.tab-pane').removeClass('show active');
+                $('#nav-tab button[data-bs-target="' + savedTab + '"]').addClass('active');
+                $(savedTab).addClass('show active');
+            }
+        }
+    </script>
+}

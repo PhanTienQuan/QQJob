@@ -216,9 +216,9 @@
     color: #fff !important; /* white on hover */
 }
 
-/*.dashboard__left .dash__menu ul li a:hover i {
+.dashboard__left .dash__menu ul li a:hover i {
     color: var(--rts-button-1);
-}*/
+}
 
 .search__item textarea {
     padding: 15px 20px;
@@ -228,12 +228,12 @@
     position: relative;
     width: 100%;
 }
-/*.dashboard__left.active {
+.dashboard__left.active {
     z-index: 9999 !important;
 }
 body {
     padding-right: 0 !important;
-}*/
+}
 @media (min-width: 768px) {
     .skills-scroll {
         display: flex !important;
