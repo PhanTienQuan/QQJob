@@ -72,55 +72,48 @@
                                         </div>
 
                                         <div class="rts__dropdown notification__dropdown dropdown-menu top-25">
-                                            <div class="rts__dropdown__content">
+                                            <div class="rts__dropdown__content overflow-y-auto max-height-500">
                                                 <div class="notification__header">
                                                     <h6>Notification</h6>
                                                     <a href="/Notification/All"><i class="fa-light fa-gear"></i></a>
                                                 </div>
 
-                                                <div class="notification__body">
-                                                    @if (groupedNotifications.Any())
+                                                @if (groupedNotifications.Any())
+                                                {
+                                                    foreach (var group in groupedNotifications)
                                                     {
-                                                        foreach (var group in groupedNotifications)
-                                                        {
-                                                            <span class="notification__date">@Helper.DisplayDate(group.Key)</span>
-                                                            <div class="notification__body">
-                                                                @foreach (var notification in group)
-                                                                {
-                                                                    <div class="single__notification @(notification.IsReaded ? "" : "unread")"
-                                                                         data-id="@notification.Id"
-                                                                         onclick="markNotificationRead(@notification.Id, this)">
-                                                                        <div class="notification__image">
-                                                                            <img src="~/assets/img/icon/notification.svg" alt="">
-                                                                        </div>
-                                                                        <div class="notification__content">
-                                                                            <p>@notification.Content</p>
-                                                                        </div>
-                                                                        <div class="time">
-                                                                            <span>@Helper.DisplayTime(notification.CreatedDate)</span>
-                                                                        </div>
+                                                        <span class="notification__date">@Helper.DisplayDate(group.Key)</span>
+                                                        <div class="notification__body">
+                                                            @foreach (var notification in group)
+                                                            {
+                                                                <div class="single__notification @(notification.IsReaded ? "" : "unread")"
+                                                                        data-id="@notification.Id"
+                                                                        onclick="markNotificationRead(@notification.Id, this)">
+                                                                    <div class="notification__image">
+                                                                        <img src="~/assets/img/icon/notification.svg" alt="">
                                                                     </div>
-                                                                }
-                                                            </div>
-                                                        }
-
-                                                        @if (unreadCount > 5)
-                                                        {
-                                                            <div class="text-center mt-2">
-                                                                <a href="/Notification/All" class="btn btn-sm btn-secondary">View All Notifications</a>
-                                                            </div>
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="single__notification">
-                                                            <div class="notification__content">
-                                                                <p>No notifications.</p>
-                                                            </div>
+                                                                    <div class="notification__content">
+                                                                        <p>@notification.Content</p>
+                                                                    </div>
+                                                                    <div class="time">
+                                                                        <span>@Helper.DisplayTime(notification.CreatedDate)</span>
+                                                                    </div>
+                                                                </div>
+                                                            }
                                                         </div>
                                                     }
-
-                                                </div>
+                                                    <div class="text-center mt-2">
+                                                        <a href="/Notification/All" class="btn btn-sm btn-secondary">View All Notifications</a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="single__notification">
+                                                        <div class="notification__content">
+                                                            <p>No notifications.</p>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -170,7 +163,54 @@
             </div>
         </div>
     </div>
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+        <div class="offcanvas-header p-0 mb-5 mt-4">
+            <a asp-action="Index" asp-controller="Home" class="offcanvas-title" id="offcanvasLabel">
+                <span style="color: green; font-weight: bold; font-size: xx-large">QQJob</span>
+            </a> 
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+            <!-- login offcanvas -->
+        <div class="mb-4 d-block">
+            <div class="header__right__btn d-flex justify-content-center gap-3">
+                @if(SignInManager.IsSignedIn(User))
+                {
+                    <a asp-action="Logout" asp-controller="Account" class="small__btn no__fill__btn border-6 font-xs" aria-label="Login Button"> <i class="rt-login"></i>Log Out</a>
+                }
+                else
+                {
+                    <a href="#" onclick="showLoginModal()" class="small__btn d-none d-sm-flex no__fill__btn border-6 font-xs">
+                        <i class="rt-login"></i>Sign In
+                    </a>
+                }
+                <a href="#" class="small__btn d-xl-flex fill__btn border-6 font-xs" aria-label="Job Posting Button">Add Job</a>
+            </div>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="rts__offcanvas__menu overflow-hidden">
+                <div class="offcanvas__menu"></div>
+            </div>
+            <p class="max-auto font-20 fw-medium text-center text-decoration-underline mt-4">Our Social Links</p>
+            <div class="rts__social d-flex justify-content-center gap-3 mt-3">
+                <a target="_blank" href="../../../facebook.com/index.html"  aria-label="facebook">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+                <a target="_blank" href="../../../instagram.com/index.html"  aria-label="instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a target="_blank" href="../../../linkedin.com/index.html"  aria-label="linkedin">
+                    <i class="fa-brands fa-linkedin"></i>
+                </a>
+                <a target="_blank" href="../../../pinterest.com/index.html"  aria-label="pinterest">
+                    <i class="fa-brands fa-pinterest"></i>
+                </a>
+                <a target="_blank" href="../../../youtube.com/index.html"  aria-label="youtube">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    @* <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
         <div class="offcanvas-header border-bottom py-3 px-4">
             <h5 class="offcanvas-title fw-bold" id="offcanvasLabel" style="color: green; font-size: 1.5rem;">QQJob</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -178,14 +218,14 @@
         <div class="offcanvas-body px-4 py-4" style="background-color: #fff;">
             <ul class="list-unstyled">
                 <li class="mb-3">
-                    <a asp-controller="Home" asp-action="Index" class="nav-link fw-medium" style="font-size: 1.1rem; color: #0B0D28;">Home</a>
+                    <a asp-controller="Home" asp-action="Index" class="nav-link fw-medium navigation__menu--item__link" style="font-size: 1.1rem; color: #0B0D28;">Home</a>
                 </li>
                 <li class="mb-3">
-                    <a asp-controller="Jobs" asp-action="Index" class="nav-link fw-medium" style="font-size: 1.1rem; color: #0B0D28;">Browse Jobs</a>
+                    <a asp-controller="Jobs" asp-action="Index" class="nav-link fw-medium navigation__menu--item__link" style="font-size: 1.1rem; color: #0B0D28;">Browse Jobs</a>
                 </li>
             </ul>
         </div>
-    </div>
+    </div> *@
 
 
 </header>

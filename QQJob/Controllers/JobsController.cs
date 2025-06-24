@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -21,7 +22,8 @@ namespace QQJob.Controllers
         TextCompletionAI textCompletionAI,
         ISkillRepository skillRepository,
         ICandidateRepository candidateRepository,
-        IApplicationRepository applicationRepository
+        IApplicationRepository applicationRepository,
+        UserManager<AppUser> userManager
         ):Controller
     {
         public async Task<IActionResult> Index(int currentPage = 1,int pageSize = 5)
@@ -76,8 +78,11 @@ namespace QQJob.Controllers
                     slug = job.Slug
                 });
             }
-
-            var employer = await employerRepository.GetByIdAsync(job.EmployerId);
+            var currentUser = await userManager.GetUserAsync(User);
+            if(job.Status != Status.Approved && (currentUser == null || job.EmployerId != currentUser.Id))
+            {
+                return RedirectToAction("Index"); // Only employer can view pending job details
+            }
             var relatedJobIds = await jobSimilarityMatrixRepository.GetRelatedJobIdsAsync(job.JobId);
             var relatedJobs = await jobRepository.FindJobs(j => relatedJobIds.Contains(j.JobId));
             var relatedJobView = relatedJobs.Select(j => new RelatedJobViewModel()
@@ -93,7 +98,7 @@ namespace QQJob.Controllers
             }).ToList();
 
             string? resumeUrl = null;
-            if (User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
+            if(User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
@@ -115,27 +120,27 @@ namespace QQJob.Controllers
                 Salary = job.Salary,
                 Opening = job.Opening,
                 ExperienceLevel = job.ExperienceLevel,
-                Website = employer.Website,
-                ImgUrl = employer.User.Avatar,
+                Website = job.Employer.Website,
+                ImgUrl = job.Employer.User.Avatar,
                 JobType = job.JobType,
                 LocationRequirement = job.LocationRequirement,
                 SalaryType = job.SalaryType,
                 RelatedJobs = relatedJobView,
-                SocialLinks = string.IsNullOrWhiteSpace(employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(employer.User.SocialLink)
+                SocialLinks = string.IsNullOrWhiteSpace(job.Employer.User.SocialLink) ? [] : JsonConvert.DeserializeObject<List<SocialLink>>(job.Employer.User.SocialLink)
             };
 
             jobDetailViewModel.IsSaved = false;
-            if (User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
+            if(User.Identity.IsAuthenticated && User.IsInRole("Candidate"))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
-                if (candidate == null)
-                    return Json(new { success = false, message = "Candidate not found" });
+                if(candidate == null)
+                    return Json(new { success = false,message = "Candidate not found" });
 
-                if (candidate.SavedJobs == null)
+                if(candidate.SavedJobs == null)
                     candidate.SavedJobs = new List<SavedJob>();
 
-                if (candidate?.SavedJobs != null)
+                if(candidate?.SavedJobs != null)
                 {
                     jobDetailViewModel.IsSaved = candidate.SavedJobs.Any(sj => sj.JobId == id);
                 }
@@ -154,24 +159,24 @@ namespace QQJob.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId))
-                    return Json(new { success = false, message = "Not logged in" });
+                if(string.IsNullOrEmpty(userId))
+                    return Json(new { success = false,message = "Not logged in" });
 
                 var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
-                if (candidate == null)
-                    return Json(new { success = false, message = "Candidate not found" });
+                if(candidate == null)
+                    return Json(new { success = false,message = "Candidate not found" });
 
-                if (candidate.SavedJobs == null)
+                if(candidate.SavedJobs == null)
                     candidate.SavedJobs = new List<SavedJob>();
 
                 var alreadySaved = candidate.SavedJobs.Any(sj => sj.JobId == id);
-                if (alreadySaved)
+                if(alreadySaved)
                 {
                     var savedJob = candidate.SavedJobs.First(sj => sj.JobId == id);
                     candidate.SavedJobs.Remove(savedJob);
                     candidateRepository.Update(candidate);
                     await candidateRepository.SaveChangesAsync();
-                    return Json(new { success = true, saved = false, message = "Removed from favorites." });
+                    return Json(new { success = true,saved = false,message = "Removed from favorites." });
                 }
                 else
                 {
@@ -183,13 +188,13 @@ namespace QQJob.Controllers
                     });
                     candidateRepository.Update(candidate);
                     await candidateRepository.SaveChangesAsync();
-                    return Json(new { success = true, saved = true, message = "Job saved to favorites!" });
+                    return Json(new { success = true,saved = true,message = "Job saved to favorites!" });
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 // Log lỗi ra console hoặc trả về message cho client
-                return Json(new { success = false, message = "Error: " + ex.Message });
+                return Json(new { success = false,message = "Error: " + ex.Message });
             }
         }
 
@@ -197,26 +202,26 @@ namespace QQJob.Controllers
         [Authorize(Roles = "Candidate")]
         public async Task<IActionResult> ApplyJob(ApplyJobViewModel model)
         {
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var candidate = await candidateRepository.GetCandidateWithDetailsAsync(userId);
                 model.ResumeUrl = candidate?.Resume?.Url;
-                return PartialView("_ApplyModal", model);
+                return PartialView("_ApplyModal",model);
             }
 
             var userIdApply = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidateApply = await candidateRepository.GetCandidateWithDetailsAsync(userIdApply);
-            if (candidateApply == null)
+            if(candidateApply == null)
             {
-                return Json(new { success = false, message = "Candidate not found." });
+                return Json(new { success = false,message = "Candidate not found." });
             }
 
             var hasApplied = await applicationRepository.FindAsync(app => app.JobId == model.JobId && app.CandidateId == userIdApply);
 
-            if (hasApplied != null && hasApplied.Count() > 0)
+            if(hasApplied != null && hasApplied.Count() > 0)
             {
-                return Json(new { success = false, message = "You have already applied for this job." });
+                return Json(new { success = false,message = "You have already applied for this job." });
             }
 
             var application = new Application
@@ -234,7 +239,7 @@ namespace QQJob.Controllers
             candidateRepository.Update(candidateApply);
             await candidateRepository.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Application submitted successfully!" });
+            return Json(new { success = true,message = "Application submitted successfully!" });
         }
 
         [HttpGet]
@@ -245,7 +250,9 @@ namespace QQJob.Controllers
             string? City,
             string? ExperienceLevel,
             string? Salary,
-            List<string>? Skills)
+            List<string>? Skills,
+            bool StrictSearch = false
+            )
         {
             // Get Salary range
             var (min, max) = Helper.Helper.ParseSalaryRange(Salary);
@@ -260,9 +267,9 @@ namespace QQJob.Controllers
                 MaxSalary = max,
                 IncludeSkills = Skills ?? [],
                 ExcludeSkills = [],
-                JobType = null
+                JobType = null,
+                StrictSearch = StrictSearch
             };
-
             // If there is AI Query → enrich intent
             if(!string.IsNullOrWhiteSpace(AiSearchQuery))
             {
@@ -272,9 +279,11 @@ namespace QQJob.Controllers
                 intent.ExperienceLevel ??= aiIntent.ExperienceLevel;
                 intent.MinSalary = aiIntent.MinSalary > 0 ? aiIntent.MinSalary : intent.MinSalary;
                 intent.MaxSalary = aiIntent.MaxSalary > 0 ? aiIntent.MaxSalary : intent.MaxSalary;
-                intent.IncludeSkills = intent.IncludeSkills.Union(aiIntent.IncludeSkills).ToList();
+                intent.IncludeSkills = [.. intent.IncludeSkills.Union(aiIntent.IncludeSkills)];
+                intent.StrictSearch = aiIntent.StrictSearch || intent.StrictSearch;
             }
 
+            Console.WriteLine(JsonConvert.SerializeObject(intent));
             // Get jobs
             var jobs = await jobRepository.GetJobsByIdsAsync(intent);
 

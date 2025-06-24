@@ -265,6 +265,6 @@ body {
     }
 }
 
-
-
-
+.max-height-500 {
+    max-height: 500px !important;
+}

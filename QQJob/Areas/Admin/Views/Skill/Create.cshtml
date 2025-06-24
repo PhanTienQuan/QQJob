@@ -44,6 +44,17 @@
                         <input type="submit" value="Create" class="btn btn-primary" />
                     </div>
                 </form>
+                <form asp-action="BulkCreate">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label for="skills" name="skills" class="control-label">Bulk Create</label>
+                        <input id="skills" name="skills" class="form-control" />
+                        <span asp-validation-for="SkillName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
             </div>
         </div>
 

@@ -61,7 +61,7 @@
         <div class="row g-30">
             <div class="col-xl-8 col-lg-7">
                 <div class="employer__details" id="description">
-                    @Html.Raw(Model.Description)
+                    @Html.Raw(Model.Description ?? "<p>Description unavailable</p>")
                 </div>
             </div>
             <div class="col-lg-5 col-xl-4  d-flex flex-column gap-40 ">

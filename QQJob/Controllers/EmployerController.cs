@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QQJob.AIs;
 using QQJob.Helper;
 using QQJob.Models;
 using QQJob.Models.Enum;
@@ -22,7 +23,8 @@ namespace QQJob.Controllers
         ICloudinaryService cloudinaryService,
         IChatSessionRepository chatSessionRepository,
         IAppUserRepository appUserRepository,
-        INotificationRepository notificationRepository
+        INotificationRepository notificationRepository,
+        EmbeddingAI embeddingAI
         ):Controller
     {
         [HttpGet]
@@ -422,9 +424,19 @@ namespace QQJob.Controllers
                 LocationRequirement = model.LocationRequirement,
                 Slug = await GenerateUniqueSlugAsync(model.JobTitle)
             };
-
             await jobRepository.AddAsync(newJob);
             await jobRepository.SaveChangesAsync();
+
+            var skillsText = newJob.Skills != null
+                    ? string.Join(",",newJob.Skills.Select(s => s.SkillName))
+                    : string.Empty;
+            var text = $"{newJob.JobTitle}. {newJob.Description}. Skills: {skillsText}. LocationRequirement: {newJob.LocationRequirement}. JobType: {newJob.JobType}, Salary: {newJob.Salary}, SalaryType: {newJob.SalaryType}, City: {newJob.City}. ExperienceLevel: {newJob.ExperienceLevel}";
+            var jobEmbedding = new JobEmbedding
+            {
+                JobId = newJob.JobId,
+                Embedding = JsonConvert.SerializeObject(await embeddingAI.GetTextEmbbeding(text)),
+                UpdatedAt = DateTime.Now
+            };
 
             var notification = new Notification
             {

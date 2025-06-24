@@ -1,15 +1,66 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using QQJob.Areas.Admin.ViewModels;
+using QQJob.Dtos;
+using QQJob.Repositories.Interfaces;
 
 namespace QQJob.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class HomeController(ILogger<HomeController> logger) : Controller
+    public class HomeController(ILogger<HomeController> logger,IJobRepository jobRepository,IAppUserRepository appUserRepository):Controller
     {
         private readonly ILogger<HomeController> _logger = logger;
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var jobs = await jobRepository.GetAllAsync();
+            var users = await appUserRepository.GetAllAsync();
+
+            var jobGroups = jobs
+                .GroupBy(j => new { j.PostDate.Year,j.PostDate.Month })
+                .Select(g => new { g.Key.Year,g.Key.Month,Posts = g.Count() });
+
+            var userGroups = users
+                .GroupBy(u => new { u.CreatedAt.Year,u.CreatedAt.Month })
+                .Select(g => new { g.Key.Year,g.Key.Month,Users = g.Count() });
+
+            var months = jobGroups.Select(g => new { g.Year,g.Month })
+                .Union(userGroups.Select(g => new { g.Year,g.Month }))
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .ToList();
+
+            var stats = new List<StatsDto>();
+            foreach(var m in months)
+            {
+                var job = jobGroups.FirstOrDefault(x => x.Year == m.Year && x.Month == m.Month);
+                var user = userGroups.FirstOrDefault(x => x.Year == m.Year && x.Month == m.Month);
+
+                stats.Add(new StatsDto
+                {
+                    Month = $"{m.Year}-{m.Month:00}",
+                    Posts = job?.Posts ?? 0,
+                    Users = user?.Users ?? 0,
+                });
+            }
+
+            for(int i = 1;i < stats.Count;i++)
+            {
+                var prev = stats[i - 1];
+                var curr = stats[i];
+                curr.PostGrowth = prev.Posts == 0 ? (double?)null : ((double)(curr.Posts - prev.Posts) / prev.Posts * 100);
+                curr.UserGrowth = prev.Users == 0 ? (double?)null : ((double)(curr.Users - prev.Users) / prev.Users * 100);
+            }
+
+            var today = DateTime.Today; // Midnight today
+            var tomorrow = today.AddDays(1); // Midnight next day
+            var homeViewModel = new HomeViewModel
+            {
+                NewJobs = await jobRepository.FindAsync(j => j.PostDate >= today && j.PostDate < tomorrow),
+                NewUsers = await appUserRepository.FindAsync(u => u.CreatedAt >= today && u.CreatedAt < tomorrow),
+                TotalJobs = await jobRepository.GetAllAsync(),
+                TotalUsers = await appUserRepository.GetAllAsync(),
+                Stats = stats
+            };
+            return View(homeViewModel);
         }
     }
 }

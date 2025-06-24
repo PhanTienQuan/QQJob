@@ -1,0 +1,14 @@
+﻿using QQJob.Dtos;
+using QQJob.Models;
+
+namespace QQJob.Areas.Admin.ViewModels
+{
+    public class HomeViewModel
+    {
+        public IEnumerable<Job> NewJobs { get; set; } = [];
+        public IEnumerable<AppUser> NewUsers { get; set; } = [];
+        public IEnumerable<Job> TotalJobs { get; set; } = [];
+        public IEnumerable<AppUser> TotalUsers { get; set; } = [];
+        public List<StatsDto> Stats { get; set; } = [];
+    }
+}

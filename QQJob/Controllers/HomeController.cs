@@ -55,7 +55,7 @@ namespace QQJob.Controllers
                     Id = e.EmployerId,
                     Name = e.User.FullName,
                     Slug = e.User.Slug,
-                    Fields = e.CompanyField?.Split(",") ?? ["No field or specialization"],
+                    Fields = e.CompanyField?.Split(",") ?? ["Not specify"],
                     PostedJobsCount = e.Jobs.Count,
                     AvatarUrl = e.User.Avatar
                 }),
@@ -110,7 +110,7 @@ namespace QQJob.Controllers
             {
                 Id = employer.EmployerId,
                 Name = employer.User.FullName,
-                CompanyField = employer.CompanyField ?? "No field or specialization",
+                CompanyField = employer.CompanyField ?? "Not specify",
                 Jobs = employer.Jobs.Where(j => j.Status == Status.Approved),
                 AvatarUrl = employer.User.Avatar,
                 CompanySize = employer.CompanySize,

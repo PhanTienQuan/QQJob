@@ -92,7 +92,12 @@ namespace QQJob.Repositories.Implementations
 
         public async Task<Job> GetByIdAsync(int id)
         {
-            return await _context.Set<Job>().Include(j => j.Skills).Include(j => j.Applications).FirstOrDefaultAsync(j => j.JobId == id);
+            return await _dbSet
+                .Include(j => j.Skills)
+                .Include(j => j.Applications)
+                .Include(j => j.Employer)
+                .ThenInclude(e => e.User)
+                .FirstOrDefaultAsync(j => j.JobId == id);
         }
 
         public async Task<IEnumerable<Job>?> FindJobs(Expression<Func<Job, bool>>? predicate = null)
@@ -128,12 +133,19 @@ namespace QQJob.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(intent.ExperienceLevel))
                 query = query.Where(j => j.ExperienceLevel == intent.ExperienceLevel);
 
-            if (intent.IncludeSkills.Count != 0)
-                query = query.Where(j =>
-                    intent.IncludeSkills.All(skill =>
-                        j.Skills.Any(s => s.SkillName == skill)));
+            if(intent.IncludeSkills.Count != 0)
+            {
+                if(intent.StrictSearch)
+                    query = query.Where(j =>
+                        intent.IncludeSkills.All(skill =>
+                            j.Skills.Any(s => s.SkillName == skill)));
+                else
+                    query = query.Where(j =>
+                        j.Skills.Any(s => intent.IncludeSkills.Contains(s.SkillName)));
+            }
 
-            if (intent.ExcludeSkills.Count != 0)
+
+            if(intent.ExcludeSkills.Count != 0)
                 query = query.Where(j => !j.Skills.Any(s => intent.ExcludeSkills.Contains(s.SkillName)));
 
             // ⚠️ DO NOT put ParseSalaryRange in SQL Where — load to memory first!
@@ -169,6 +181,100 @@ namespace QQJob.Repositories.Implementations
             return filteredJobs;
         }
 
+        public async Task<List<Job>> ChatBoxJobsSearchAsync(ChatBoxSearchIntent intent)
+        {
+            var query = _dbSet
+                .Include(j => j.Skills)
+                .Include(j => j.Employer)
+                .ThenInclude(e => e.User)
+                .Where(j => j.Status == Status.Approved)
+                .AsQueryable();
+
+            // Filter by title
+            if(!string.IsNullOrWhiteSpace(intent.JobTitle))
+                query = query.Where(j => j.JobTitle.Contains(intent.JobTitle));
+
+            // Filter by city
+            if(!string.IsNullOrWhiteSpace(intent.City))
+                query = query.Where(j => j.City.Contains(intent.City));
+
+            // Filter by skills
+            if(intent.IncludeSkills?.Count != 0)
+            {
+                if(intent.StrictSearch)
+                {
+                    // All skills required
+                    query = query.Where(j => intent.IncludeSkills.All(skill =>
+                        j.Skills.Any(s => s.SkillName == skill)));
+                }
+                else
+                {
+                    // Any skill match
+                    query = query.Where(j => j.Skills.Any(s => intent.IncludeSkills.Contains(s.SkillName)));
+                }
+            }
+
+            // Filter by job type
+            if(!string.IsNullOrWhiteSpace(intent.JobType))
+                query = query.Where(j => j.JobType == intent.JobType);
+
+            // Filter by experience level
+            if(!string.IsNullOrWhiteSpace(intent.ExperienceLevel))
+                query = query.Where(j => j.ExperienceLevel == intent.ExperienceLevel);
+
+            // Filter by description keywords
+            if(intent.DescriptionKeywords?.Count > 0)
+            {
+                var lowerKeywords = intent.DescriptionKeywords.Select(k => k.ToLower()).ToList();
+                query = query.Where(j =>
+                    lowerKeywords.Any(keyword => j.Description.ToLower().Contains(keyword))
+                );
+            }
+
+
+            var jobs = await query.ToListAsync();
+
+            var filteredJobs = jobs.Where(j =>
+            {
+                var (min, max) = Helper.Helper.ParseSalaryRange(j.Salary);
+
+                // If intent.MinSalary is set
+                if(intent.MinSalary != null)
+                {
+                    if((min == null && max == null) ||
+                        ((min != null && min < intent.MinSalary) && (max != null && max < intent.MinSalary)))
+                    {
+                        return false;
+                    }
+                }
+
+                // If intent.MaxSalary is set
+                if(intent.MaxSalary != null)
+                {
+                    if((min == null && max == null) ||
+                        ((min != null && min > intent.MaxSalary) && (max != null && max > intent.MaxSalary)))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;  // include this job
+            }).ToList();
+
+            if(jobs.Count == 0)
+                return [];
+
+            return filteredJobs;
+        }
+
+        public async Task<List<Job>> GetAllWithDetail()
+        {
+            return await _dbSet
+                .Include(j => j.Skills)
+                .Include(j => j.Applications)
+                .Include(j => j.Employer).ThenInclude(e => e.User)
+                .ToListAsync();
+        }
         public async Task<JobDetailViewModel?> GetJobDetailViewModelAsync(int jobId)
         {
             var job = await _context.Jobs

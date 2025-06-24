@@ -2,6 +2,56 @@
 @inject UserManager<AppUser> UserManager
 @inject SignInManager<AppUser> SignInManager
 <style>
+    .chat-history .chat-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        margin-bottom: 14px;
+        padding: 14px 18px;
+        font-size: 14px;
+        line-height: 1.5;
+        width: 100%;
+        box-sizing: border-box;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-history .chat-card h6,
+    .chat-history .chat-card strong {
+        margin: 0 0 6px 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1a237e;
+    }
+
+    .chat-history .chat-card small {
+        color: #555;
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+
+    .chat-history .chat-card p {
+        margin: 6px 0 0 0;
+        font-size: 13.5px;
+        color: #333;
+        font-weight: 400;
+        word-break: break-word;
+    }
+
+    .chat-history .chat-card a {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #1976d2;
+        text-decoration: underline;
+        align-self: flex-end;
+    }
+
+    .chat-history .chat-card a:hover {
+        color: #004aad;
+    }
+
     /* Chat Button */
     .chat-button {
         position: fixed;
@@ -147,126 +197,17 @@
         <button type="button" class="btn-close btn-sm" aria-label="Close" id="closeChat"></button>
     </div>
     <div class="chatbox d-flex flex-column" style="height: 400px;">
-        <div class="chat-history d-flex flex-column" id="chatHistory"></div>
+        <div class="chat-history d-flex flex-column" id="chatHistory">
+            <!-- messages will go here -->
+            <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
         <div class="chat-input">
             <input type="text" id="userMessage" class="form-control" placeholder="Type your message...">
             <button class="btn btn-primary" id="sendMessage">Send</button>
         </div>
     </div>
 </div>
-
-<script>
-    const senderId = "@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")";
-    document.addEventListener("DOMContentLoaded", function () {
-        const chatWidget = document.getElementById("chatWidget");
-        const openChat = document.getElementById("openChat");
-        const closeChat = document.getElementById("closeChat");
-        const sendMessageButton = document.getElementById("sendMessage");
-        const userMessageInput = document.getElementById("userMessage");
-        const chatHistory = document.getElementById("chatHistory");
-
-        let isChatOpen = false;
-
-        function toggleChat() {
-            isChatOpen = !isChatOpen;
-            chatWidget.style.display = isChatOpen ? "flex" : "none";
-            if (isChatOpen) userMessageInput.focus();
-        }
-
-        openChat.addEventListener("click", toggleChat);
-        closeChat.addEventListener("click", () => {
-            isChatOpen = false;
-            chatWidget.style.display = "none";
-        });
-
-        document.addEventListener("click", function (event) {
-            const isClickInsideChat = chatWidget.contains(event.target) || openChat.contains(event.target);
-            if (!isClickInsideChat && isChatOpen) {
-                isChatOpen = false;
-                chatWidget.style.display = "none";
-            }
-        });
-
-        function addMessage(content, className) {
-            const messageElement = document.createElement("div");
-            messageElement.classList.add(className);
-            messageElement.textContent = content;
-            chatHistory.appendChild(messageElement);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function getSessionHistory() {
-            return JSON.parse(sessionStorage.getItem("chatHistory") || "[]");
-        }
-
-        function saveSessionHistory(message, role = "User") {
-            const history = getSessionHistory();
-            history.push({ role, content: message });
-            sessionStorage.setItem("chatHistory", JSON.stringify(history));
-        }
-
-        function getLastResult() {
-            return sessionStorage.getItem("lastQueryResult") || null;
-        }
-
-        function saveLastResult(json) {
-            sessionStorage.setItem("lastQueryResult", json);
-        }
-
-        function addMessage(content, className) {
-            const messageElement = document.createElement("div");
-            messageElement.classList.add(className);
-            messageElement.innerHTML = content;
-            chatHistory.appendChild(messageElement);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function handleSendMessage() {
-            const userMessage = userMessageInput.value.trim();
-            if (!userMessage) return;
-
-            addMessage(userMessage, "user-message");
-            saveSessionHistory(userMessage, "User");
-            userMessageInput.value = "";
-
-            fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    sender: senderId,
-                    receiver: "system",
-                    content: userMessage,
-                    history: getSessionHistory()
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    const botMessage = data.message || "<p>Sorry, I couldn't understand your request.</p>";
-                    addMessage(botMessage, "bot-message");
-                    saveSessionHistory(botMessage, "Bot");
-
-                    if (data.rawData) {
-                        saveLastResult(JSON.stringify(data.rawData));
-                    }
-                })
-                .catch(error => {
-                    console.error("Chat error:", error);
-                });
-        }
-
-        sendMessageButton.addEventListener("click", handleSendMessage);
-
-        userMessageInput.addEventListener("keypress", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                handleSendMessage();
-            }
-        });
-        window.addEventListener("load", function () {
-            sessionStorage.removeItem("chatHistory");
-            sessionStorage.removeItem("lastQueryResult");
-        });
-    });
-</script>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QQJob.Data;
+using QQJob.Dtos;
 using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
@@ -109,7 +110,7 @@ namespace QQJob.Repositories.Implementations
 
             if(foundDate.HasValue)
             {
-                query = query.Where(j => j.FoundedDate == foundDate.Value);
+                query = query.Where(j => j.FoundedDate.Year == foundDate.Value.Year);
             }
 
             var totalItems = await query.CountAsync();
@@ -129,6 +130,48 @@ namespace QQJob.Repositories.Implementations
             };
 
             return (employers, pagingModel);
+        }
+        public async Task<IEnumerable<Employer>> ChatBoxSearchEmployersAsync(ChatBoxSearchIntent intent)
+        {
+            // Start with all employers, including related entities for richer filtering if needed
+            var query = _dbSet
+                .Include(e => e.User)
+                .Include(e => e.Jobs)
+                .AsQueryable();
+
+            if(!string.IsNullOrWhiteSpace(intent.EmployerName))
+            {
+                string name = intent.EmployerName.ToLower();
+                query = query.Where(e => e.User.FullName.ToLower().Contains(name));
+            }
+
+            if(!string.IsNullOrWhiteSpace(intent.JobTitle))
+            {
+                string jobTitle = intent.JobTitle.ToLower();
+                query = query.Where(e => e.Jobs.Any(j => j.JobTitle.ToLower().Contains(jobTitle)));
+            }
+
+            if(intent.IncludeSkills != null && intent.IncludeSkills.Count > 0)
+            {
+                var lowerSkills = intent.IncludeSkills.Select(s => s.ToLower()).ToList();
+                query = query.Where(e => e.Jobs.Any(j =>
+                    j.Skills.Any(skill => lowerSkills.Contains(skill.SkillName.ToLower()))
+                ));
+            }
+
+            // 4. Filter by DescriptionKeywords (OR logic, like we discussed)
+            if(intent.DescriptionKeywords != null && intent.DescriptionKeywords.Count > 0)
+            {
+                var lowerKeywords = intent.DescriptionKeywords.Select(k => k.ToLower()).ToList();
+                query = query.Where(e =>
+                    e.Jobs.Any(j =>
+                        lowerKeywords.Any(keyword => j.Description.ToLower().Contains(keyword))
+                    )
+                );
+            }
+
+            int topN = intent.TopN > 0 ? intent.TopN : 5;
+            return await query.Take(topN).ToListAsync();
         }
     }
 }

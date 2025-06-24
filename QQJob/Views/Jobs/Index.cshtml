@@ -16,7 +16,14 @@
                             <label for="AiSearchQuery" class="mb-3 font-20 fw-medium text-dark text-capitalize">AI Powered Job Search</label>
                             <textarea name="AiSearchQuery" id="AiSearchQuery" class="form-control" placeholder="Describe the job you want..." rows="4"></textarea>
                         </div>
-
+                        <div class="search__item mb-4 d-flex flex-column">
+                            <label class="mb-2 font-20 fw-medium text-dark text-capitalize" for="strictSearch">
+                                Strict Skill Match
+                            </label>
+                            <div class="form-check form-switch d-flex align-items-center gap-2  justify-content-center">
+                                <input class="form-check-input align-content-center" value="true" type="checkbox" id="StrictSearch" name="StrictSearch" data-bs-toggle="tooltip" title="If enabled, only jobs matching all selected skills will be shown. If off, jobs with any of the skills will be shown.">
+                            </div>
+                        </div>
                         <!-- Search By Job Title -->
                         <div class="search__item">
                             <label class="mb-3 font-20 fw-medium text-dark text-capitalize">Search By Job Title</label>
@@ -144,10 +151,19 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
     <script>
+        $(function () {
+          $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+        $('[data-bs-toggle="tooltip"]').on('shown.bs.tooltip', function () {
+            const $icon = $(this);
+            setTimeout(function () {
+                $icon.tooltip('hide');
+            }, 2000); // 2 seconds
+        });
         function ajaxComplete() {
-            $('html, body').animate({
-                scrollTop: $('#list').offset().top - 50
-            }, 500)
+            // $('html, body').animate({
+            //     scrollTop: $('#list').offset().top - 50
+            // }, 500)
         }
 
         function pagingSelect(selectedPage){
@@ -171,7 +187,7 @@
             });
 
             // Trigger search on skills or salary change
-            $('input[name="Skills"], input[name="salary"]').on('change', function () {
+            $('input[name="Skills"], input[name="salary"], #StrictSearch').on('change', function () {
                 $('#genericSearchForm').trigger('submit');
             });
 
