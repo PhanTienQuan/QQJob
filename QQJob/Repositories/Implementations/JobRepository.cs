@@ -257,5 +257,14 @@ namespace QQJob.Repositories.Implementations
 
             return filteredJobs;
         }
+
+        public async Task<List<Job>> GetAllWithDetail()
+        {
+            return await _dbSet
+                .Include(j => j.Skills)
+                .Include(j => j.Applications)
+                .Include(j => j.Employer).ThenInclude(e => e.User)
+                .ToListAsync();
+        }
     }
 }

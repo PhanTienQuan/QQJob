@@ -4,105 +4,153 @@
     ViewData["Title"] = "Detail";
 }
 
-<h1>Detail</h1>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            Job Detail
+            @* <small>preview of simple tables</small> *@
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a href="#">Manage Job</a></li>
+            <li class="active">Detail</li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <!-- /.box-header -->
+                    <div class="box-body table-responsive no-padding">
+                        <div>
+                            <dl class="row">
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.JobTitle)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.JobTitle)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Salary)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Salary)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.SalaryType)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.SalaryType)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.City)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.City)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.LocationRequirement)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.LocationRequirement)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.JobType)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.JobType)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.ExperienceLevel)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.ExperienceLevel)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Description)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.PostDate)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.PostDate)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.CloseDate)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.CloseDate)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Status)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Slug)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Slug)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Opening)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Opening)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.ViewCount)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.ViewCount)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Employer)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Employer.EmployerId)
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
 
-<div>
-    <h4>Job</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.JobTitle)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.JobTitle)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Salary)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Salary)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SalaryType)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SalaryType)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.City)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.City)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LocationRequirement)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LocationRequirement)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.JobType)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.JobType)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ExperienceLevel)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ExperienceLevel)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PostDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PostDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CloseDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CloseDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Slug)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Slug)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Opening)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Opening)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ViewCount)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ViewCount)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employer)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employer.EmployerId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.JobId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix">
+                        <a asp-area="Admin" asp-controller="Job" asp-action="Create" class='btn btn-sm btn-primary me-5'>Create new job</a>
+                        <a asp-action="Index" class='btn btn-sm btn-primary ms-5'>Back to List</a>
+                        @switch (Model.Status)
+                        {
+                            case Status.Pending:
+                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@Model.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@Model.JobId" asp-route-status="@Status.Denied" onclick="return confirm('Are you sure you want to reject this job?');" class='btn btn-sm btn-danger'>Reject</a>
+                                break;
+                            case Status.Approved:
+                                <a class="btn btn-sm label-danger" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@Model.JobId" asp-route-status="@Status.Closed" onclick="return confirm('Are you sure you want to close this job?');">Close</a>
+                                break;
+                            case Status.Denied:
+                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@Model.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                break;
+                            case Status.Closed:
+                                <a class="btn btn-sm label-warning" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@Model.JobId" asp-route-status="@Status.Pending" onclick="return confirm('Are you sure you want to reopen this job?');">Open</a>
+                                break;
+                        }
+                    </div>
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+
+    </section>
+    <!-- /.content -->
 </div>

@@ -29,6 +29,8 @@ namespace QQJob.Repositories.Implementations
             .Take(per)
             .Include(a => a.Job)
             .Include(a => a.Candidate)
+            .ThenInclude(c => c.User)
+            .Where(a => a.Status == ApplicationStatus.Pending)
             .ToListAsync();
         }
         public async Task<(IEnumerable<Application> applications, PagingModel pagingModel)> GetApplicationsAsync(int currentPage,int pageSize,Expression<Func<Application,bool>>? predicate,string? searchValue = null,ApplicationStatus? searchStatus = null,DateTime? appliedDate = null)

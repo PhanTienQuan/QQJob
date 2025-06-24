@@ -110,7 +110,7 @@ namespace QQJob.Repositories.Implementations
 
             if(foundDate.HasValue)
             {
-                query = query.Where(j => j.FoundedDate == foundDate.Value);
+                query = query.Where(j => j.FoundedDate.Year == foundDate.Value.Year);
             }
 
             var totalItems = await query.CountAsync();

@@ -54,6 +54,7 @@ namespace QQJob.AIs
                             "OriginalQuery": string, // The original user query
                             "TopN": number // Number of results to return. Default is 5. 
                         }
+                        Normalize the following city name to its official English name if possible.
                         Only consider the following as valid skills: {{skillsList}}. Chose skill that user may likely refer to in that list.
                         If the user mentions any keywords or phrases that should appear in the job description, add them to DescriptionKeywords
                         If the value is not specified, return null or an empty array or specified default value.
@@ -115,6 +116,7 @@ namespace QQJob.AIs
                     "ExperienceLevel": string,
                     "StrictSearch": boolean // true if the user specifies ALL listed skills are required (AND). false if ANY skill is sufficient (OR).
                 }
+                Normalize the following city name to its official English name if possible.
                 For ExperienceLevel use value: Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive. 
                 Only consider the following as valid skills: {{skillsList}}. Chose skill that user may likely refer to in that list.
                 If the value is not specified, return null or an empty array.

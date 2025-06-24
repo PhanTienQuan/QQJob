@@ -15,5 +15,6 @@ namespace QQJob.Repositories.Interfaces
         Task<(IEnumerable<Job> jobs, PagingModel pagingModel)> GetJobsAsync(int currentPage,int pageSize,Expression<Func<Job,bool>>? predicate,string? searchValue = null,Status? searchStatus = null,DateTime? fromDate = null,DateTime? toDate = null);
         Task<List<Job>> GetJobsByIdsAsync(JobSearchIntent intent);
         Task<List<Job>> ChatBoxJobsSearchAsync(ChatBoxSearchIntent intent);
+        Task<List<Job>> GetAllWithDetail();
     }
 }

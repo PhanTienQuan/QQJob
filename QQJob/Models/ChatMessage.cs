@@ -7,7 +7,7 @@
         public string? SenderId { get; set; }
         public AppUser? Sender { get; set; }
         public string MessageText { get; set; }
-        public DateTime SentAt { get; set; } = DateTime.UtcNow;
+        public DateTime SentAt { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; } = false;
         public bool IsRead { get; set; } = false;
 
