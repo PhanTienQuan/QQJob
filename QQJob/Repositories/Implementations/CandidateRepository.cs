@@ -20,6 +20,7 @@ namespace QQJob.Repositories.Implementations
                 .Include(c => c.Skills)
                 .Include(c => c.CandidateExps)
                 .Include(c => c.Resume)
+                .Include(c => c.SavedJobs)
                 .FirstOrDefaultAsync(c => c.CandidateId == candidateId);
         }
 

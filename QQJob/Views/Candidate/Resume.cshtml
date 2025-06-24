@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Upload Resume";
     var tempMessage = TempData["Message"] as string;
+    bool hasResume = !string.IsNullOrEmpty(Model.ResumeUrl);
 }
 <!-- content area -->
 <div class="dashboard__content d-flex template-dashboard ">
@@ -17,7 +18,7 @@
                 <form asp-action="Resume" asp-controller="Candidate" method="post" enctype="multipart/form-data">
                     <div class="my__details" id="info">
                         <div class="mt-4" id="preview-container">
-                            @if (!string.IsNullOrEmpty(Model.ResumeUrl))
+                            @if (hasResume)
                             {
                                 <label>Preview:</label>
                                 <iframe id="resumePreview" src="@Model.ResumeUrl" width="100%" height="600px" style="border:1px solid #ccc;"></iframe>
@@ -33,7 +34,18 @@
                                 <div class="alert alert-success">@tempMessage</div>
                             }
                             <div class="info__field">
-                                <button type="submit" class="rts__btn fill__btn mx-0">Upload New Resume</button>
+                                @if (!hasResume)
+                                {
+                                    <input type="file" asp-for="ResumeFile" class="form-control mb-3" accept="application/pdf" />
+                                    <span asp-validation-for="ResumeFile" class="text-danger"></span>
+                                    <button type="submit" class="rts__btn fill__btn mx-0">Upload New Resume</button>
+                                }
+                                else
+                                {
+                                    <input type="file" asp-for="ResumeFile" class="form-control mb-3" accept="application/pdf" />
+                                    <span asp-validation-for="ResumeFile" class="text-danger"></span>
+                                    <button type="submit" class="rts__btn fill__btn mx-0">Submit Resume</button>
+                                }
                             </div>
                         </div>
                     </div>
