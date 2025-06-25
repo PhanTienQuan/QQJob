@@ -50,7 +50,7 @@ namespace QQJob.AIs
                             "DescriptionKeywords": [ string ],
                             "JobType": string, // Fulltime, Part-time, Part-time, Contract, Temporary, Internship, Volunteer, Freelance, Seasonal, Per Diem, Commission.
                             "ExperienceLevel": string, // Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive.
-                            "StrictSearch": boolean, Default is false. true if the user specifies ALL listed skills are required (AND). false if ANY skill is sufficient (OR).
+                            "StrictSearch": boolean, Default is false.
                             "OriginalQuery": string, // The original user query
                             "TopN": number // Number of results to return. Default is 5. 
                         }
@@ -112,13 +112,14 @@ namespace QQJob.AIs
                     "MaxSalary": number,
                     "IncludeSkills": [ string ],
                     "ExcludeSkills": [ string ],
-                    "JobType": string,
-                    "ExperienceLevel": string,
-                    "StrictSearch": boolean // true if the user specifies ALL listed skills are required (AND). false if ANY skill is sufficient (OR).
+                    "JobType": string, // Full-time, Part-time, Contract, Temporary, Internship, Freelance, Volunteer, Seasonal, Per Diem, Commission
+                    "ExperienceLevel": string, // Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive. 
+                    "StrictSearch": boolean, Default false.  true if the user specifies that only jobs with the exact title, all listed skills. false if partial or loose matches are allowed.
+                    "LocationRequirement": string // Remote, Hybrid, Onsite, Flexible, Client Site
                 }
                 Normalize the following city name to its official English name if possible.
-                For ExperienceLevel use value: Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive. 
                 Only consider the following as valid skills: {{skillsList}}. Chose skill that user may likely refer to in that list.
+                Consider user query to use StrictSearch or not.
                 If the value is not specified, return null or an empty array.
                 ONLY return exact JSON. No explanation.
                 """;

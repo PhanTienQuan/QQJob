@@ -24,7 +24,7 @@ namespace QQJob.Controllers
         IJobRepository jobRepository,
         IEmployerRepository employerRepository):ControllerBase
     {
-        const int MAX_MESSAGE_LENGTH = 500;
+        const int MAX_MESSAGE_LENGTH = 200;
         const int MAX_HISTORY = 20;
 
         [HttpPost]
@@ -67,7 +67,7 @@ namespace QQJob.Controllers
             try
             {
                 var chatIntent = await textCompletionAI.GetChatIntent(chatHistory);
-                Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
+                //Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
                 switch(chatIntent.IntentType)
                 {
                     case "GREETING":
