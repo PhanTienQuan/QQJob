@@ -23,9 +23,9 @@ connection.start().then(() => {
 connection.on("ReceiveMessage", function (response) {
     const message = response.message;
 
-    const messagePreview = document.querySelectorAll(`#${message.chatId}_messagePreview`);
-    const countPreview = document.querySelectorAll(`#${message.chatId}_count`);
-    const timePreview = document.querySelectorAll(`#${message.chatId}_time`);
+    const messagePreview = document.querySelectorAll(`#MessagePreview_${message.chatId}`);
+    const countPreview = document.querySelectorAll(`#Count_${message.chatId}`);
+    const timePreview = document.querySelectorAll(`#Time_${message.chatId}`);
     const isCurrentUser = message.senderId === currentUserId;
     const unreadCount = isCurrentUser ? 0 : response.unreadMessagesCount;
     // Update chat preview
@@ -135,8 +135,8 @@ chatMessagesDiv.addEventListener('scroll', function () {
 
 function loadSessionMessages(sessionId) {
     hasMore = false;
-    const messagePreview = document.querySelectorAll(`#${currentChatId}_messagePreview`);
-    const countPreview = document.querySelectorAll(`#${currentChatId}_count`);
+    const messagePreview = document.querySelectorAll(`#MessagePreview_${currentChatId}`);
+    const countPreview = document.querySelectorAll(`#Count_${currentChatId}`);
 
     messagePreview.forEach(function (element) {
         element.style.fontWeight = "normal";
@@ -329,12 +329,12 @@ function renderSession(name) {
                                     </div>
                                     <div class="chat__person__meta">
                                         <h6 class="font-20 fw-medium mb-0">${otherUserName}</h6>
-                                        <p id="${sessionResult.chatId}_messagePreview" style="font-weight: ${previewWeight}">${previewText}</p>
+                                        <p id="MessagePreview_${sessionResult.chatId}" style="font-weight: ${previewWeight}">${previewText}</p>
                                     </div>
                                 </div>
                                 <div class="right__count">
-                                    <span class="time" id="${sessionResult.chatId}_time">${timeText}</span>
-                                    <span class="count" id="${sessionResult.chatId}_count">${unreadMessages}</span>
+                                    <span class="time" id="Time_${sessionResult.chatId}">${timeText}</span>
+                                    <span class="count" id="Count_${sessionResult.chatId}">${unreadMessages}</span>
                                 </div>
                             </div>
                             `;

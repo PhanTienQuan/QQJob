@@ -29,10 +29,10 @@
                             </div>
                         </div>
                         <div class="filter__job">
-                            <div class="nice-select filter__select">
+                            <div class="nice-select filter__select">x
                                 <span class="current">All Category</span>
                                 <ul class="list">
-                                    <li data-value="-1" class="option">All Category</li>
+                                    <li data-value="-1" class="option">All Status</li>
                                     @foreach (var status in statuses)
                                     {
                                         <li data-value="@((int)status)" class="option @(Model.SearchStatus != null && Model.SearchStatus == status ? "focus selected" : "")">@status</li>
@@ -67,9 +67,8 @@
             searchForm.submit();
         });
 
-        $('#ToDate').on("change", function () {
+        $('#FromDate').on("change", function () {
             $("#Paging_CurrentPage").val(1);
-            $("#FromDate").attr("max", $(this).val());
             searchForm.submit();
         });
         var selectedApplicationId = 0;
