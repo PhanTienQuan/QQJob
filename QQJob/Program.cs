@@ -29,7 +29,7 @@ namespace QQJob
                 options.LogTo(_ => { },LogLevel.None);
             });
 
-            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("o4-mini",builder.Configuration.GetSection("OpenAI")["SecretKey"],serviceId: "openai-chat-completion");
+            var kernelBuilder = Kernel.CreateBuilder().AddOpenAIChatCompletion("gpt-4.1",builder.Configuration.GetSection("OpenAI")["SecretKey"],serviceId: "openai-chat-completion");
 
             kernelBuilder.Services.AddLogging(services => services.AddConsole().SetMinimumLevel(LogLevel.Trace));
 

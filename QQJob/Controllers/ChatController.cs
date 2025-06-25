@@ -24,10 +24,8 @@ namespace QQJob.Controllers
         IJobRepository jobRepository,
         IEmployerRepository employerRepository):ControllerBase
     {
-        const int MAX_MESSAGE_LENGTH = 500;
+        const int MAX_MESSAGE_LENGTH = 200;
         const int MAX_HISTORY = 20;
-        // In production, use IMemoryCache, Redis, or DB instead
-        private static PostJobSession session = new();
 
         [HttpPost]
         public async Task<IActionResult> Chat([FromBody] Message request)
@@ -69,7 +67,7 @@ namespace QQJob.Controllers
             try
             {
                 var chatIntent = await textCompletionAI.GetChatIntent(chatHistory);
-                Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
+                //Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
                 switch(chatIntent.IntentType)
                 {
                     case "GREETING":
@@ -111,7 +109,6 @@ namespace QQJob.Controllers
         public async Task<string?> SearchJobs(ChatBoxSearchIntent intent)
         {
             var jobs = await jobRepository.ChatBoxJobsSearchAsync(intent);
-            Console.WriteLine("Jobs: " + jobs.Count);
             if(jobs == null || jobs.Count == 0)
             {
                 return "Sorry, I couldn’t find any matching jobs.";
@@ -240,61 +237,42 @@ namespace QQJob.Controllers
                     "view candidate profiles", "edit company profile", "search jobs",
                     "view jobs"
                 ],
-                "anonymous" => new[] {
+                "anonymous" => [
                     "browse jobs", "browse employers", "register", "log in"
-                },
+                ],
                 _ => Array.Empty<string>()
             };
 
-            var filtered = InstructionResponses
-                .Where(kvp => roleCapabilities.Contains(kvp.Key,StringComparer.OrdinalIgnoreCase))
-                .ToDictionary(kvp => kvp.Key,kvp => kvp.Value,StringComparer.OrdinalIgnoreCase);
+            var filtered = InstructionResponses.Where(kvp => roleCapabilities.Contains(kvp.Key,StringComparer.OrdinalIgnoreCase))
+                        .ToDictionary(kvp => kvp.Key,kvp => kvp.Value,StringComparer.OrdinalIgnoreCase);
 
-            var capabilityList = string.Join("\n",filtered.Select(kvp => $"- {kvp.Key}"));
+            var capabilityList = string.Join("\n",filtered.Select(kvp => $"- {kvp.Key}: {kvp.Value}"));
 
             var systemPrompt = $"""
-            You are an assistant for a recruitment website.
-            User said:
-            "{userMessage}"
-            
-            User is a {role}.
-            The user's intent is categorized as **{intent}**
-            Based on the user’s question, return the best-matching capability from the list below:
-            {capabilityList}
+                You are an assistant for a recruitment website.
+                The user's message is:
+                "{userMessage}"
 
-            Only return the capability key that best fits the user's intent.
-            If nothing matches, return NONE.
-            """;
+                User role: {role}
+                User intent: {intent}
+                The following are possible actions and instructions for this role:
+                {capabilityList}
+
+                1. Identify the most relevant capability based on the user’s message and intent.
+                2. Return a single, concise, natural-sounding instruction for the user, customized to their query.
+                3. If no suitable action is found, reply: "You can't do that action as a {role}."
+
+                IMPORTANT: Output only the final instruction.
+                """;
 
             var response = await kernel.InvokePromptAsync(systemPrompt);
             var result = response.GetValue<string>()?.Trim();
-            if(result != null && InstructionResponses.TryGetValue(result,out var finalResult))
-            {
-                return finalResult;
-            }
 
-            return $"You can't do that action as a {role}";
+            return result;
         }
         private static string SafeHtml(string input)
         {
             return WebUtility.HtmlEncode(input);
-        }
-        public void PrintPostJobSession()
-        {
-            Console.WriteLine("ChatController Test Method Called");
-            Console.WriteLine(JsonConvert.SerializeObject(session));
-        }
-        public void SaveProgress(string json)
-        {
-            var s = JsonConvert.DeserializeObject<PostJobSession>(json);
-            session = s;
-            Console.WriteLine("Save progress");
-        }
-        public void SavePost(string json)
-        {
-            var s = JsonConvert.DeserializeObject<PostJobSession>(json);
-            session = s;
-            Console.WriteLine("Save post");
         }
         public class Message
         {

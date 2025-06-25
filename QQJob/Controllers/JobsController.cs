@@ -254,6 +254,10 @@ namespace QQJob.Controllers
             bool StrictSearch = false
             )
         {
+            if(AiSearchQuery != null && AiSearchQuery.Length >= 200)
+            {
+                return BadRequest("Your search query can't be longer than 200 characters!");
+            }
             // Get Salary range
             var (min, max) = Helper.Helper.ParseSalaryRange(Salary);
 
@@ -285,7 +289,7 @@ namespace QQJob.Controllers
 
             Console.WriteLine(JsonConvert.SerializeObject(intent));
             // Get jobs
-            var jobs = await jobRepository.GetJobsByIdsAsync(intent);
+            var jobs = await jobRepository.SearchJobsByIntentAsync(intent);
 
             // Get embeddings (optional if you want AI ranking)
             var jobEmbeddings = await jobEmbeddingRepository.GetAllAsync();
