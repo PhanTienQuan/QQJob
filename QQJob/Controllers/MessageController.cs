@@ -165,6 +165,14 @@ namespace QQJob.Controllers
             };
             return View(model);
         }
-
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetChatSessionIds()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var chatSessions = await chatSessionRepository.FindAsync(cs => cs.User1Id == userId || cs.User2Id == userId);
+            var chatIds = chatSessions.Select(s => s.ChatId).ToArray();
+            return Json(chatIds);
+        }
     }
 }

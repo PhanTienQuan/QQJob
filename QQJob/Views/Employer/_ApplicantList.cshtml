@@ -27,9 +27,9 @@
             </div>
             <div class="action">
                 <!-- View Profile -->
-                <button class="action__btn" title="View Profile">
+                <a asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId" class="action__btn" title="View Application">
                     <i class="fa-solid fa-eye"></i>
-                </button>
+                </a>
 
                 <!-- Download CV -->
                 <button class="action__btn" title="Download CV">
