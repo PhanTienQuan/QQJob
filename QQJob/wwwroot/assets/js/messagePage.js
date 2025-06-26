@@ -9,57 +9,6 @@ let loadedMessagesCount = 10;
 let hasMore = true;
 
 let typingTimeout;
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/chathub")
-    .build();
-
-connection.start().then(() => {
-    document.querySelectorAll(".single__chat__person").forEach(session => {
-        const chatId = session.dataset.sessionid;
-        connection.invoke("JoinChat", chatId);
-    });
-});
-
-connection.on("ReceiveMessage", function (response) {
-    const message = response.message;
-
-    const messagePreview = document.querySelectorAll(`#MessagePreview_${message.chatId}`);
-    const countPreview = document.querySelectorAll(`#Count_${message.chatId}`);
-    const timePreview = document.querySelectorAll(`#Time_${message.chatId}`);
-    const isCurrentUser = message.senderId === currentUserId;
-    const unreadCount = isCurrentUser ? 0 : response.unreadMessagesCount;
-    // Update chat preview
-    if (countPreview.length > 0) {
-        countPreview.forEach(function (element) {
-            element.innerHTML = unreadCount;
-        });
-    }
-    if (messagePreview) {
-        messagePreview.forEach(function (element) {
-            element.innerHTML = isCurrentUser ? `You: ${message.messageText}` : `${message.sender.fullName}: ${message.messageText}`;
-            element.style.fontWeight = unreadCount === 0 ? "normal" : "bold";
-        });
-    }
-    if (timePreview) {
-        timePreview.forEach(function (element) {
-            element.innerHTML = formatTimeAgo(message.sentAt);
-        });
-    }
-
-    if (chatSessionList) {
-        chatSessionList.forEach(function (element) {
-            const sessionElement = element.querySelector(`.single__chat__person[data-sessionid="${message.chatId}"]`);
-            element.removeChild(sessionElement);
-            element.insertBefore(sessionElement, element.firstChild);
-        });
-    }
-
-    // Show in chat window if it's the current chat
-    if (message.chatId !== currentChatId) return;
-
-    renderMessage(message, chatMessagesDiv.querySelector("#chatIndicator"));
-    connection.invoke("UserStoppedTyping", currentChatId, currentChatId);
-});
 function handleSendButtonClick(e) {
     e.preventDefault();
     const message = messageInput.value;
@@ -134,68 +83,82 @@ chatMessagesDiv.addEventListener('scroll', function () {
 });
 
 function loadSessionMessages(sessionId) {
-    hasMore = false;
-    const messagePreview = document.querySelectorAll(`#MessagePreview_${currentChatId}`);
-    const countPreview = document.querySelectorAll(`#Count_${currentChatId}`);
+    try {
+        hasMore = false;
+        const messagePreview = document.querySelectorAll(`#MessagePreview_${currentChatId}`);
+        const countPreview = document.querySelectorAll(`#Count_${currentChatId}`);
+        const el = document.querySelector(`[data-sessionid="${sessionId}"]`);
 
-    messagePreview.forEach(function (element) {
-        element.style.fontWeight = "normal";
-    })
-
-    countPreview.forEach(function (element) {
-        element.innerHTML = 0;
-    })
-
-    if (sessionId === currentChatId) return; // Already active
-
-    loadedMessagesCount = 10;
-    hasMore = true;
-
-    document.querySelectorAll('.chat__message').forEach(el => el.remove());
-    $.ajax({
-        url: '/Message/GetMessages',
-        data: {
-            chatId: sessionId,
-            skip: 0,
-            take: 10,
-            previousChatId: currentChatId,
-            currentUserId: currentUserId
-        },
-        success: function (response) {
-            const realMessages = response.messages.$values || [];
-            if (realMessages.length > 0) {
-                realMessages.forEach(msg => {
-                    renderMessage(msg, chatMessagesDiv.firstChild);
-                });
+        if (el) {
+            const img = el.querySelector('img');
+            if (img) {
+                document.querySelector(`#header__img`).src = img.src;
             }
-
-            if (response.otherUserAvailable) {
-                $('#messageForm').show();
-                $('#userNotAvailableMsg').hide();
-            } else {
-                $('#messageForm').hide();
-                $('#userNotAvailableMsg').show();
-            }
-        },
-        error: function () {
-            console.error('Failed to load messages');
         }
-    });
-    currentChatId = sessionId;
-    highlightCurrentSession();
+
+        messagePreview.forEach(function (element) {
+            element.style.fontWeight = "normal";
+        })
+
+        countPreview.forEach(function (element) {
+            element.innerHTML = 0;
+        })
+
+        if (sessionId === currentChatId) return; // Already active
+
+        loadedMessagesCount = 10;
+        hasMore = true;
+
+        document.querySelectorAll('.chat__message').forEach(el => el.remove());
+        $.ajax({
+            url: '/Message/GetMessages',
+            data: {
+                chatId: sessionId,
+                skip: 0,
+                take: 10,
+                previousChatId: currentChatId,
+                currentUserId: currentUserId
+            },
+            success: function (response) {
+                const realMessages = response.messages.$values || [];
+                console.log(response);
+                console.log(realMessages);
+                if (realMessages.length > 0) {
+                    realMessages.forEach(msg => {
+                        renderMessage(msg, chatMessagesDiv.firstChild);
+                    });
+                }
+
+                if (response.otherUserAvailable) {
+                    $('#messageForm').show();
+                    $('#userNotAvailableMsg').hide();
+                } else {
+                    $('#messageForm').hide();
+                    $('#userNotAvailableMsg').show();
+                }
+            },
+            error: function () {
+                console.error('Failed to load messages');
+            }
+        });
+        currentChatId = sessionId;
+        highlightCurrentSession();
+    } catch (e) {
+        console.log(e)
+    }
 }
 
-connection.on("ShowTyping", function (senderId) {
+window.connection.on("ShowTyping", function (chatId) {
     const typingIndicator = document.getElementById("typingIndicator");
     const typingIndicator_avatar = document.getElementById("typingIndicator_avatar");
-    if (typingIndicator) {
+    if (typingIndicator && chatId == currentChatId) {
         typingIndicator.style.display = "flex";
         typingIndicator_avatar.style.display = "grid";
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     }
 });
 
-connection.on("HideTyping", function (senderId) {
+window.connection.on("HideTyping", function (senderId) {
     const typingIndicator = document.getElementById("typingIndicator");
     const typingIndicator_avatar = document.getElementById("typingIndicator_avatar");
     if (typingIndicator) {

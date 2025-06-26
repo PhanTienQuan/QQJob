@@ -93,7 +93,7 @@
                         <div class="message__content">
                             <div class="chat__header">
                                 <div class="avatar">
-                                    <img src="@(!string.IsNullOrEmpty(otherUser?.Avatar) ? otherUser.Avatar : @Url.Content("~/assets/img/avatars/default-avatar.jpg"))" alt="">
+                                    <img src="@(!string.IsNullOrEmpty(otherUser?.Avatar) ? otherUser.Avatar : @Url.Content("~/assets/img/avatars/default-avatar.jpg"))" alt="" id="header__img">
                                 </div>
                                 <div class="content">
                                     <h6 class="font-20 fw-semibold mb-0">@(otherUser?.FullName ?? "Unknown User")</h6>
@@ -171,7 +171,6 @@
 @section Scripts {
     <script>
         let currentChatId = '@Model.CurrentChatSession?.ChatId';
-        let currentUserId = '@Model.CurrentUser.Id';
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="~/assets/js/messagePage.js"></script>

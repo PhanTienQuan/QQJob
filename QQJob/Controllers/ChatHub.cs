@@ -24,6 +24,7 @@ namespace QQJob.Controllers
             int unreadMessagesCount = await chatMessageRepository.GetUnreadMessagesCount(chatId,senderId);
             var m = new
             {
+                message.Sender.FullName,
                 message.MessageId,
                 message.ChatId,
                 message.SenderId,
@@ -48,7 +49,7 @@ namespace QQJob.Controllers
 
         public async Task UserTyping(string chatId,string senderId)
         {
-            await Clients.OthersInGroup(chatId).SendAsync("ShowTyping",senderId);
+            await Clients.OthersInGroup(chatId).SendAsync("ShowTyping",chatId);
         }
 
         public async Task UserStoppedTyping(string chatId,string senderId)
