@@ -95,7 +95,7 @@
                 }
 
                 <!-- Application status -->
-                <button class="action__operation @(applicant.Status.ToString().ToLower()) @(applicant.Status == ApplicationStatus.Rejected ? "label-danger" : "")"
+                <button class="action__operation @(applicant.Status == ApplicationStatus.Rejected ? "rejected" : "pending")"
                         id="status-badge-@applicant.ApplicationId">
                     @applicant.Status.ToString()
                 </button>

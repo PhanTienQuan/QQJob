@@ -109,7 +109,9 @@ namespace QQJob.Repositories.Implementations
         {
             return predicate == null
                 ? null
-                : await _context.Jobs.FirstOrDefaultAsync(predicate);
+                : await _dbSet
+                .Include(j => j.Skills)
+                .FirstOrDefaultAsync(predicate);
         }
 
         public async Task<List<Job>> SearchJobsByIntentAsync(JobSearchIntent intent)

@@ -47,7 +47,9 @@ namespace QQJob.Controllers
                 Status = application.Status,
                 CandidateAvatar = application.Candidate.User.Avatar,
                 AIRanking = application.AIRanking ?? 0.0f,
-                Phone = application.Candidate.User.PhoneNumber ?? "Not Specify"
+                Phone = application.Candidate.User.PhoneNumber ?? "Not Specify",
+                JobSlug = application.Job.Slug,
+                CandidateSlug = application.Candidate.User.Slug
             };
 
 

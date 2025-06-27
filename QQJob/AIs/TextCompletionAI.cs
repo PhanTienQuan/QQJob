@@ -17,6 +17,7 @@ namespace QQJob.AIs
         private static ChatCompletionAgent? SummarizeResumeAgent { get; set; }
         private static ChatCompletionAgent? ChatBotIntentAgent { get; set; }
         private static ChatCompletionAgent? PostJobAgent { get; set; }
+        private static ChatCompletionAgent? RankingApplicationAgent { get; set; }
         private readonly IChatCompletionService chatCompletionService;
         private readonly ChatHistorySummarizationReducer chatHistorySummarizationReducer;
 
@@ -183,6 +184,35 @@ namespace QQJob.AIs
             chatHistory.Add(new ChatMessageContent(AuthorRole.System,"Current progress: " + JsonConvert.SerializeObject(currentSession)));
             var response = await PostJobAgent.InvokeAsync(chatHistory).FirstAsync();
             return response.Message.Content;
+        }
+        public async Task<float> RankApplication(string summary)
+        {
+            if(RankingApplicationAgent == null)
+            {
+                var instructions = $"""
+                        You are a expert at ranking job applications for specific jobs based on their resume and cover letter.
+                        You will be provided with a user prompt that includes a user's id, resume and cover letter
+                        as well as the job listing they are applying for in JSON. Your task is to compare the job 
+                        listing with the applicant's resume and cover letter and provide a rating for the applicant on how well they 
+                        fit that specific job listing. The rating should be a number between 1 and 5, where 5 is the highest rating indicating a perfect or 
+                        near perfect match. A rating 3 should be used for applicants that barely meet the requirements of 
+                        the job listing, while rating of 1 should be used for applicants that do not meet the requirements at all.
+                        Return only the rating number as a float. Do not include any extra text.
+                    """;
+                RankingApplicationAgent = CreateAgent("application-ranking-agent",instructions);
+            }
+            var response = await RankingApplicationAgent.InvokeAsync(summary).FirstAsync();
+            var content = response.Message.Content?.Trim();
+            if(!float.TryParse(content,out var rank))
+            {
+                // Try to extract a number from a mixed string (fallback)
+                var match = System.Text.RegularExpressions.Regex.Match(content ?? "",@"\d+(\.\d+)?");
+                if(match.Success)
+                    rank = float.Parse(match.Value);
+                else
+                    throw new Exception($"Invalid ranking result from agent: {content}");
+            }
+            return rank;
         }
         public ChatCompletionAgent CreateAgent(string agentName,string instructions,List<Delegate>? method = null,string? pluginName = null)
         {

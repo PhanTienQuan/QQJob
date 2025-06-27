@@ -1,42 +1,45 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using QQJob.AIs;
+using QQJob.Helper;
 using QQJob.Models;
-using QQJob.Repositories.Implementations;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels.CandidateViewModels;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace QQJob.Controllers
 {
     [Authorize(Roles = "Candidate")]
-    public class CandidateController : Controller
+    public class CandidateController:Controller
     {
         private readonly ICandidateRepository _candidateRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IChatSessionRepository _chatSessionRepository;
         private readonly IAppUserRepository _appUserRepository;
         private readonly ICloudinaryService _cloudinaryService;
-
+        private readonly TextCompletionAI _textCompletionAI;
+        private readonly EmbeddingAI _embeddingAI;
         public CandidateController(
             ICandidateRepository candidateRepository,
             INotificationRepository notificationRepository,
             IChatSessionRepository chatSessionRepository,
-            ICloudinaryService cloudinaryService
+            ICloudinaryService cloudinaryService,
+            TextCompletionAI textCompletionAI,
+            EmbeddingAI embeddingAI
         )
         {
             _candidateRepository = candidateRepository;
             _notificationRepository = notificationRepository;
             _cloudinaryService = cloudinaryService;
             _chatSessionRepository = chatSessionRepository;
+            _textCompletionAI = textCompletionAI;
+            _embeddingAI = embeddingAI;
         }
 
-        private T UpdateIfDifferent<T>(T currentValue, T newValue, ref bool isUpdated)
+        private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
         {
-            if (!EqualityComparer<T>.Default.Equals(currentValue, newValue))
+            if(!EqualityComparer<T>.Default.Equals(currentValue,newValue))
             {
                 isUpdated = true;
                 return newValue;
@@ -59,9 +62,9 @@ namespace QQJob.Controllers
             // Số tin nhắn chưa đọc (giả sử mỗi session có Messages navigation property)
             int unreadMessageCount = 0;
             var chatSessions = await _chatSessionRepository.GetChatSession(userId);
-            foreach (var session in chatSessions)
+            foreach(var session in chatSessions)
             {
-                if (session.Messages != null)
+                if(session.Messages != null)
                 {
                     unreadMessageCount += session.Messages.Count(m => !m.IsRead && m.SenderId != userId);
                 }
@@ -88,11 +91,11 @@ namespace QQJob.Controllers
         public async Task<IActionResult> Profile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account");
+            if(string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login","Account");
 
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
-            if (candidate == null || candidate.User == null)
+            if(candidate == null || candidate.User == null)
                 return NotFound("Candidate profile not found.");
 
             var user = candidate.User;
@@ -124,7 +127,7 @@ namespace QQJob.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile(ProfileViewModel model)
         {
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return View(model);
             }
@@ -140,36 +143,36 @@ namespace QQJob.Controllers
             bool isUpdated = false;
 
             // Update avatar if a new file is uploaded
-            if (model.AvatarFile?.Length > 0)
+            if(model.AvatarFile?.Length > 0)
             {
                 try
                 {
-                    candidate.User.Avatar = model.Avatar = await _cloudinaryService.UpdateAvatar(model.AvatarFile, model.Id);
+                    candidate.User.Avatar = model.Avatar = await _cloudinaryService.UpdateAvatar(model.AvatarFile,model.Id);
                     isUpdated = true;
                 }
                 catch
                 {
-                    TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Something happened to cloudinary server!", type = "error" });
+                    TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Something happened to cloudinary server!",type = "error" });
                     return View(model);
                 }
             }
 
             // Update fields if they differ from the current values
-            candidate.User.FullName = UpdateIfDifferent(candidate.User.FullName, model.FullName?.Trim(), ref isUpdated);
-            candidate.User.PhoneNumber = UpdateIfDifferent(candidate.User.PhoneNumber, model.PhoneNumber?.Trim(), ref isUpdated);
-            candidate.JobTitle = UpdateIfDifferent(candidate.JobTitle, model.JobTitle?.Trim(), ref isUpdated);
-            candidate.Description = UpdateIfDifferent(candidate.Description, model.Description?.Trim(), ref isUpdated);
-            candidate.WorkingType = UpdateIfDifferent(candidate.WorkingType, model.WorkingType, ref isUpdated);
+            candidate.User.FullName = UpdateIfDifferent(candidate.User.FullName,model.FullName?.Trim(),ref isUpdated);
+            candidate.User.PhoneNumber = UpdateIfDifferent(candidate.User.PhoneNumber,model.PhoneNumber?.Trim(),ref isUpdated);
+            candidate.JobTitle = UpdateIfDifferent(candidate.JobTitle,model.JobTitle?.Trim(),ref isUpdated);
+            candidate.Description = UpdateIfDifferent(candidate.Description,model.Description?.Trim(),ref isUpdated);
+            candidate.WorkingType = UpdateIfDifferent(candidate.WorkingType,model.WorkingType,ref isUpdated);
 
-            if (isUpdated)
+            if(isUpdated)
             {
                 _candidateRepository.Update(candidate);
                 await _candidateRepository.SaveChangesAsync();
-                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Profile updated successfully!", type = "success" });
+                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Profile updated successfully!",type = "success" });
             }
             else
             {
-                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "No changes detected.", type = "none" });
+                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "No changes detected.",type = "none" });
             }
             return RedirectToAction("Profile");
         }
@@ -220,18 +223,25 @@ namespace QQJob.Controllers
                 return View(model);
             }
 
+            using var memoryStream = new MemoryStream();
+            await model.ResumeFile.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray();
+            var resumeText = await TextExtractionHelper.ExtractCvTextAsync(fileBytes,model.ResumeFile.FileName);
+            var summary = await _textCompletionAI.SummarizeResume(resumeText);
             // Lưu vào DB
             if(candidate.Resume == null)
             {
                 candidate.Resume = new Resume
                 {
                     CandidateId = userId,
-                    Url = resumeUrl
+                    Url = resumeUrl,
+                    AiSumary = summary,
                 };
             }
             else
             {
                 candidate.Resume.Url = resumeUrl;
+                candidate.Resume.AiSumary = summary;
             }
 
             _candidateRepository.Update(candidate);
@@ -251,7 +261,7 @@ namespace QQJob.Controllers
         {
             return View();
         }
-            
+
         public IActionResult Meeting()
         {
             return View();
