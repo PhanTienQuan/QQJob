@@ -96,5 +96,15 @@ namespace QQJob.Repositories.Implementations
                 .ThenInclude(e => e.User)
                 .FirstAsync();
         }
+
+        public void UpdateAppplicantRank(int jobId,string candidateId,float rank)
+        {
+            var application = _dbSet.FirstOrDefault(a => a.JobId == jobId && a.CandidateId == candidateId);
+            if(application != null)
+            {
+                application.AIRanking = rank;
+                _context.SaveChanges();
+            }
+        }
     }
 }

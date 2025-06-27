@@ -224,13 +224,30 @@ namespace QQJob.Controllers
                 return Json(new { success = false,message = "You have already applied for this job." });
             }
 
+
+            var job = await jobRepository.GetJobDetail(j => j.JobId == model.JobId);
+            var jobDetail = new
+            {
+                job.JobId,
+                job.JobTitle,
+                job.Description,
+                Skills = job.Skills.Select(s => s.SkillName).ToList(),
+                job.JobType,
+                job.Salary,
+                job.SalaryType,
+                job.City,
+                job.LocationRequirement,
+                job.ExperienceLevel
+            };
+
             var application = new Application
             {
                 JobId = model.JobId,
                 CandidateId = userIdApply,
                 CoverLetter = model.CoverLetter,
                 Status = ApplicationStatus.Pending,
-                ApplicationDate = DateTime.Now
+                ApplicationDate = DateTime.Now,
+                AIRanking = await textCompletionAI.RankApplication(JsonConvert.SerializeObject(new { jobDetail,candidateApply.Resume.AiSumary,model.JobId,userIdApply }))
             };
 
             candidateApply.Applications ??= new List<Application>();
