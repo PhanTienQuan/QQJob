@@ -37,26 +37,11 @@
             <!-- ./col -->
             <div class="col-lg-3 col-xs-6">
                 <!-- small box -->
-                <div class="small-box bg-green">
-                    <div class="inner">
-                        <h3>@Model.TotalUsers.Count()</h3>
-                        @* <sup style="font-size: 20px">%</sup> *@
-                        <p>Total users</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
-                    </div>
-                    <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
                 <div class="small-box bg-yellow">
                     <div class="inner">
                         <h3>@Model.NewUsers.Count()</h3>
 
-                        <p>User Registrations</p>
+                        <p>New User Registrations</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -67,11 +52,27 @@
             <!-- ./col -->
             <div class="col-lg-3 col-xs-6">
                 <!-- small box -->
+                <div class="small-box bg-green">
+                    <div class="inner">
+                        <h3>@Model.PendingJobs</h3>
+                        @* <sup style="font-size: 20px">%</sup> *@
+                        <p>Pending Jobs</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
+                    </div>
+                    <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            
+            <div class="col-lg-3 col-xs-6">
+                <!-- small box -->
                 <div class="small-box bg-red">
                     <div class="inner">
-                        <h3>@Model.TotalJobs.Count()</h3>
+                        <h3>@Model.TotalJobPosting</h3>
 
-                        <p>Total Posting</p>
+                        <p>Total Jobs Posting</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
@@ -84,7 +85,6 @@
         <!-- /.row -->
         <!-- Main row -->
         <div class="row">
-            <!-- Left col -->
             <section class="col-lg-7 connectedSortable">
                 <!-- Custom tabs (Charts with tabs)-->
                 <div class="nav-tabs-custom">
@@ -104,7 +104,386 @@
                 <!-- /.box (chat box) -->
                
             </section>
-            <!-- /.Left col -->
+            @* Recent Users Start*@
+            <section class="col-lg-12 connectedSortable">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Recent Users</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="remove">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="pad">
+                                    <div class="box-body table-responsive no-padding">
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <th>
+                                                    Id
+                                                </th>
+
+                                                <th>
+                                                    FullName
+                                                </th>
+                                                <th>
+                                                    Email
+                                                </th>
+                                                <th>
+                                                    CreatedAt
+                                                </th>
+                                                <th>
+                                                    Status
+                                                </th>
+                                            </tr>
+                                            @if (Model.RecentUsers.Any())
+                                            {
+                                                @foreach (var item in Model.RecentUsers)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Id)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.UserName)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Email)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.CreatedAt)
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @switch (item.IsVerified)
+                                                            {
+                                                                case UserStatus.Unverified:
+                                                                    <span class="label label-warning">Unverified</span>
+                                                                    break;
+                                                                case UserStatus.Pending:
+                                                                    <span class="label label-info">Pending</span>
+                                                                    break;
+                                                                case UserStatus.Verified:
+                                                                    <span class="label label-success">Verified</span>
+                                                                    break;
+                                                                case UserStatus.Suspended:
+                                                                    <span class="label label-danger">Suspended</span>
+                                                                    break;
+                                                                case UserStatus.Rejected:
+                                                                    <span class="label label-danger">Rejected</span>
+                                                                    break;
+                                                            }
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a asp-area="Admin" asp-controller="User" asp-action="Detail" class='btn btn-sm btn-primary'>Check</a>
+                                                            @if (item.IsVerified == UserStatus.Unverified || item.IsVerified == UserStatus.Pending)
+                                                            {
+                                                                <form method="post" asp-action="Verify" asp-route-UserId="@item.Id" style="display:inline;">
+                                                                    <button type="submit" class="btn btn-sm btn-success">Verify</button>
+                                                                </form>
+                                                            }
+                                                            else if (item.IsVerified == UserStatus.Verified)
+                                                            {
+                                                                <form method="post" asp-action="Suspend" asp-route-UserId="@item.Id" style="display:inline;">
+                                                                    <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                                                                </form>
+                                                            }
+                                                            else if (item.IsVerified == UserStatus.Suspended)
+                                                            {
+                                                                <form method="post" asp-action="Unsuspend" asp-route-UserId="@item.Id" style="display:inline;">
+                                                                    <button type="submit" class="btn btn-sm btn-info">Unsuspend</button>
+                                                                </form>
+                                                            }
+                                                            <form method="post" asp-action="Delete" asp-route-UserId="@item.Id">
+                                                                <span id="confirmDeleteSpan_@item.Id" style="display:none">
+                                                                    <span>Are you sure you want to Delete?</span>
+                                                                    <button type="submit" class="btn btn-danger">Yes</button>
+                                                                    <a class="btn btn-primary"
+                                                                        onclick="confirmDelete('@item.Id', false)">No</a>
+                                                                </span>
+                                                                <span id="deleteSpan_@item.Id">
+                                                                    <a class="btn btn-danger"
+                                                                        onclick="confirmDelete('@item.Id', true)">Delete</a>
+                                                                </span>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No Users Added Yet</td>
+                                                </tr>
+                                            }
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                
+            </section>
+            @* Recent Users End*@
+            @* Recent Jobs Start *@
+            <section class="col-lg-12 connectedSortable">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Recent Jobs</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="remove">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="pad">
+                                    <div class="box-body table-responsive no-padding">
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <th>
+                                                    JobId
+                                                </th>
+
+                                                <th>
+                                                    EmployerId
+                                                </th>
+                                                <th>
+                                                    FullName
+                                                </th>
+                                                <th>
+                                                    JobTitle
+                                                </th>
+                                                <th>
+                                                    PostDate
+                                                </th>
+                                                <th>
+                                                    CloseDate
+                                                </th>
+                                                <th>
+                                                    Status
+                                                </th>
+                                            </tr>
+
+                                            @foreach (var item in Model.RecentJobs)
+                                            {
+                                                var closeDate = item.CloseDate.ToString("dd/MM/yyyy");
+                                                var openDate = item.PostDate.ToString("dd/MM/yyyy");
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.JobId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.EmployerId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Employer.User.FullName)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.JobTitle)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => openDate)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => closeDate)
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @switch (item.Status)
+                                                        {
+                                                            case Status.Pending:
+                                                                <span class="label label-warning">Pending</span>
+                                                                break;
+                                                            case Status.Approved:
+                                                                <span class="label label-success">Approved</span>
+                                                                break;
+                                                            case Status.Closed:
+                                                                <span class="label label-default">Closed</span>
+                                                                break;
+                                                            case Status.Denied:
+                                                                <span class="label label-danger">Denied</span>
+                                                                break;
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a>
+                                                        @switch (item.Status)
+                                                        {
+                                                            case Status.Pending:
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Denied" onclick="return confirm('Are you sure you want to reject this job?');" class='btn btn-sm btn-danger'>Reject</a>
+                                                                break;
+                                                            case Status.Approved:
+                                                                <a class="btn btn-sm label-danger" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Closed" onclick="return confirm('Are you sure you want to close this job?');">Close</a>
+                                                                break;
+                                                            case Status.Denied:
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                                                break;
+                                                            case Status.Closed:
+                                                                <a class="btn btn-sm label-warning" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Pending" onclick="return confirm('Are you sure you want to reopen this job?');">Open</a>
+                                                                break;
+                                                        }
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            </section>
+            @* Recent Jobs End *@
+            @* Recent Applications Start *@
+            <section class="col-lg-12 connectedSortable">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Recent Application</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-box-tool"
+                                    data-widget="remove">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="pad">
+                                    <div class="box-body table-responsive no-padding">
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <th>
+                                                    Id
+                                                </th>
+
+                                                <th>
+                                                    CandidateId
+                                                </th>
+                                                <th>
+                                                    FullName
+                                                </th>
+                                                <th>
+                                                    JobTitle
+                                                </th>
+                                                <th>
+                                                    Applied Date
+                                                </th>
+                                                <th>
+                                                    Status
+                                                </th>
+                                            </tr>
+
+                                            @foreach (var item in Model.RecentApplications)
+                                            {
+                                                var appliedDate = item.ApplicationDate.ToString("dd/MM/yyyy");
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.JobId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.CandidateId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Candidate.User.FullName)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Job.JobTitle)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => appliedDate)
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @switch (item.Status)
+                                                        {
+                                                            case ApplicationStatus.Pending:
+                                                                <span class="label label-warning">Pending</span>
+                                                                break;
+                                                            case ApplicationStatus.Reviewed:
+                                                                <span class="label label-success">Reviewed</span>
+                                                                break;
+                                                            case ApplicationStatus.Interviewed:
+                                                                <span class="label label-success">Interviewed</span>
+                                                                break;
+                                                            case ApplicationStatus.Accepted:
+                                                                <span class="label label-success">Accepted</span>
+                                                                break;
+                                                            case ApplicationStatus.Rejected:
+                                                                <span class="label label-danger">Rejected</span>
+                                                                break;
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @* <a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a>
+                                                        @switch (item.Status)
+                                                        {
+                                                            case Status.Pending:
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Denied" onclick="return confirm('Are you sure you want to reject this job?');" class='btn btn-sm btn-danger'>Reject</a>
+                                                                break;
+                                                            case Status.Approved:
+                                                                <a class="btn btn-sm label-danger" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Closed" onclick="return confirm('Are you sure you want to close this job?');">Close</a>
+                                                                break;
+                                                            case Status.Denied:
+                                                                <a asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Approved" class='btn btn-sm btn-success' onclick="return confirm('Are you sure you want to approve this job?');">Approve</a>
+                                                                break;
+                                                            case Status.Closed:
+                                                                <a class="btn btn-sm label-warning" asp-area="Admin" asp-controller="Job" asp-action="UpdateJobStatus" asp-route-id="@item.JobId" asp-route-status="@Status.Pending" onclick="return confirm('Are you sure you want to reopen this job?');">Open</a>
+                                                                break;
+                                                        } *@
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            </section>
+            @* Recent Jobs End *@
         </div>
         <!-- /.row (main row) -->
 
@@ -123,17 +502,17 @@
                     y: item.Month,
                     Posts: item.Posts,
                     Users: item.Users,
+                    Applications: item.Applications,
                     PostGrowth: item.PostGrowth,
-                    UserGrowth: item.UserGrowth
+                    UserGrowth: item.UserGrowth,
+                    ApplicationGrowth: item.ApplicationGrowth,
                 }
             }),
             xkey: 'y',
-            ykeys: ['Posts', 'Users'],
-            labels: ['Job Posts', 'New Users'],
-            lineColors: ['#3c8dbc', '#00a65a'],
+            ykeys: ['Posts', 'Users', 'Applications'],
+            labels: ['Job Posts', 'New Users', 'Applications'],
+            lineColors: ['#3c8dbc', '#00a65a', '#f39c12'],
             hideHover: 'auto'
         });
-
-
    </script>
 }

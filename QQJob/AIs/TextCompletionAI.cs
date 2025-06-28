@@ -6,6 +6,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
 using QQJob.Dtos;
 using QQJob.Repositories.Interfaces;
+using ChatMessageContent = Microsoft.SemanticKernel.ChatMessageContent;
 
 namespace QQJob.AIs
 {
@@ -127,6 +128,16 @@ namespace QQJob.AIs
                 JobSearchAgent = CreateAgent("job-search",prompt);
             }
             var response = await JobSearchAgent.InvokeAsync(keyword).FirstAsync();
+
+            //if(response.Message.Metadata.TryGetValue("Usage",out var usageObj))
+            //{
+            //    if(usageObj is ChatTokenUsage usage)
+            //    {
+            //        Console.WriteLine($"Prompt tokens: {usage.InputTokenCount}");
+            //        Console.WriteLine($"Completion tokens: {usage.OutputTokenCount}");
+            //        Console.WriteLine($"Total tokens: {usage.TotalTokenCount}");
+            //    }
+            //}
 
             if((response.Message.Content == null) || response.Message.Content.Trim() == "")
             {

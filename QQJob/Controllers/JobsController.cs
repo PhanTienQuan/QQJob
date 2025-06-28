@@ -275,6 +275,11 @@ namespace QQJob.Controllers
             {
                 return BadRequest("Your search query can't be longer than 200 characters!");
             }
+
+            if(AiSearchQuery != null && !User.Identity.IsAuthenticated)
+            {
+                return BadRequest("You have to login to use the AI Search!");
+            }
             // Get Salary range
             var (min, max) = Helper.Helper.ParseSalaryRange(Salary);
 
