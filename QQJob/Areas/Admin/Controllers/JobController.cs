@@ -26,6 +26,10 @@ namespace QQJob.Areas.Admin.Controllers
         {
             Job job = await _jobRepository.GetByIdAsync(id);
             job.Status = status;
+            if(status == Status.Pending)
+            {
+                job.PostDate = DateTime.Now;
+            }
             _jobRepository.Update(job);
             await _jobRepository.SaveChangesAsync();
 

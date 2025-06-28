@@ -2,6 +2,38 @@
 @{
     ViewBag.Title = "Message";
 }
+<style>
+    .message__content .input__msg form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important; /* adjust as needed */
+        width: 100% !important;
+        position: static !important; /* Ensure form itself isn't absolutely positioned */
+    }
+
+    .message__content .input__msg input[type="text"] {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        border: 1px solid rgba(125, 128, 135, 0.5) !important;
+        padding: 18px 20px !important;
+        border-radius: 6px !important;
+        font-size: 1em !important;
+        /* Remove width: 100%; and position: relative; */
+    }
+
+    .message__content .input__msg .message__btn {
+        padding: 10px 20px !important;
+        border-radius: 6px !important;
+        background-color: var(--rts-button-1) !important;
+        color: var(--rts-white) !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-size: 1em !important;
+        position: unset;
+        /* Remove position: absolute; right: 30px; top: 30%; */
+    }
+
+</style>
 <!-- content area -->
 <div class="dashboard__content d-flex template-dashboard ">
     <partial name="_LeftMenu" />
@@ -135,10 +167,10 @@
                             <div class="input__msg">
                                 <form action="#" id="messageForm" style="@((otherUser != null) ? "" : "display:none;")">
                                     <input type="text" placeholder="Type a message" id="messageInput" oninput="handleMessageInput()">
-                                    <label for="file">
+                                    @* <label for="file">
                                         <!-- SVG... -->
                                     </label>
-                                    <input type="file" id="file" style="display: none;">
+                                    <input type="file" id="file" style="display: none;"> *@
                                     <button class="message__btn" onclick="handleSendButtonClick(event)">Send</button>
                                 </form>
 
