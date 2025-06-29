@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using QQJob.AIs;
 using QQJob.Helper;
+using Microsoft.EntityFrameworkCore;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels.CandidateViewModels;
@@ -14,6 +15,7 @@ namespace QQJob.Controllers
     public class CandidateController:Controller
     {
         private readonly ICandidateRepository _candidateRepository;
+        private readonly ISkillRepository _skillRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IChatSessionRepository _chatSessionRepository;
         private readonly IAppUserRepository _appUserRepository;
@@ -22,6 +24,7 @@ namespace QQJob.Controllers
         private readonly EmbeddingAI _embeddingAI;
         public CandidateController(
             ICandidateRepository candidateRepository,
+            ISkillRepository skillRepository,
             INotificationRepository notificationRepository,
             IChatSessionRepository chatSessionRepository,
             ICloudinaryService cloudinaryService,
@@ -30,6 +33,7 @@ namespace QQJob.Controllers
         )
         {
             _candidateRepository = candidateRepository;
+            _skillRepository = skillRepository;
             _notificationRepository = notificationRepository;
             _cloudinaryService = cloudinaryService;
             _chatSessionRepository = chatSessionRepository;
@@ -184,7 +188,8 @@ namespace QQJob.Controllers
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
             var model = new ResumeViewModal
             {
-                ResumeUrl = candidate?.Resume?.Url
+                ResumeUrl = candidate?.Resume?.Url,
+                Educations = candidate?.Educations?.ToList() ?? new List<Education>()
             };
             return View(model);
         }
@@ -250,6 +255,76 @@ namespace QQJob.Controllers
             TempData["Message"] = "Resume uploaded successfully!";
             model.ResumeUrl = resumeUrl;
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddEducation(string universityName, string startDate, string endDate, string description)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Json(new { success = false, message = "Not logged in" });
+
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
+            if (candidate == null)
+                return Json(new { success = false, message = "Candidate not found" });
+
+            DateTime? start = null, end = null;
+            if (DateTime.TryParse(startDate, out var s)) start = s;
+            if (DateTime.TryParse(endDate, out var e)) end = e;
+
+            var education = new Education
+            {
+                CandidateId = userId,
+                UniversityName = universityName,
+                StartDate = start,
+                EndDate = end,
+                Description = description
+            };
+
+            candidate.Educations ??= new List<Education>();
+            candidate.Educations.Add(education);
+
+            _candidateRepository.Update(candidate);
+            await _candidateRepository.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Education added successfully!" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateEducation(int educationId, string universityName, string startDate, string endDate, string description)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
+            var education = candidate?.Educations?.FirstOrDefault(e => e.EducationId == educationId);
+            if (education == null)
+                return Json(new { success = false, message = "Education not found" });
+
+            education.UniversityName = universityName;
+            education.StartDate = DateTime.TryParse(startDate, out var s) ? s : null;
+            education.EndDate = DateTime.TryParse(endDate, out var e) ? e : null;
+            education.Description = description;
+
+            _candidateRepository.Update(candidate);
+            await _candidateRepository.SaveChangesAsync();
+            return Json(new { success = true, message = "Education updated!" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEducation(int educationId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
+            var education = candidate?.Educations?.FirstOrDefault(e => e.EducationId == educationId);
+            if (education == null)
+                return Json(new { success = false, message = "Education not found" });
+
+            candidate.Educations.Remove(education);
+            _candidateRepository.Update(candidate);
+            await _candidateRepository.SaveChangesAsync();
+            return Json(new { success = true, message = "Education deleted!" });
         }
 
         public IActionResult AppliedJob()

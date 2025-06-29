@@ -35,5 +35,14 @@ namespace QQJob.Repositories.Implementations
                 .Include(c => c.Resume)
                 .FirstOrDefaultAsync(c => c.User.Id == userId);
         }
+
+        public async Task<List<Skill>> GetCandidateSkillsAsync(string candidateId)
+        {
+            var candidate = await _context.Set<Candidate>()
+                .Include(c => c.Skills)
+                .FirstOrDefaultAsync(c => c.CandidateId == candidateId);
+
+            return candidate?.Skills?.ToList() ?? new List<Skill>();
+        }
     }
 }
