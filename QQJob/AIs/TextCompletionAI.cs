@@ -6,6 +6,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Newtonsoft.Json;
 using QQJob.Dtos;
 using QQJob.Repositories.Interfaces;
+using ChatMessageContent = Microsoft.SemanticKernel.ChatMessageContent;
 
 namespace QQJob.AIs
 {
@@ -17,6 +18,7 @@ namespace QQJob.AIs
         private static ChatCompletionAgent? SummarizeResumeAgent { get; set; }
         private static ChatCompletionAgent? ChatBotIntentAgent { get; set; }
         private static ChatCompletionAgent? PostJobAgent { get; set; }
+        private static ChatCompletionAgent? RankingApplicationAgent { get; set; }
         private readonly IChatCompletionService chatCompletionService;
         private readonly ChatHistorySummarizationReducer chatHistorySummarizationReducer;
 
@@ -50,7 +52,7 @@ namespace QQJob.AIs
                             "DescriptionKeywords": [ string ],
                             "JobType": string, // Fulltime, Part-time, Part-time, Contract, Temporary, Internship, Volunteer, Freelance, Seasonal, Per Diem, Commission.
                             "ExperienceLevel": string, // Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive.
-                            "StrictSearch": boolean, Default is false. true if the user specifies ALL listed skills are required (AND). false if ANY skill is sufficient (OR).
+                            "StrictSearch": boolean, Default is false.
                             "OriginalQuery": string, // The original user query
                             "TopN": number // Number of results to return. Default is 5. 
                         }
@@ -112,19 +114,30 @@ namespace QQJob.AIs
                     "MaxSalary": number,
                     "IncludeSkills": [ string ],
                     "ExcludeSkills": [ string ],
-                    "JobType": string,
-                    "ExperienceLevel": string,
-                    "StrictSearch": boolean // true if the user specifies ALL listed skills are required (AND). false if ANY skill is sufficient (OR).
+                    "JobType": string, // Full-time, Part-time, Contract, Temporary, Internship, Freelance, Volunteer, Seasonal, Per Diem, Commission
+                    "ExperienceLevel": string, // Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive. 
+                    "StrictSearch": boolean, Default false.  true if the user specifies that only jobs with the exact title, all listed skills. false if partial or loose matches are allowed.
+                    "LocationRequirement": string // Remote, Hybrid, Onsite, Flexible, Client Site
                 }
                 Normalize the following city name to its official English name if possible.
-                For ExperienceLevel use value: Intern, Junior, Middle, Senior, Lead, Manager, Director, Executive. 
                 Only consider the following as valid skills: {{skillsList}}. Chose skill that user may likely refer to in that list.
+                Consider user query to use StrictSearch or not.
                 If the value is not specified, return null or an empty array.
                 ONLY return exact JSON. No explanation.
                 """;
                 JobSearchAgent = CreateAgent("job-search",prompt);
             }
             var response = await JobSearchAgent.InvokeAsync(keyword).FirstAsync();
+
+            //if(response.Message.Metadata.TryGetValue("Usage",out var usageObj))
+            //{
+            //    if(usageObj is ChatTokenUsage usage)
+            //    {
+            //        Console.WriteLine($"Prompt tokens: {usage.InputTokenCount}");
+            //        Console.WriteLine($"Completion tokens: {usage.OutputTokenCount}");
+            //        Console.WriteLine($"Total tokens: {usage.TotalTokenCount}");
+            //    }
+            //}
 
             if((response.Message.Content == null) || response.Message.Content.Trim() == "")
             {
@@ -182,6 +195,35 @@ namespace QQJob.AIs
             chatHistory.Add(new ChatMessageContent(AuthorRole.System,"Current progress: " + JsonConvert.SerializeObject(currentSession)));
             var response = await PostJobAgent.InvokeAsync(chatHistory).FirstAsync();
             return response.Message.Content;
+        }
+        public async Task<float> RankApplication(string summary)
+        {
+            if(RankingApplicationAgent == null)
+            {
+                var instructions = $"""
+                        You are a expert at ranking job applications for specific jobs based on their resume and cover letter.
+                        You will be provided with a user prompt that includes a user's id, resume and cover letter
+                        as well as the job listing they are applying for in JSON. Your task is to compare the job 
+                        listing with the applicant's resume and cover letter and provide a rating for the applicant on how well they 
+                        fit that specific job listing. The rating should be a number between 1 and 5, where 5 is the highest rating indicating a perfect or 
+                        near perfect match. A rating 3 should be used for applicants that barely meet the requirements of 
+                        the job listing, while rating of 1 should be used for applicants that do not meet the requirements at all.
+                        Return only the rating number as a float. Do not include any extra text.
+                    """;
+                RankingApplicationAgent = CreateAgent("application-ranking-agent",instructions);
+            }
+            var response = await RankingApplicationAgent.InvokeAsync(summary).FirstAsync();
+            var content = response.Message.Content?.Trim();
+            if(!float.TryParse(content,out var rank))
+            {
+                // Try to extract a number from a mixed string (fallback)
+                var match = System.Text.RegularExpressions.Regex.Match(content ?? "",@"\d+(\.\d+)?");
+                if(match.Success)
+                    rank = float.Parse(match.Value);
+                else
+                    throw new Exception($"Invalid ranking result from agent: {content}");
+            }
+            return rank;
         }
         public ChatCompletionAgent CreateAgent(string agentName,string instructions,List<Delegate>? method = null,string? pluginName = null)
         {

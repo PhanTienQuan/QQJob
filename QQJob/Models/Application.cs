@@ -17,6 +17,7 @@ namespace QQJob.Models
         public string? CoverLetter { get; set; }
 
         public ApplicationStatus Status { get; set; }
+        public float? AIRanking { get; set; }
     }
 
 }

@@ -1,0 +1,180 @@
+﻿@model ApplicationDetailViewModel
+@{
+    ViewBag.Title = $"Application Details";
+}
+<style>
+    h6 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    #summary h1, h2, h3, h4, h5, h6 {
+        font-weight: 600 !important;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        font-size: 20px;
+        color: var(--rts-heading);
+        line-height: 30px;
+    }
+
+    #summary > ul > li {
+        list-style: none;
+        padding-left: 30px;
+        margin-bottom: 15px;
+        font-weight: 500;
+        position: relative;
+    }
+
+    #summary > ul > li::before {
+        position: absolute;
+        left: 0;
+        top: 6px; /* fixed top spacing */
+        transform: none;
+        height: 6px;
+        width: 6px;
+        border-radius: 50%;
+        background-color: var(--rts-button-1);
+        content: "";
+    }
+
+    /* NEW — Reset inner lists */
+    #summary ul li ul,
+    #summary ul li ol {
+        padding-left: 20px; /* smaller indent */
+        margin-top: 10px;
+        margin-bottom: 10px;
+        list-style: disc; /* normal bullets */
+    }
+
+    #summary ul li ul li::before,
+    #summary ul li ol li::before {
+        /* content: none !important; /* remove dot bullet from inner li */
+        background: gray;
+    }
+</style>
+<!-- breadcrumb area -->
+<div class="rts__section breadcrumb__background">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 position-relative d-flex justify-content-md-between justify-content-center align-items-center">
+                <div class="breadcrumb__area max-content breadcrumb__padding">
+                    <div class="rts__job__card__big bg-transparent p-0 position-relative z-1 flex-wrap justify-content-between d-flex gap-4 align-items-center">
+                        <div class="d-flex gap-4 align-items-center flex-md-row flex-column mx-auto mx-md-0">
+                            <div class="company__icon rounded-2 bg-white">
+                                <img class="" src="@Model.CandidateAvatar" alt="">
+                            </div>
+                            <div class="job__meta w-100 d-flex text-center text-md-start flex-column gap-2">
+                                <div class="">
+                                    <h3 class="job__title fw-bold h3 mb-0">@Model.CandidateName</h3>
+                                </div>
+                                @* <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        @Model.CompanyField 
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-briefcase"></i>
+                                    </div>
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                    @* <div class="breadcrumb__apply max-content">
+                        <a href="#" class="rts__btn apply__btn be-1 fill__btn">Follow</a>
+                    </div> *@
+                </div>
+                <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
+                    <div class="shape__one common">
+                    </div>
+                    <div class="shape__two common">
+                        <img src="~/assets/img/breadcrumb/shape-2.svg" alt="">
+                    </div>
+                    <div class="shape__three common">
+                        <img src="~/assets/img/breadcrumb/shape-3.svg" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumb area end -->
+<!-- job list one -->
+<div class="rts__section section__padding">
+    <div class="container">
+        <div class="row g-30">
+            <div class="col-xl-8 col-lg-7">
+                <div class="employer__details" id="description">
+                    <h4>Applied Job: <a asp-action="Detail" asp-controller="Jobs" asp-route-id="@Model.JobId" asp-route-slug="@Model.JobSlug">@Model.JobTitle</a></h4>
+                    <h5>Cover Letter:</h5>
+                    @Html.Raw(!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>" ? Model.CoverLetter : "<p>Cover Letter unavailable</p>")
+                    <h5>AI Resume Sumary:</h5>
+                    <div id="summary">
+                    </div>
+                    <h5>Resume:</h5>
+                    <a href="#" onclick="viewCV(event, this, '@(Model.Resume.Url ?? "")')">View CV</a>
+                </div>
+            </div>
+            <div class="col-lg-5 col-xl-4  d-flex flex-column gap-40 ">
+                <div class="job__overview">
+                    <h6 class="fw-semibold mb-20">Applicant Overview</h6>
+                    <div class="job__overview__content">
+                        <ul>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-calender"></i> Applied on</span>
+                                <span class="text">
+                                    @Helper.DisplayDate(Model.ApplicationDate)
+                                </span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="fa-light fa-user"></i> AI Ranking</span>
+                                <span class="text">
+                                    @Model.AIRanking / 5
+                                </span>
+                            </li>
+                            <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <span class="left-text"> <i class="rt-branch"></i> Phone</span>
+                                <span class="text"> @Model.Phone</span> 
+                            </li>
+
+                            @* <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
+                                <a class="left-text"> <i class="rt-branch"></i> Profile</a>
+                            </li> *@
+                        </ul>
+                    </div>
+                </div>
+                <div class="job__contact">
+                    <h6 class="fw-semibold mb-20">My Profile</h6>
+                    <a class="rts__btn apply__btn w-100" asp-action="Detail" asp-controller="Candidate" asp-route-id="@Model.CandidateId" asp-route-slug="@Model.CandidateSlug">Profile</a>
+                    @* TODO *@
+                </div>
+                <div class="job__contact">
+                    <h6 class="fw-semibold mb-20">Contact Me</h6>
+                    <a class="rts__btn apply__btn w-100" asp-action="ChatWith" asp-controller="Message" asp-route-chatUserId="@Model.CandidateId">Go to Message</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- job list one end -->
+@section Scripts{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.4.0/github-markdown-light.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Pass the server-side string into a JS variable (escaping for JS)
+        var aiSummary = @Html.Raw(Json.Serialize(Model.Resume.AiSumary ?? ""));
+        const summary = document.getElementById("summary");
+        if (aiSummary){
+            summary.innerHTML = marked.parse(aiSummary);
+        }
+        else{
+            summary.innerHTML = "<p>AI Summary Unavailable</p>";
+        }
+
+        function viewCV(e, el, url) {
+            e.preventDefault();
+            el.style.display = "none"; // Hides the link itself
+            el.insertAdjacentHTML('afterend', `<iframe src="${url}" width="100%" height="600px"></iframe>`);
+        }
+
+    </script>
+
+}

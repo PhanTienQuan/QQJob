@@ -224,13 +224,30 @@ namespace QQJob.Controllers
                 return Json(new { success = false,message = "You have already applied for this job." });
             }
 
+
+            var job = await jobRepository.GetJobDetail(j => j.JobId == model.JobId);
+            var jobDetail = new
+            {
+                job.JobId,
+                job.JobTitle,
+                job.Description,
+                Skills = job.Skills.Select(s => s.SkillName).ToList(),
+                job.JobType,
+                job.Salary,
+                job.SalaryType,
+                job.City,
+                job.LocationRequirement,
+                job.ExperienceLevel
+            };
+
             var application = new Application
             {
                 JobId = model.JobId,
                 CandidateId = userIdApply,
                 CoverLetter = model.CoverLetter,
                 Status = ApplicationStatus.Pending,
-                ApplicationDate = DateTime.Now
+                ApplicationDate = DateTime.Now,
+                AIRanking = await textCompletionAI.RankApplication(JsonConvert.SerializeObject(new { jobDetail,candidateApply.Resume.AiSumary,model.JobId,userIdApply }))
             };
 
             candidateApply.Applications ??= new List<Application>();
@@ -254,6 +271,15 @@ namespace QQJob.Controllers
             bool StrictSearch = false
             )
         {
+            if(AiSearchQuery != null && AiSearchQuery.Length >= 200)
+            {
+                return BadRequest("Your search query can't be longer than 200 characters!");
+            }
+
+            if(AiSearchQuery != null && !User.Identity.IsAuthenticated)
+            {
+                return BadRequest("You have to login to use the AI Search!");
+            }
             // Get Salary range
             var (min, max) = Helper.Helper.ParseSalaryRange(Salary);
 
@@ -285,7 +311,7 @@ namespace QQJob.Controllers
 
             Console.WriteLine(JsonConvert.SerializeObject(intent));
             // Get jobs
-            var jobs = await jobRepository.GetJobsByIdsAsync(intent);
+            var jobs = await jobRepository.SearchJobsByIntentAsync(intent);
 
             // Get embeddings (optional if you want AI ranking)
             var jobEmbeddings = await jobEmbeddingRepository.GetAllAsync();

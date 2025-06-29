@@ -11,6 +11,7 @@
         public string? JobType { get; set; }  // Fulltime, Part-time
         public string? ExperienceLevel { get; set; } // Junior, Mid, Senior
         public bool StrictSearch { get; set; } = false;
+        public string? LocationRequirement { get; set; }
     }
 
 }

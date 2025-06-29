@@ -6,7 +6,7 @@
         <div class="single__applied__job">
             <div class="single__applied__job__content">
                 <div class="icon">
-                    <img src="~/assets/img/icon/apple.svg" alt="">
+                    <img src="@applicant.CandidateAvatarUrl" alt="">
                 </div>
                 <div class="content__flex">
                     <div class="content">
@@ -27,9 +27,9 @@
             </div>
             <div class="action">
                 <!-- View Profile -->
-                <button class="action__btn" title="View Profile">
-                    <i class="fa-solid fa-user"></i>
-                </button>
+                <a asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId" class="action__btn" title="View Application">
+                    <i class="fa-solid fa-eye"></i>
+                </a>
 
                 <!-- Download CV -->
                 <button class="action__btn" title="Download CV">
@@ -37,7 +37,7 @@
                 </button>
 
                 <!-- Message -->
-                <a type="button" class="action__btn" title="Message Candidate" asp-action="ChatWith" asp-controller="Employer" asp-route-chatUserId="@applicant.CandidateId">
+                <a type="button" class="action__btn" title="Message Candidate" asp-action="ChatWith" asp-controller="Message" asp-route-chatUserId="@applicant.CandidateId">
                     <i class="fa-solid fa-message" style="color: black;"></i>
                 </a>
                 
@@ -53,14 +53,14 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#confirmNextStatusModal"
                                 title="Review Application">
-                            <i class="fa-solid fa-eye"></i>
+                            <i class="fa-solid fa-check"></i>
                         </button>
                         break;
                     case ApplicationStatus.Reviewed:
                         <button type="button"
                                 class="action__btn next-status-btn"
                                 data-application-id="@applicant.ApplicationId"
-                                data-next-title="Have you interview the applicant?"
+                                data-next-title="Accept? Have you interview the applicant?"
                                 data-next-status="@((int)ApplicationStatus.Interviewed)"
                                 data-bs-toggle="modal"
                                 data-bs-target="#confirmNextStatusModal"
@@ -95,7 +95,7 @@
                 }
 
                 <!-- Application status -->
-                <button class="action__operation @(applicant.Status.ToString().ToLower()) @(applicant.Status == ApplicationStatus.Rejected ? "label-danger" : "")"
+                <button class="action__operation @(applicant.Status == ApplicationStatus.Rejected ? "rejected" : "pending")"
                         id="status-badge-@applicant.ApplicationId">
                     @applicant.Status.ToString()
                 </button>

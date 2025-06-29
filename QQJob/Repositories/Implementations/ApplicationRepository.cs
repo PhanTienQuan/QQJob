@@ -84,5 +84,27 @@ namespace QQJob.Repositories.Implementations
 
             return (applications, pagingModel);
         }
+        public async Task<Application?> GetApplicationById(int id)
+        {
+            return await _dbSet
+                .Where(a => a.ApplicationId == id)
+                .Include(a => a.Candidate)
+                .ThenInclude(c => c.Resume)
+                .Include(a => a.Candidate.User)
+                .Include(a => a.Job)
+                .ThenInclude(j => j.Employer)
+                .ThenInclude(e => e.User)
+                .FirstAsync();
+        }
+
+        public void UpdateAppplicantRank(int jobId,string candidateId,float rank)
+        {
+            var application = _dbSet.FirstOrDefault(a => a.JobId == jobId && a.CandidateId == candidateId);
+            if(application != null)
+            {
+                application.AIRanking = rank;
+                _context.SaveChanges();
+            }
+        }
     }
 }

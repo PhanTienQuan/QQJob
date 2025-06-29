@@ -169,7 +169,6 @@ function showSetAccountTypeModel() {
         }
     });
 }
-
 function showToastMessage(message, type) {
     const container = document.querySelector('.toast-container');
     const toastElement = document.createElement('div');
@@ -225,3 +224,77 @@ function showToastMessage(message, type) {
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
 }
+
+window.connection = new signalR.HubConnectionBuilder()
+    .withUrl("/chathub")
+    .build();
+
+connection.start().then(() => {
+    fetch('/Message/GetChatSessionIds') // <-- Use your controller/route here
+        .then(response => response.json())
+        .then(chatIds => {
+            chatIds.forEach(chatId => {
+                connection.invoke("JoinChat", chatId);
+            });
+        })
+        .catch(err => {
+            console.error('Failed to load chat sessions:', err);
+        });
+});
+
+connection.on("ReceiveMessage", function (response) {
+    const message = response.message;
+
+    const messagePreview = document.querySelectorAll(`#MessagePreview_${message.chatId}`);
+    const countPreview = document.querySelectorAll(`#Count_${message.chatId}`);
+    const timePreview = document.querySelectorAll(`#Time_${message.chatId}`);
+    const isCurrentUser = message.senderId === currentUserId;
+    const unreadCount = isCurrentUser ? 0 : response.unreadMessagesCount;
+    const onChatPage = window.location.pathname.includes("/Message"); // adjust for your route
+    try {
+        if (onChatPage) {
+            // Update chat preview
+            if (countPreview.length > 0) {
+                countPreview.forEach(function (element) {
+                    element.innerHTML = unreadCount;
+                });
+            }
+            if (messagePreview) {
+                messagePreview.forEach(function (element) {
+                    element.innerHTML = isCurrentUser ? `You: ${message.messageText}` : `${message.fullName}: ${message.messageText}`;
+                    element.style.fontWeight = unreadCount === 0 ? "normal" : "bold";
+                });
+            }
+            if (timePreview) {
+                timePreview.forEach(function (element) {
+                    element.innerHTML = formatTimeAgo(message.sentAt);
+                });
+            }
+
+            if (chatSessionList) {
+                chatSessionList.forEach(function (element) {
+                    const sessionElement = element.querySelector(`.single__chat__person[data-sessionid="${message.chatId}"]`);
+                    element.removeChild(sessionElement);
+                    element.insertBefore(sessionElement, element.firstChild);
+                });
+            }
+
+            let isCurrentChat = message.chatId === currentChatId;
+
+            if (isCurrentChat) {
+                renderMessage(message, chatMessagesDiv.querySelector("#chatIndicator"));
+                if (currentUserId != message.senderId) {
+                    // Optionally show a toast even on the chat page
+                    // showToastMessage("Message Received from " + message.fullName, "none");
+                }
+                connection.invoke("UserStoppedTyping", currentChatId, currentChatId);
+            }
+        } else {
+            if (currentUserId != message.senderId) {
+                showToastMessage("Message Received from " + message.fullName, "none");
+            }
+        }
+    } catch (e) {
+        console.error("Error in message handler:", e);
+    }
+});

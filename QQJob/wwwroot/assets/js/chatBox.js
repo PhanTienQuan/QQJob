@@ -67,7 +67,7 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                sender: senderId,
+                sender: currentUserId,
                 receiver: "system",
                 content: userMessage,
                 history: getSessionHistory()

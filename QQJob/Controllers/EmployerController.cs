@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using QQJob.AIs;
@@ -24,7 +25,8 @@ namespace QQJob.Controllers
         IChatSessionRepository chatSessionRepository,
         IAppUserRepository appUserRepository,
         INotificationRepository notificationRepository,
-        EmbeddingAI embeddingAI
+        EmbeddingAI embeddingAI,
+        UserManager<AppUser> appUserManager
         ):Controller
     {
         [HttpGet]
@@ -503,6 +505,13 @@ namespace QQJob.Controllers
         public async Task<IActionResult> EditJob(int id)
         {
             var job = await jobRepository.GetByIdAsync(id);
+            var currentUser = await appUserManager.GetUserAsync(User);
+
+            if(job.EmployerId != currentUser.Id)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "You are not the owner of this job posting!",type = "error" });
+                return RedirectToAction("Index",new { controller = "Home" });
+            }
 
             var jobDetailViewModel = new EditJobViewModel()
             {
@@ -638,7 +647,7 @@ namespace QQJob.Controllers
             return RedirectToAction("EditJob","Employer",new { id = jobId });
         }
         [HttpGet]
-        public async Task<IActionResult> ApplicantList(int page = 1,int pageSize = 5)
+        public async Task<IActionResult> ApplicationList(int page = 1,int pageSize = 5)
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -662,7 +671,8 @@ namespace QQJob.Controllers
                     CandidateName = applicant.Candidate.User.FullName,
                     JobSlug = applicant.Job.Slug,
                     JobTitle = applicant.Job.JobTitle,
-                    Skills = applicant.Candidate.Skills ?? []
+                    Skills = applicant.Candidate.Skills ?? [],
+                    CandidateAvatarUrl = applicant.Candidate.User.Avatar
                 });
             }
             var fakeApplicant = new ApplicantViewModel
@@ -671,7 +681,7 @@ namespace QQJob.Controllers
                 JobId = 0,
                 CandidateId = "acksakcas",
                 ApplicationDate = DateTime.Now.AddDays(20),
-                Status = ApplicationStatus.Rejected,
+                Status = ApplicationStatus.Pending,
                 ApplicantSlug = "random-fake-applicant",
                 CandidateName = "John Doe",
                 JobSlug = "test-job",

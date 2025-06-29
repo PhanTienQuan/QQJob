@@ -9,12 +9,12 @@
             <div class="col-lg-5 col-xl-4">
                 <div class="job__search__section mb-40">
                     <!-- AI Search Form -->
-                    <form method="get" data-ajax="true" data-ajax-loading="#loadingOverlay" data-ajax-complete="ajaxComplete()" data-ajax-method="get" data-ajax-update="#list" data-ajax-mode="replace" data-ajax-url="@Url.Action("GenericSearch","Jobs")" class="d-flex flex-column row-30" id="genericSearchForm">
+                    <form method="get" data-ajax="true" data-ajax-failure="onfail" data-ajax-loading="#loadingOverlay" data-ajax-complete="ajaxComplete()" data-ajax-method="get" data-ajax-update="#list" data-ajax-mode="replace" data-ajax-url="@Url.Action("GenericSearch","Jobs")" class="d-flex flex-column row-30" id="genericSearchForm">
 
                         <!-- AI Search Query -->
                         <div class="search__item mb-4 d-flex flex-column">
                             <label for="AiSearchQuery" class="mb-3 font-20 fw-medium text-dark text-capitalize">AI Powered Job Search</label>
-                            <textarea name="AiSearchQuery" id="AiSearchQuery" class="form-control" placeholder="Describe the job you want..." rows="4"></textarea>
+                            <textarea name="AiSearchQuery" id="AiSearchQuery" class="form-control" placeholder="Describe the job you want..." rows="4" maxlength="200"></textarea>
                         </div>
                         <div class="search__item mb-4 d-flex flex-column">
                             <label class="mb-2 font-20 fw-medium text-dark text-capitalize" for="strictSearch">
@@ -164,6 +164,10 @@
             // $('html, body').animate({
             //     scrollTop: $('#list').offset().top - 50
             // }, 500)
+        }
+
+        onfail = function onFail(xhr){
+            showToastMessage(xhr.responseText, "warning");
         }
 
         function pagingSelect(selectedPage){
