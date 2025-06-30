@@ -681,30 +681,12 @@ namespace QQJob.Controllers
                     JobSlug = applicant.Job.Slug,
                     JobTitle = applicant.Job.JobTitle,
                     Skills = applicant.Candidate.Skills ?? [],
-                    CandidateAvatarUrl = applicant.Candidate.User.Avatar
+                    CandidateAvatarUrl = applicant.Candidate.User.Avatar,
+                    ResumeUrl = applicant.ResumeUrl,
+                    FileName = $"{applicant.Candidate.User.Slug}_CV_{DateTime.Now:yyyyMMdd}.pdf",
+                    AiRanking = applicant.AIRanking ?? 0.00f
                 });
             }
-            var fakeApplicant = new ApplicantViewModel
-            {
-                ApplicationId = 0, // not real
-                JobId = 0,
-                CandidateId = "acksakcas",
-                ApplicationDate = DateTime.Now.AddDays(20),
-                Status = ApplicationStatus.Pending,
-                ApplicantSlug = "random-fake-applicant",
-                CandidateName = "John Doe",
-                JobSlug = "test-job",
-                JobTitle = "Senior QA Engineer",
-                Skills = new List<Skill>
-                {
-                    new Skill { SkillName = "Selenium" },
-                    new Skill { SkillName = "Cypress" },
-                    new Skill { SkillName = "Postman" }
-                },
-                AiRanking = 4.5f
-            };
-
-            model.Applicants.Add(fakeApplicant);
 
             model.Paging = pagingModel;
             return View(model);
@@ -726,6 +708,7 @@ namespace QQJob.Controllers
                 model.Applicants.Add(new ApplicantViewModel
                 {
                     ApplicationId = applicant.ApplicationId,
+                    CandidateAvatarUrl = applicant.Candidate.User.Avatar,
                     JobId = applicant.JobId,
                     CandidateId = applicant.CandidateId,
                     ApplicationDate = applicant.ApplicationDate,
@@ -734,7 +717,10 @@ namespace QQJob.Controllers
                     CandidateName = applicant.Candidate.User.FullName,
                     JobSlug = applicant.Job.Slug,
                     JobTitle = applicant.Job.JobTitle,
-                    Skills = applicant.Candidate.Skills ?? []
+                    Skills = applicant.Candidate.Skills ?? [],
+                    ResumeUrl = applicant.ResumeUrl,
+                    FileName = $"{applicant.Candidate.User.FullName.ToLower().Replace(' ','-')}_CV_{DateTime.Now:yyyyMMdd}.pdf",
+                    AiRanking = applicant.AIRanking ?? 0.00f
                 });
             }
 
