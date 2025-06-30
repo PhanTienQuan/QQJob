@@ -26,9 +26,11 @@ namespace QQJob.Controllers
         UserManager<AppUser> userManager
         ):Controller
     {
-        public async Task<IActionResult> Index(int currentPage = 1,int pageSize = 5)
+        public async Task<IActionResult> Index(int currentPage = 1,int pageSize = 5,string experienceLevel = "",string jobType = "")
         {
-            var (jobs, pageing) = await jobRepository.GetJobsAsync(currentPage,pageSize,j => j.Status == Status.Approved);
+            var (jobs, pageing) = await jobRepository.GetJobsAsync(currentPage,pageSize,j => j.Status == Status.Approved &&
+             (string.IsNullOrEmpty(experienceLevel) || j.ExperienceLevel == experienceLevel)
+             && (string.IsNullOrEmpty(jobType) || j.JobType == jobType));
             var joblist = jobs
                 .Select(job => new JobViewModel()
                 {
@@ -237,7 +239,7 @@ namespace QQJob.Controllers
                 job.SalaryType,
                 job.City,
                 job.LocationRequirement,
-                job.ExperienceLevel
+                job.ExperienceLevel,
             };
 
             var application = new Application
@@ -247,7 +249,9 @@ namespace QQJob.Controllers
                 CoverLetter = model.CoverLetter,
                 Status = ApplicationStatus.Pending,
                 ApplicationDate = DateTime.Now,
-                AIRanking = await textCompletionAI.RankApplication(JsonConvert.SerializeObject(new { jobDetail,candidateApply.Resume.AiSumary,model.JobId,userIdApply }))
+                AIRanking = await textCompletionAI.RankApplication(JsonConvert.SerializeObject(new { jobDetail,candidateApply.Resume.AiSumary,model.JobId,userIdApply })),
+                ResumeUrl = candidateApply.Resume.Url,
+                ResumeSummary = candidateApply.Resume.AiSumary
             };
 
             candidateApply.Applications ??= new List<Application>();

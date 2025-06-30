@@ -172,7 +172,20 @@ namespace QQJob.Helper
             var match = Regex.Match(salary,@"([A-Za-z]+)$"); // match word at end
             return match.Success ? match.Groups[1].Value : "";
         }
+        public static string ShortenHtml(string html,int maxLength)
+        {
+            if(string.IsNullOrEmpty(html)) return "";
+            // Remove HTML tags
+            var noHeaderText = Regex.Replace(html,@"<h[1-6][^>]*>.*?<\/h[1-6]>","",RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            var noNbsp = noHeaderText.Replace("&nbsp;"," ");
+            var plainText = Regex.Replace(noNbsp,"<.*?>",string.Empty);
 
-
+            // Trim whitespace
+            plainText = plainText.Trim();
+            // Truncate
+            if(plainText.Length > maxLength)
+                return plainText.Substring(0,maxLength) + "...";
+            return plainText;
+        }
     }
 }

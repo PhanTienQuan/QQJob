@@ -18,6 +18,8 @@ namespace QQJob.Models
 
         public ApplicationStatus Status { get; set; }
         public float? AIRanking { get; set; }
+        public string ResumeUrl { get; set; }
+        public string? ResumeSummary { get; set; }
     }
 
 }

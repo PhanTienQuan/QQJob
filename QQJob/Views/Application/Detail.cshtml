@@ -3,12 +3,13 @@
     ViewBag.Title = $"Application Details";
 }
 <style>
-    h6 {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
 
-    #summary h1, h2, h3, h4, h5, h6 {
+    #description h1,
+    #description h2,
+    #description h3,
+    #description h4,
+    #description h5,
+    #description h6 {
         font-weight: 600 !important;
         margin-top: 20px;
         margin-bottom: 15px;
@@ -104,13 +105,22 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="employer__details" id="description">
                     <h4>Applied Job: <a asp-action="Detail" asp-controller="Jobs" asp-route-id="@Model.JobId" asp-route-slug="@Model.JobSlug">@Model.JobTitle</a></h4>
-                    <h5>Cover Letter:</h5>
-                    @Html.Raw(!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>" ? Model.CoverLetter : "<p>Cover Letter unavailable</p>")
-                    <h5>AI Resume Sumary:</h5>
-                    <div id="summary">
+                    @if (!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>")
+                    {
+                        <div class="coverletter_wrapper">
+                            <h5 class="p-3 bg-info bg-opacity-10 border border-info rounded-start rounded-end">Cover Letter:</h5>
+                            <div class="border p-3 rounded-start rounded-end">
+                                @Html.Raw(!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>" ? Model.CoverLetter : "<p>Unavailable</p>")
+                            </div>
+                        </div>
+                    }
+                    <div class="summary__wrapper">
+                        <h5 class="p-3 bg-info bg-opacity-10 border border-info rounded-start rounded-end">AI Resume Sumary:</h5>
+                        <div id="summary" class="border p-3 rounded-start rounded-end">
+                        </div>
                     </div>
                     <h5>Resume:</h5>
-                    <a href="#" onclick="viewCV(event, this, '@(Model.Resume.Url ?? "")')">View CV</a>
+                    <a href="#" onclick="viewCV(event, this, '@(Model.ResumeUrl ?? "")')">View CV</a>
                 </div>
             </div>
             <div class="col-lg-5 col-xl-4  d-flex flex-column gap-40 ">
@@ -134,20 +144,16 @@
                                 <span class="left-text"> <i class="rt-branch"></i> Phone</span>
                                 <span class="text"> @Model.Phone</span> 
                             </li>
-
-                            @* <li class="d-flex flex-wrap gap-3 gap-sm-0 align-items-center justify-content-between">
-                                <a class="left-text"> <i class="rt-branch"></i> Profile</a>
-                            </li> *@
                         </ul>
                     </div>
                 </div>
                 <div class="job__contact">
-                    <h6 class="fw-semibold mb-20">My Profile</h6>
+                    <h6 class="fw-semibold fs-5 mb-2">My Profile</h6>
                     <a class="rts__btn apply__btn w-100" asp-action="Detail" asp-controller="Candidate" asp-route-id="@Model.CandidateId" asp-route-slug="@Model.CandidateSlug">Profile</a>
                     @* TODO *@
                 </div>
                 <div class="job__contact">
-                    <h6 class="fw-semibold mb-20">Contact Me</h6>
+                    <h6 class="fw-semibold fs-5 mb-2">Contact Me</h6>
                     <a class="rts__btn apply__btn w-100" asp-action="ChatWith" asp-controller="Message" asp-route-chatUserId="@Model.CandidateId">Go to Message</a>
                 </div>
             </div>
@@ -160,7 +166,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         // Pass the server-side string into a JS variable (escaping for JS)
-        var aiSummary = @Html.Raw(Json.Serialize(Model.Resume.AiSumary ?? ""));
+        var aiSummary = @Html.Raw(Json.Serialize(Model.ResumeSummary ?? ""));
         const summary = document.getElementById("summary");
         if (aiSummary){
             summary.innerHTML = marked.parse(aiSummary);

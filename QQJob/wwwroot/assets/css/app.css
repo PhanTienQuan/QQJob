@@ -268,3 +268,8 @@ body {
 .max-height-500 {
     max-height: 500px !important;
 }
+
+.nice-select.open .list {
+    max-height: 250px;
+    overflow-y: scroll;
+}

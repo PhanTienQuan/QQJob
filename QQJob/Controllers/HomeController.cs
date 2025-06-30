@@ -10,7 +10,8 @@ namespace QQJob.Controllers
 {
     public class HomeController(
         UserManager<AppUser> userManager,
-        IEmployerRepository employerRepository
+        IEmployerRepository employerRepository,
+        IJobRepository jobRepository
         ):Controller
     {
 
@@ -23,6 +24,8 @@ namespace QQJob.Controllers
                     return RedirectToAction("Logout",new { controller = "Account" });
                 }
             }
+            var (jobs, pagingModel) = await jobRepository.GetJobsAsync(1,6,j => j.Status == Status.Approved);
+            ViewBag.ViewJobs = jobs;
             return View();
         }
 

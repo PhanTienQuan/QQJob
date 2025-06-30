@@ -205,16 +205,13 @@
                                                                     <button type="submit" class="btn btn-sm btn-info">Unsuspend</button>
                                                                 </form>
                                                             }
-                                                            <form method="post" asp-action="Delete" asp-route-UserId="@item.Id">
+                                                            <form method="post" asp-controller="User" asp-action="Delete" asp-route-UserId="@item.Id" style="display:inline;">
+                                                                <a class="btn btn-sm btn-danger" id="deleteSpan_@item.Id" onclick="confirmDelete('@item.Id', true)">Delete</a>
                                                                 <span id="confirmDeleteSpan_@item.Id" style="display:none">
                                                                     <span>Are you sure you want to Delete?</span>
                                                                     <button type="submit" class="btn btn-danger">Yes</button>
                                                                     <a class="btn btn-primary"
-                                                                        onclick="confirmDelete('@item.Id', false)">No</a>
-                                                                </span>
-                                                                <span id="deleteSpan_@item.Id">
-                                                                    <a class="btn btn-danger"
-                                                                        onclick="confirmDelete('@item.Id', true)">Delete</a>
+                                                                       onclick="confirmDelete('@item.Id', false)">No</a>
                                                                 </span>
                                                             </form>
                                                         </td>
@@ -452,6 +449,9 @@
                                                         }
                                                     </td>
                                                     <td class="text-center">
+                                                        <a asp-action="Details" asp-route-id="@item.ApplicationId" class='btn btn-sm btn-primary'>Check</a>
+                                                        <a asp-action="Edit" asp-route-id="@item.ApplicationId" class='btn btn-sm btn-primary'>Edit</a>
+                                                        <a asp-action="Delete" asp-route-id="@item.ApplicationId" class='btn btn-sm btn-danger'>Delete</a>
                                                         @* <a asp-area="Admin" asp-controller="Job" asp-action="Detail" asp-route-id="@item.JobId" class='btn btn-sm btn-primary'>Check</a>
                                                         @switch (item.Status)
                                                         {
@@ -514,5 +514,16 @@
             lineColors: ['#3c8dbc', '#00a65a', '#f39c12'],
             hideHover: 'auto'
         });
+        function confirmDelete(uniqueId, isDeleteClicked) {
+            var deleteSpan = 'deleteSpan_' + uniqueId;
+            var confirmDeleteSpan = 'confirmDeleteSpan_' + uniqueId;
+            if (isDeleteClicked) {
+                $('#' + deleteSpan).hide();
+                $('#' + confirmDeleteSpan).show();
+            } else {
+                $('#' + deleteSpan).show();
+                $('#' + confirmDeleteSpan).hide();
+            }
+        }
    </script>
 }

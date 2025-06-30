@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using QQJob.AIs;
 using QQJob.Helper;
 using Microsoft.EntityFrameworkCore;
@@ -235,6 +236,7 @@ namespace QQJob.Controllers
             byte[] fileBytes = memoryStream.ToArray();
             var resumeText = await TextExtractionHelper.ExtractCvTextAsync(fileBytes, model.ResumeFile.FileName);
             var summary = await _textCompletionAI.SummarizeResume(resumeText);
+            var embedding = await _embeddingAI.GetTextEmbbeding(summary);
             // Lưu vào DB
             if (candidate.Resume == null)
             {
@@ -243,12 +245,14 @@ namespace QQJob.Controllers
                     CandidateId = userId,
                     Url = resumeUrl,
                     AiSumary = summary,
+                    Embedding = JsonConvert.SerializeObject(embedding)
                 };
             }
             else
             {
                 candidate.Resume.Url = resumeUrl;
                 candidate.Resume.AiSumary = summary;
+                candidate.Resume.Embedding = JsonConvert.SerializeObject(embedding);
             }
 
             _candidateRepository.Update(candidate);
