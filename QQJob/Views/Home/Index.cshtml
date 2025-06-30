@@ -1,12 +1,6 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
-
-@* <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div> *@
 
 
 <!-- banner area -->
@@ -33,25 +27,37 @@
                         Looking for a new job can be both exciting and daunting. Navigating the job market involves exploring various avenues, including online job boards.
                     </p>
                     <div class="rts__job__search wow animated fadeInUp" data-wow-delay=".2s">
-                        <form asp-controller="Jobs" asp-action="Search" class="d-flex align-items-center flex-wrap flex-md-nowrap flex-lg-wrap flex-xl-nowrap gap-4 gap-xl-0 justify-content-between">
+                        <form asp-controller="Jobs" asp-action="Index" class="d-flex align-items-center flex-wrap flex-md-nowrap flex-lg-wrap flex-xl-nowrap gap-4 gap-xl-0 justify-content-between">
                             <div class="input-group flex-wrap d-flex gap-4">
                                 <div class="single__input d-flex flex-column">
-                                    <label for="location">Location</label>
-                                    <select name="location" class="select-nice" id="location">
-                                        <option value="1">Select Location</option>
-                                        <option value="2">Dhaka</option>
-                                        <option value="3">Barisal</option>
-                                        <option value="4">Chittagong</option>
+                                    <label for="ExperienceLevel">Experience Level</label>
+                                    <select name="ExperienceLevel" class="select-nice" id="ExperienceLevel">
+                                        <option value="" disabled selected>Select a level</option>
+                                        <option value="Intern">Intern</option>
+                                        <option value="Junior">Junior</option>
+                                        <option value="Middle">Middle</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Lead">Lead</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Director">Director</option>
+                                        <option value="Executive">Executive</option>
                                     </select>
                                 </div>
                                 <div class="vr d-none d-sm-block"></div>
                                 <div class="single__input d-flex flex-column">
-                                    <label for="job__type">Job Type</label>
-                                    <select name="job__type" class="select-nice" id="job__type">
-                                        <option value="1">Select Job Type</option>
-                                        <option value="2">Full Time</option>
-                                        <option value="3">Part Time</option>
-                                        <option value="4">Internship</option>
+                                    <label for="jobType">Job Type</label>
+                                    <select name="jobType" class="select-nice" id="job__type">
+                                        <option value="" disabled selected>Select job type</option>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Temporary">Temporary</option>
+                                        <option value="Internship">Internship</option>
+                                        <option value="Freelance">Freelance</option>
+                                        <option value="Volunteer">Volunteer</option>
+                                        <option value="Seasonal">Seasonal</option>
+                                        <option value="Per Diem">Per Diem</option>
+                                        <option value="Commission">Commission</option>
                                     </select>
                                 </div>
                             </div>
@@ -134,7 +140,7 @@
     </div>
 </section>
 <!-- work process area end -->
-<!-- cat slider -->
+@* <!-- cat slider -->
 <div class="rts__section overflow-hidden cat__slider__bg pt-100 pb-100">
     <div class="container">
         <div class="row justify-content-between mb-50 gap-4 position-relative mtn-1">
@@ -247,7 +253,7 @@
         </div>
     </div>
 </div>
-<!-- cat slider end -->
+<!-- cat slider end --> *@
 <!-- Current Open Position -->
 <section class="rts__section section__padding">
     <div class="container">
@@ -260,166 +266,60 @@
             </div>
         </div>
         <div class="row g-30 wow animated fadeInUp" data-wow-delay=".0s">
-            <!-- Single Job -->
-            <div class="col-lg-6 col-xl-4 col-md-6">
-                <div class="rts__job__card">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="company__icon">
-                            <img src="assets/img/home-1/company/apple.svg" alt="Apple">
-                        </div>
-                        <div class="featured__option">
-                            <span>Featured</span>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 mt-4 flex-wrap">
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-location-dot"></i> New York, USA
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-briefcase"></i> Full Time
-                        </div>
-                    </div>
-                    <div class="h6 job__title my-3">
-                        <a href="job-details-1.html" aria-label="job">Senior UI Designer, Apple</a>
-                    </div>
-                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
-                        <a href="#">Creative</a>
-                        <a href="#">User Interface</a>
-                        <a href="#">Web UI</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Single Job End -->
-            <!-- Single Job -->
-            <div class="col-lg-6 col-xl-4 col-md-6">
-                <div class="rts__job__card">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="company__icon">
-                            <img src="assets/img/home-1/company/google.svg" alt="Google">
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 mt-4 flex-wrap">
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-location-dot"></i> New York, USA
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-briefcase"></i> Full Time
-                        </div>
-                    </div>
-                    <div class="h6 job__title my-3">
-                        <a href="job-details-1.html" aria-label="job">Senior UX Designer, Google</a>
-                    </div>
-                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
-                        <a href="#">Creative</a>
-                        <a href="#">User Interface</a>
-                        <a href="#">Web UI</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Single Job End -->
-            <!-- Single Job -->
-            <div class="col-lg-6 col-xl-4 col-md-6">
-                <div class="rts__job__card">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="company__icon">
-                            <img src="assets/img/home-1/company/microsoft.svg" alt="Microsoft">
+            @if (ViewBag.ViewJobs != null && ((IEnumerable<Job>)ViewBag.ViewJobs).Any())
+            {
+                foreach (var job in (IEnumerable<Job>)ViewBag.ViewJobs)
+                {
+                    <!-- Single Job -->
+                    <div class="col-lg-6 col-xl-4 col-md-6">
+                        <div class="rts__job__card">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="company__icon">
+                                    <img src="@(job.Employer.User.Avatar ?? "assets/img/home-1/company/default.svg")" alt="@job.Employer.User.FullName">
+                                </div>
+                                <div class="featured__option">
+                                    <span>Featured</span>
+                                </div>
+                                @* else if (job.IsUpcoming != null && job.IsUpcoming)
+                                {
+                                    <div class="featured__option">
+                                        <span>Upcoming</span>
+                                    </div>
+                                } *@
+                            </div>
+                            <div class="d-flex gap-3 mt-4 flex-wrap">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <i class="fa-light fa-location-dot"></i> @job.City
+                                </div>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <i class="fa-light fa-briefcase"></i> @job.JobType
+                                </div>
+                            </div>
+                            <div class="h6 job__title my-3">
+                                <a href="job-details-1.html" aria-label="job">@job.JobTitle, @job.Employer.User.FullName</a>
+                            </div>
+                            <p>@Helper.ShortenHtml(job.Description, 100)</p>
+                            <div class="job__tags d-flex flex-wrap gap-3 mt-4">
+                                @if (job.Skills != null)
+                                {
+                                    foreach (var skill in job.Skills.Take(3))
+                                    {
+                                        <a href="#">@skill.SkillName</a>
+                                    }
+                                    if (job.Skills.Count > 3)
+                                    {
+                                        <a href="#">...</a>
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex gap-3 mt-4 flex-wrap">
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-location-dot"></i> New York, USA
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-briefcase"></i> Full Time
-                        </div>
-                    </div>
-                    <div class="h6 job__title my-3">
-                        <a href="job-details-1.html" aria-label="job">Software Engineer, Microsoft</a>
-                    </div>
-                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
-                        <a href="#">Creative</a>
-                        <a href="#">User Interface</a>
-                        <a href="#">Web UI</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Single Job End -->
-            <!-- Single Job -->
-            <div class="col-lg-6 col-xl-4 col-md-6">
-                <div class="rts__job__card">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="company__icon">
-                            <img src="assets/img/home-1/company/upwork.svg" alt="Upwork">
-                        </div>
-                        <div class="featured__option">
-                            <span>Upcoming</span>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 mt-4 flex-wrap">
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-location-dot"></i> New York, USA
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            <i class="fa-light fa-briefcase"></i> Full Time
-                        </div>
-                    </div>
-                    <div class="h6 job__title my-3">
-                        <a href="job-details-1.html" aria-label="job">Web Developer, Upwork</a>
-                    </div>
-                    <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                    <div class="job__tags d-flex flex-wrap gap-3 mt-4">
-                        <a href="#">Creative</a>
-                        <a href="#">User Interface</a>
-                        <a href="#">Web UI</a>
-                    </div>
-                </div>
-            </div>
-            <!-- Single Job End -->
+                    <!-- Single Job End -->
+                }
+            }
             <!-- More job sections can be added here in the same format as above -->
 
         </div>
     </div>
 </section>
 <!-- Current Open Position End -->
-<!-- app download section -->
-<div class="rts__section pb-120">
-    <div class="container">
-        <div class="row">
-            <div class="rts__appcenter">
-                <div class="rts__appcenter__shape">
-                    <img src="assets/img/home-1/app/shape.png" alt="">
-                </div>
-                <div class="rts__appcenter__content d-flex flex-wrap flex-xl-nowrap align-items-center justify-content-between justify-content-lg-center">
-                    <!-- App Image Section -->
-                    <div class="content__left align-items-end d-flex position-relative top-15px">
-                        <img src="assets/img/home-1/app/app_screen.png" alt="">
-                    </div>
-
-                    <!-- App Download Section -->
-                    <div class="content__right text-white text-center text-xl-start max-630">
-                        <h3 class="l--1 mb-4 text-white wow fadeInUp animated" data-wow-delay=".1s">Download The app Free!</h3>
-                        <p class="wow fadeInUp animated" data-wow-delay=".2s">Looking for a new job can be both exciting and daunting. Navigating the job market involves exploring various avenues.</p>
-
-                        <!-- App Store and Google Play Links -->
-                        <div class="d-flex gap-3 justify-content-center justify-content-xl-start flex-wrap mt-40 wow fadeInUp animated" data-wow-delay=".3s">
-                            <div class="link">
-                                <a href="../../../appstore.com/index.html" target="_blank" title="app store">
-                                    <img src="assets/img/home-1/app/app-store.svg" alt="App Store">
-                                </a>
-                            </div>
-                            <div class="link">
-                                <a href="../../../google.com/index.html" target="_blank" title="play store">
-                                    <img src="assets/img/home-1/app/play-store.svg" alt="Google Play">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- app download section end -->

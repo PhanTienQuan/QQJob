@@ -1,0 +1,83 @@
+﻿@model QQJob.Models.Application
+
+@{
+    ViewData["Title"] = "Details";
+}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            All Roles
+        </h1>
+        <ol class="breadcrumb">
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="Admin">
+                    <i class="fa fa-dashboard"></i>
+                    Home
+                </a>
+            </li>
+            <li><a asp-action="Index">Manage Applications</a></li>
+            <li class="active">Detail Applications</li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div>
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Job)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Job.JobTitle)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Candidate)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Candidate.CandidateId)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.ApplicationDate)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.ApplicationDate)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.CoverLetter)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.CoverLetter)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Status)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Status)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.AIRanking)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.AIRanking)
+                            </dd>
+                        </dl>
+                    </div>
+
+
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix">
+                        <a asp-action="Edit" asp-route-id="@Model?.ApplicationId" class='btn btn-sm btn-primary me-2'>Edit</a>
+                        <a asp-action="Index" class='btn btn-sm btn-primary'>Back to List</a>
+                    </div>
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+    </section>
+    <!-- /.content -->
+
+</div>

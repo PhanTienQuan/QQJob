@@ -26,7 +26,7 @@ namespace QQJob.Controllers
         IAppUserRepository appUserRepository,
         INotificationRepository notificationRepository,
         EmbeddingAI embeddingAI,
-        UserManager<AppUser> appUserManager
+        UserManager<AppUser> userManager
         ):Controller
     {
         [HttpGet]
@@ -505,7 +505,7 @@ namespace QQJob.Controllers
         public async Task<IActionResult> EditJob(int id)
         {
             var job = await jobRepository.GetByIdAsync(id);
-            var currentUser = await appUserManager.GetUserAsync(User);
+            var currentUser = await userManager.GetUserAsync(User);
 
             if(job.EmployerId != currentUser.Id)
             {
@@ -636,14 +636,23 @@ namespace QQJob.Controllers
         {
             var job = await jobRepository.GetByIdAsync(jobId);
             if(job == null) return NotFound();
+            var currentUser = await userManager.GetUserAsync(User);
+            if(currentUser == null) return NotFound();
 
-            job.Status = Status.Approved;
+            if(currentUser.IsVerified == UserStatus.Verified && job.Status != Status.Denied)
+            {
+                job.Status = Status.Approved;
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
+            }
+            else
+            {
+                job.Status = Status.Pending;
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Your job will be pending until Admin approve the job posting!",type = "success" });
+            }
             job.PostDate = DateTime.Now;
             job.CloseDate = DateTime.Now.AddDays(1);
-
             await jobRepository.SaveChangesAsync();
 
-            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
             return RedirectToAction("EditJob","Employer",new { id = jobId });
         }
         [HttpGet]
