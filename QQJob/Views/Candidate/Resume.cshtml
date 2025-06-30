@@ -16,6 +16,7 @@
             <!-- sidebar menu end -->
             <div class="my__profile__tab radius-16 bg-white">
                 <form asp-action="Resume" asp-controller="Candidate" method="post" enctype="multipart/form-data">
+                    <!-- Resume upload -->
                     <div class="my__details" id="info">
                         <div class="mt-4" id="preview-container">
                             @if (hasResume)
@@ -44,78 +45,74 @@
                                 {
                                     <input type="file" asp-for="ResumeFile" class="form-control mb-3" accept="application/pdf" />
                                     <span asp-validation-for="ResumeFile" class="text-danger"></span>
-                                    <button type="submit" class="rts__btn fill__btn mx-0">Submit Resume</button>
+                                    <button type="submit" class="rts__btn fill__btn mt-0">Submit CV</button>
                                 }
                             </div>
                         </div>
                     </div>
                 </form>
-            </div>
+            </div><br />
 
-            <!-- education -->
-            <h6 class="fw-medium mt-30 mb-20">Education</h6>
             <div class="my__education radius-16 p-30 bg-white" id="education">
-                <div class="accordion" id="rts-accordion">
-                    <div class="accordion-item">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c8" aria-expanded="false" aria-controls="c8">
-                            SSC
-                        </button>
-                        </button>
-                        <div id="c8" class="accordion-collapse collapse" data-bs-parent="#rts-accordion">
-                            <div class="accordion-body p-0 mt-3 mb-20">
-                                <div class="info__field">
-                                    <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
-                                        <div class="rt-input-group">
-                                            <label for="title">Title</label>
-                                            <select name="Title" id="title" class="form-select">
-                                                <option value="*" selected>SSC</option>
-                                                <option value="1">SSC</option>
-                                                <option value="2">HSC</option>
-                                                <option value="3">Diploma</option>
-                                                <option value="4">Graduation</option>
-                                                <option value="5">Post Graduation</option>
-                                            </select>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="std">Start date</label>
-                                            <input type="text" id="std" placeholder="05/08/2021" required>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="ltd">End Date</label>
-                                            <input type="text" id="ltd" placeholder="05/09/2021" required>
+                <form asp-action="UpdateResumeInfo" asp-controller="Candidate" method="post">
+                 <!-- ========== EDUCATION ========== -->
+                    <h6 class="fw-medium mt-30 mb-20">Education</h6>
+                    <!-- education -->
+                    <div class="accordion" id="education-accordion">
+                        @for (int i = 0; i < Model.Educations.Count; i++)
+                        {
+                            var edu = Model.Educations[i];
+                            var collapseId = $"edu-collapse-{edu.EducationId}";
+                            <div class="accordion-item mb-3">
+                                <h2 class="accordion-header" id="heading-@edu.EducationId">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                        @edu.UniversityName
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="heading-@edu.EducationId" data-bs-parent="#education-accordion">
+                                    <div class="accordion-body p-0 mt-3 mb-20">
+                                        <div class="info__field">
+                                            <input type="hidden" name="Educations[@i].EducationId" value="@edu.EducationId" />
+                                            <div class="row row-cols-sm-2 row-cols-1">
+                                                <div class="rt-input-group">
+                                                    <label>University Name</label>
+                                                    <input type="text" name="Educations[@i].UniversityName" class="form-control" value="@edu.UniversityName" required>
+                                                </div>
+                                            </div>
+                                            <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
+                                                <div class="rt-input-group">
+                                                    <label>Start date</label>
+                                                    <input type="date" name="Educations[@i].StartDate" class="form-control" value="@(edu.StartDate?.ToString("yyyy-MM-dd"))">
+                                                </div>
+                                                <div class="rt-input-group">
+                                                    <label>End Date</label>
+                                                    <input type="date" name="Educations[@i].EndDate" class="form-control" value="@(edu.EndDate?.ToString("yyyy-MM-dd"))">
+                                                </div>
+                                            </div>
+                                            <div class="rt-input-group">
+                                                <label>Description</label>
+                                                <textarea name="Educations[@i].Description" class="form-control">@edu.Description</textarea>
+                                            </div>
+                                            <div class="row mt-0">
+                                                <div class="col d-flex justify-content-end mt-0">
+                                                    <button type="button" class="added__social__link delete-education-btn" data-id="@edu.EducationId">Delete</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row row-cols-sm-2 row-cols-1">
-                                        <div class="rt-input-group">
-                                            <label for="un">University Name</label>
-                                            <input type="text" id="un" placeholder="Massachusetts Institute of Technology" required>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="grade">GPA 5</label>
-                                            <input type="text" id="grade" placeholder="GPA-5" required>
-                                        </div>
-                                    </div>
-                                    <div class="rt-input-group">
-                                        <label for="desc">Description</label>
-                                        <textarea name="desc" id="desc" cols="30" rows="5" placeholder="Description"></textarea>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end mt-30">
-                                    <a href="#" class="added__social__link">Remove Education</a>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
-                    <div class="d-flex justify-content-start">
-                        <a href="#" class="added__social__link">Add Education</a>
-                    </div>
+                <div class="d-flex justify-content-end">
+                    <a href="#" class="added__social__link">Add Education</a>
                 </div>
-            </div>
-            <!-- education end -->
-            <!-- education -->
-            <h6 class="fw-medium mt-30 mb-20">Skill & Experience</h6>
-            <div class="my__education radius-16 p-30 bg-white" id="education-1">
-                <div class="my__skillset">
+                <!-- education end -->
+
+                <!-- ========== EXPERIENCE ========== -->
+                    <h6 class="fw-medium mt-30 mb-20">Experience</h6>
+
+                @* <div class="my__skillset">
                     <ul class="skill__tags">
                         <li><span class="skill__item">HTML</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
                         <li><span class="skill__item">C++</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
@@ -126,95 +123,114 @@
                         <li><span class="skill__item">CSS</span> <span><i class="fa-regular fa-xmark"></i></span> </li>
                         <li><span class="skill__item__add"><i class="fa-regular fa-plus"></i></span></li>
                     </ul>
-                </div>
-                <div class="accordion" id="rts-accordion-2">
-                    <div class="accordion-item">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="false" aria-controls="c1">
-                            Software Engineer
-                        </button>
-                        <div id="c1" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-2">
-                            <div class="accordion-body p-0 mt-3 mb-20">
-                                <div class="info__field">
-                                    <div class="row row-cols-sm-2 row-cols-1">
-                                        <div class="rt-input-group">
-                                            <label for="title-4">Title</label>
-                                            <input type="text" id="title-4" placeholder="Software Engineer" required>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="cm-4">Company</label>
-                                            <input type="text" id="cm-4" placeholder="Reactheme" required>
-                                        </div>
-                                    </div>
-                                    <div class="row row-cols-sm-2 row-cols-1">
-                                        <div class="rt-input-group">
-                                            <label for="de-4">end date</label>
-                                            <input type="text" id="de-4" placeholder="DD/ MM/ YY" required>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="sd-4">Start Date</label>
-                                            <input type="text" id="sd-4" placeholder="DD/MM/YY" required>
-                                        </div>
-                                    </div>
-                                    <div class="rt-input-group">
-                                        <label for="desc-4">Description</label>
-                                        <textarea name="desc" id="desc-4" cols="30" rows="5" placeholder="Description"></textarea>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end mt-30">
-                                    <a href="#" class="added__social__link">Remove EXperience</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-start">
-                        <a href="#" class="added__social__link">Add Skill</a>
-                    </div>
-                </div>
-            </div>
-            <!-- education end -->
-            <!-- Award -->
-            <h6 class="fw-medium mt-30 mb-20">Award</h6>
-            <div class="my__education radius-16 p-30 bg-white" id="education-3">
-                <div class="accordion" id="rts-accordion-3">
-                    <div class="accordion-item">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c5" aria-expanded="false" aria-controls="c5">
-                            Best Candidate
-                        </button>
-                        <div id="c5" class="accordion-collapse collapse" data-bs-parent="#rts-accordion-3">
-                            <div class="accordion-body p-0 mt-3">
-                                <div class="info__field">
-                                    <div class="row row-cols-sm-2 row-cols-1">
-                                        <div class="rt-input-group">
-                                            <label for="title-8">Title</label>
-                                            <input type="text" id="title-8" placeholder="McMaster Center for Software Certification" required>
-                                        </div>
-                                        <div class="rt-input-group">
-                                            <label for="ye-8">Year</label>
-                                            <input type="text" id="ye-8" placeholder="dd/mm/yy" required>
+                </div> *@
+                    <div class="accordion" id="experience-accordion">
+                        @for (int i = 0; i < Model.Experiences.Count; i++)
+                        {
+                            var exp = Model.Experiences[i];
+                            var collapseId = $"exp-collapse-{exp.CandidateExpId}";
+                            <div class="accordion-item mb-3">
+                                <h2 class="accordion-header" id="heading-exp-@exp.CandidateExpId">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                        @exp.ExpTitle
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="heading-exp-@exp.CandidateExpId" data-bs-parent="#experience-accordion">
+                                    <div class="accordion-body p-0 mt-3 mb-20">
+                                        <div class="info__field">
+                                            <input type="hidden" name="Experiences[@i].CandidateExpId" value="@exp.CandidateExpId" />
+                                            <div class="row row-cols-sm-2 row-cols-1">
+                                                <div class="rt-input-group">
+                                                    <label>Title</label>
+                                                    <input type="text" name="Experiences[@i].ExpTitle" class="form-control" value="@exp.ExpTitle" required>
+                                                </div>
+                                                <div class="rt-input-group">
+                                                    <label>Company</label>
+                                                    <input type="text" name="Experiences[@i].Company" class="form-control" value="@exp.Company" required>
+                                                </div>
+                                            </div>
+                                            <div class="row row-cols-sm-2 row-cols-1">
+                                                <div class="rt-input-group">
+                                                    <label>Start Date</label>
+                                                    <input type="date" name="Experiences[@i].StartDate" class="form-control" value="@(exp.StartDate?.ToString("yyyy-MM-dd"))">
+                                                </div>
+                                                <div class="rt-input-group">
+                                                    <label>End Date</label>
+                                                    <input type="date" name="Experiences[@i].EndDate" class="form-control" value="@(exp.EndDate?.ToString("yyyy-MM-dd"))">
+                                                </div>
+                                            </div>
+                                            <div class="rt-input-group">
+                                                <label>Description</label>
+                                                <textarea name="Experiences[@i].Description" class="form-control">@exp.Description</textarea>
+                                            </div>
+                                            <div class="row mt-0">
+                                                <div class="col d-flex justify-content-end mt-0">
+                                                    <button type="button" class="added__social__link delete-experience-btn" data-id="@exp.CandidateExpId">Delete</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="rt-input-group">
-                                        <label for="desc-8">Description</label>
-                                        <textarea name="desc" id="desc-8" cols="30" rows="5" placeholder="Description"></textarea>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end mt-30">
-                                    <a href="#" class="added__social__link">Remove Award</a>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
-                    <div class="d-flex justify-content-start mt-20">
+                    <div class="d-flex justify-content-end">
+                        <a href="#" class="added__social__link">Add Experience</a>
+                    </div>
+                    <!-- Experience end -->
+
+                    <!-- ========== AWARD ========== -->
+                    <h6 class="fw-medium mt-30 mb-20">Award</h6>
+                    <div class="accordion" id="award-accordion">
+                        @for (int i = 0; i < Model.Awards.Count; i++)
+                        {
+                            var award = Model.Awards[i];
+                            var collapseId = $"award-collapse-{award.AwardId}";
+                            <div class="accordion-item mb-3">
+                                <h2 class="accordion-header" id="heading-award-@award.AwardId">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                        @award.Title
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="heading-award-@award.AwardId" data-bs-parent="#award-accordion">
+                                    <div class="accordion-body p-0 mt-3 mb-20">
+                                        <div class="info__field">
+                                            <input type="hidden" name="Awards[@i].AwardId" value="@award.AwardId" />
+                                            <div class="row row-cols-sm-2 row-cols-1">
+                                                <div class="rt-input-group">
+                                                    <label>Title</label>
+                                                    <input type="text" name="Awards[@i].Title" class="form-control" value="@award.Title" required>
+                                                </div>
+                                                <div class="rt-input-group">
+                                                    <label>Year</label>
+                                                    <input type="text" name="Awards[@i].Year" class="form-control" value="@award.Year" required>
+                                                </div>
+                                            </div>
+                                            <div class="rt-input-group">
+                                                <label>Description</label>
+                                                <textarea name="Awards[@i].Description" class="form-control">@award.Description</textarea>
+                                            </div>
+                                            <div class="row mt-0">
+                                                <div class="col d-flex justify-content-end mt-0">
+                                                    <button type="button" class="added__social__link delete-award-btn" data-id="@award.AwardId">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="d-flex justify-content-end">
                         <a href="#" class="added__social__link">Add Award</a>
                     </div>
-                </div>
+
+                    <!-- ========== SUBMIT BUTTON ========== -->
+                    <div class="col d-flex justify-content-start mt-0">
+                        <button type="submit" class="added__social__link">Update Resume</button>
+                    </div>
+                </form>
             </div>
-            <!-- Award end -->
-
-        </div>
-        <div class="d-flex justify-content-center mt-30">
-            <p class="copyright">Copyright © 2024 All Rights Reserved by jobpath</p>
-
         </div>
     </div>
 </div>
@@ -233,6 +249,259 @@
                 preview.src = "";
                 preview.style.display = "none";
             }
+        });
+
+        // Xử lý lưu education bằng AJAX
+        $(document).on('click', '#saveEducationBtn', function (e) {
+            e.preventDefault();
+            var universityName = $('#un').val();
+            var startDate = $('#std').val();
+            var endDate = $('#ltd').val();
+            var description = $('#desc').val();
+
+            $.ajax({
+                url: '@Url.Action("AddEducation", "Candidate")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: $('#educationForm input[name="__RequestVerificationToken"]').val(),
+                    universityName: universityName,
+                    startDate: startDate,
+                    endDate: endDate,
+                    description: description
+                },
+                success: function (res) {
+                    if (res.success) {
+                        alert(res.message);
+                        // TODO: Cập nhật lại danh sách education nếu muốn
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function () {
+                    alert('Error occurred!');
+                }
+            });
+        });
+
+        // Delete education
+        $(document).on('click', '.delete-education-btn', function (e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to delete this education?')) return;
+            var form = $(this).closest('form');
+            var educationId = $(this).data('id');
+            var token = form.find('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: '@Url.Action("DeleteEducation", "Candidate")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: token,
+                    educationId: educationId
+                },
+                success: function (res) {
+                    if (res.success) {
+                        form.remove();
+                    }
+                    alert(res.message);
+                },
+                error: function () {
+                    alert('Error occurred!');
+                }
+            });
+        });
+
+        // Delete experience
+        $(document).on('click', '.delete-experience-btn', function (e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to delete this experience?')) return;
+            var experienceId = $(this).data('id');
+            var token = $('input[name="__RequestVerificationToken"]').first().val();
+            var $accordionItem = $(this).closest('.accordion-item');
+            $.ajax({
+                url: '@Url.Action("DeleteExperience", "Candidate")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: token,
+                    experienceId: experienceId
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $accordionItem.remove();
+                    }
+                    alert(res.message);
+                },
+                error: function () {
+                    alert('Error occurred!');
+                }
+            });
+        });
+
+        // Delete award
+        $(document).on('click', '.delete-award-btn', function (e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to delete this award?')) return;
+            var awardId = $(this).data('id');
+            var token = $('input[name="__RequestVerificationToken"]').first().val();
+            var $accordionItem = $(this).closest('.accordion-item');
+            $.ajax({
+                url: '@Url.Action("DeleteAward", "Candidate")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: token,
+                    awardId: awardId
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $accordionItem.remove();
+                    }
+                    alert(res.message);
+                },
+                error: function () {
+                    alert('Error occurred!');
+                }
+            });
+        });
+
+
+         // Add Education
+        $(document).on('click', '.added__social__link:contains("Add Education")', function (e) {
+            e.preventDefault();
+            var $accordion = $('#education-accordion');
+            var count = $accordion.children('.accordion-item').length;
+            var newItem = `
+            <div class="accordion-item mb-3">
+                <h2 class="accordion-header" id="heading-new-edu-${count}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#edu-collapse-new-${count}" aria-expanded="false" aria-controls="edu-collapse-new-${count}">
+                        New Education
+                    </button>
+                </h2>
+                <div id="edu-collapse-new-${count}" class="accordion-collapse collapse" aria-labelledby="heading-new-edu-${count}" data-bs-parent="#education-accordion">
+                    <div class="accordion-body p-0 mt-3 mb-20">
+                        <div class="info__field">
+                            <input type="hidden" name="Educations[${count}].EducationId" value="0" />
+                            <div class="row row-cols-sm-2 row-cols-1">
+                                <div class="rt-input-group">
+                                    <label>University Name</label>
+                                    <input type="text" name="Educations[${count}].UniversityName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-md-3 row-cols-1">
+                                <div class="rt-input-group">
+                                    <label>Start date</label>
+                                    <input type="date" name="Educations[${count}].StartDate" class="form-control">
+                                </div>
+                                <div class="rt-input-group">
+                                    <label>End Date</label>
+                                    <input type="date" name="Educations[${count}].EndDate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="rt-input-group">
+                                <label>Description</label>
+                                <textarea name="Educations[${count}].Description" class="form-control"></textarea>
+                            </div>
+                            <div class="row mt-0">
+                                <div class="col d-flex justify-content-end mt-0">
+                                    <button type="button" class="added__social__link delete-education-btn" data-id="0">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $accordion.append(newItem);
+        });
+
+        // Add Experience
+        $(document).on('click', '.added__social__link:contains("Add Experience")', function (e) {
+            e.preventDefault();
+            var $accordion = $('#experience-accordion');
+            var count = $accordion.children('.accordion-item').length;
+            var newItem = `
+            <div class="accordion-item mb-3">
+                <h2 class="accordion-header" id="heading-new-exp-${count}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exp-collapse-new-${count}" aria-expanded="false" aria-controls="exp-collapse-new-${count}">
+                        New Experience
+                    </button>
+                </h2>
+                <div id="exp-collapse-new-${count}" class="accordion-collapse collapse" aria-labelledby="heading-new-exp-${count}" data-bs-parent="#experience-accordion">
+                    <div class="accordion-body p-0 mt-3 mb-20">
+                        <div class="info__field">
+                            <input type="hidden" name="Experiences[${count}].CandidateExpId" value="0" />
+                            <div class="row row-cols-sm-2 row-cols-1">
+                                <div class="rt-input-group">
+                                    <label>Title</label>
+                                    <input type="text" name="Experiences[${count}].ExpTitle" class="form-control" required>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label>Company</label>
+                                    <input type="text" name="Experiences[${count}].Company" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="row row-cols-sm-2 row-cols-1">
+                                <div class="rt-input-group">
+                                    <label>Start Date</label>
+                                    <input type="date" name="Experiences[${count}].StartDate" class="form-control">
+                                </div>
+                                <div class="rt-input-group">
+                                    <label>End Date</label>
+                                    <input type="date" name="Experiences[${count}].EndDate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="rt-input-group">
+                                <label>Description</label>
+                                <textarea name="Experiences[${count}].Description" class="form-control"></textarea>
+                            </div>
+                            <div class="row mt-0">
+                                <div class="col d-flex justify-content-end mt-0">
+                                    <button type="button" class="added__social__link delete-experience-btn" data-id="0">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $accordion.append(newItem);
+        });
+
+        // Add Award
+        $(document).on('click', '.added__social__link:contains("Add Award")', function (e) {
+            e.preventDefault();
+            var $accordion = $('#award-accordion');
+            var count = $accordion.children('.accordion-item').length;
+            var newItem = `
+            <div class="accordion-item mb-3">
+                <h2 class="accordion-header" id="heading-new-award-${count}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#award-collapse-new-${count}" aria-expanded="false" aria-controls="award-collapse-new-${count}">
+                        New Award
+                    </button>
+                </h2>
+                <div id="award-collapse-new-${count}" class="accordion-collapse collapse" aria-labelledby="heading-new-award-${count}" data-bs-parent="#award-accordion">
+                    <div class="accordion-body p-0 mt-3 mb-20">
+                        <div class="info__field">
+                            <input type="hidden" name="Awards[${count}].AwardId" value="0" />
+                            <div class="row row-cols-sm-2 row-cols-1">
+                                <div class="rt-input-group">
+                                    <label>Title</label>
+                                    <input type="text" name="Awards[${count}].Title" class="form-control" required>
+                                </div>
+                                <div class="rt-input-group">
+                                    <label>Year</label>
+                                    <input type="text" name="Awards[${count}].Year" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="rt-input-group">
+                                <label>Description</label>
+                                <textarea name="Awards[${count}].Description" class="form-control"></textarea>
+                            </div>
+                            <div class="row mt-0">
+                                <div class="col d-flex justify-content-end mt-0">
+                                    <button type="button" class="added__social__link delete-award-btn" data-id="0">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $accordion.append(newItem);
         });
     </script>
 }
