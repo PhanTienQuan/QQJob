@@ -9,6 +9,8 @@ namespace QQJob.ViewModels.CandidateViewModels
         public string? ResumeUrl { get; set; }
         public IFormFile? ResumeFile { get; set; }
         public List<Education> Educations { get; set; } = new();
-        public List<Skill> Skills { get; set; } = new(); // Thêm dòng này để fix lỗi CS1061
+        public List<Skill> Skills { get; set; } = new();
+        public List<CandidateExp> Experiences { get; set; } = new();
+        public List<Award> Awards { get; set; } = new();
     }
 }
