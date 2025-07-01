@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using QQJob.AIs;
 using QQJob.Helper;
-using Microsoft.EntityFrameworkCore;
 using QQJob.Models;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels.CandidateViewModels;
@@ -13,7 +12,7 @@ using System.Security.Claims;
 namespace QQJob.Controllers
 {
     [Authorize(Roles = "Candidate")]
-    public class CandidateController : Controller
+    public class CandidateController:Controller
     {
         private readonly ICandidateRepository _candidateRepository;
         private readonly ISkillRepository _skillRepository;
@@ -23,6 +22,8 @@ namespace QQJob.Controllers
         private readonly ICloudinaryService _cloudinaryService;
         private readonly TextCompletionAI _textCompletionAI;
         private readonly EmbeddingAI _embeddingAI;
+        private readonly IFollowRepository _followRepository;
+        private readonly IEmployerRepository _employerRepository;
         public CandidateController(
             ICandidateRepository candidateRepository,
             ISkillRepository skillRepository,
@@ -30,7 +31,9 @@ namespace QQJob.Controllers
             IChatSessionRepository chatSessionRepository,
             ICloudinaryService cloudinaryService,
             TextCompletionAI textCompletionAI,
-            EmbeddingAI embeddingAI
+            EmbeddingAI embeddingAI,
+            IFollowRepository followRepository,
+            IEmployerRepository employerRepository
         )
         {
             _candidateRepository = candidateRepository;
@@ -40,11 +43,13 @@ namespace QQJob.Controllers
             _chatSessionRepository = chatSessionRepository;
             _textCompletionAI = textCompletionAI;
             _embeddingAI = embeddingAI;
+            _followRepository = followRepository;
+            _employerRepository = employerRepository;
         }
 
-        private T UpdateIfDifferent<T>(T currentValue, T newValue, ref bool isUpdated)
+        private T UpdateIfDifferent<T>(T currentValue,T newValue,ref bool isUpdated)
         {
-            if (!EqualityComparer<T>.Default.Equals(currentValue, newValue))
+            if(!EqualityComparer<T>.Default.Equals(currentValue,newValue))
             {
                 isUpdated = true;
                 return newValue;
@@ -67,9 +72,9 @@ namespace QQJob.Controllers
             // Số tin nhắn chưa đọc (giả sử mỗi session có Messages navigation property)
             int unreadMessageCount = 0;
             var chatSessions = await _chatSessionRepository.GetChatSession(userId);
-            foreach (var session in chatSessions)
+            foreach(var session in chatSessions)
             {
-                if (session.Messages != null)
+                if(session.Messages != null)
                 {
                     unreadMessageCount += session.Messages.Count(m => !m.IsRead && m.SenderId != userId);
                 }
@@ -96,11 +101,11 @@ namespace QQJob.Controllers
         public async Task<IActionResult> Profile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account");
+            if(string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login","Account");
 
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
-            if (candidate == null || candidate.User == null)
+            if(candidate == null || candidate.User == null)
                 return NotFound("Candidate profile not found.");
 
             var user = candidate.User;
@@ -132,52 +137,52 @@ namespace QQJob.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile(ProfileViewModel model)
         {
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return View(model);
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account");
+            if(string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login","Account");
 
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
-            if (candidate == null || candidate.User == null)
+            if(candidate == null || candidate.User == null)
                 return NotFound("Candidate profile not found.");
 
             bool isUpdated = false;
 
             // Update avatar if a new file is uploaded
-            if (model.AvatarFile?.Length > 0)
+            if(model.AvatarFile?.Length > 0)
             {
                 try
                 {
-                    candidate.User.Avatar = model.Avatar = await _cloudinaryService.UpdateAvatar(model.AvatarFile, model.Id);
+                    candidate.User.Avatar = model.Avatar = await _cloudinaryService.UpdateAvatar(model.AvatarFile,model.Id);
                     isUpdated = true;
                 }
                 catch
                 {
-                    TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Something happened to cloudinary server!", type = "error" });
+                    TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Something happened to cloudinary server!",type = "error" });
                     return View(model);
                 }
             }
 
             // Update fields if they differ from the current values
-            candidate.User.FullName = UpdateIfDifferent(candidate.User.FullName, model.FullName?.Trim(), ref isUpdated);
-            candidate.User.PhoneNumber = UpdateIfDifferent(candidate.User.PhoneNumber, model.PhoneNumber?.Trim(), ref isUpdated);
-            candidate.JobTitle = UpdateIfDifferent(candidate.JobTitle, model.JobTitle?.Trim(), ref isUpdated);
-            candidate.Description = UpdateIfDifferent(candidate.Description, model.Description?.Trim(), ref isUpdated);
-            candidate.WorkingType = UpdateIfDifferent(candidate.WorkingType, model.WorkingType, ref isUpdated);
+            candidate.User.FullName = UpdateIfDifferent(candidate.User.FullName,model.FullName?.Trim(),ref isUpdated);
+            candidate.User.PhoneNumber = UpdateIfDifferent(candidate.User.PhoneNumber,model.PhoneNumber?.Trim(),ref isUpdated);
+            candidate.JobTitle = UpdateIfDifferent(candidate.JobTitle,model.JobTitle?.Trim(),ref isUpdated);
+            candidate.Description = UpdateIfDifferent(candidate.Description,model.Description?.Trim(),ref isUpdated);
+            candidate.WorkingType = UpdateIfDifferent(candidate.WorkingType,model.WorkingType,ref isUpdated);
 
-            if (isUpdated)
+            if(isUpdated)
             {
                 _candidateRepository.Update(candidate);
                 await _candidateRepository.SaveChangesAsync();
-                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Profile updated successfully!", type = "success" });
+                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "Profile updated successfully!",type = "success" });
             }
             else
             {
-                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "No changes detected.", type = "none" });
+                TempData["Message"] = Newtonsoft.Json.JsonConvert.SerializeObject(new { message = "No changes detected.",type = "none" });
             }
             return RedirectToAction("Profile");
         }
@@ -203,17 +208,17 @@ namespace QQJob.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
 
-            if (model.ResumeFile == null || model.ResumeFile.Length == 0)
+            if(model.ResumeFile == null || model.ResumeFile.Length == 0)
             {
-                ModelState.AddModelError("ResumeFile", "Please select a PDF file.");
+                ModelState.AddModelError("ResumeFile","Please select a PDF file.");
                 model.ResumeUrl = candidate?.Resume?.Url;
                 return View(model);
             }
 
             // Chỉ nhận file PDF
-            if (Path.GetExtension(model.ResumeFile.FileName).ToLower() != ".pdf")
+            if(Path.GetExtension(model.ResumeFile.FileName).ToLower() != ".pdf")
             {
-                ModelState.AddModelError("ResumeFile", "Only PDF files are allowed.");
+                ModelState.AddModelError("ResumeFile","Only PDF files are allowed.");
                 model.ResumeUrl = candidate?.Resume?.Url;
                 return View(model);
             }
@@ -222,11 +227,11 @@ namespace QQJob.Controllers
             string resumeUrl;
             try
             {
-                resumeUrl = await _cloudinaryService.UploadResumeAsync(model.ResumeFile, userId);
+                resumeUrl = await _cloudinaryService.UploadResumeAsync(model.ResumeFile,userId);
             }
             catch
             {
-                ModelState.AddModelError("ResumeFile", "Upload failed. Please try again.");
+                ModelState.AddModelError("ResumeFile","Upload failed. Please try again.");
                 model.ResumeUrl = candidate?.Resume?.Url;
                 return View(model);
             }
@@ -234,11 +239,11 @@ namespace QQJob.Controllers
             using var memoryStream = new MemoryStream();
             await model.ResumeFile.CopyToAsync(memoryStream);
             byte[] fileBytes = memoryStream.ToArray();
-            var resumeText = await TextExtractionHelper.ExtractCvTextAsync(fileBytes, model.ResumeFile.FileName);
+            var resumeText = await TextExtractionHelper.ExtractCvTextAsync(fileBytes,model.ResumeFile.FileName);
             var summary = await _textCompletionAI.SummarizeResume(resumeText);
             var embedding = await _embeddingAI.GetTextEmbbeding(summary);
             // Lưu vào DB
-            if (candidate.Resume == null)
+            if(candidate.Resume == null)
             {
                 candidate.Resume = new Resume
                 {
@@ -288,19 +293,19 @@ namespace QQJob.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddEducation(string universityName, string startDate, string endDate, string description)
+        public async Task<IActionResult> AddEducation(string universityName,string startDate,string endDate,string description)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Json(new { success = false, message = "Not logged in" });
+            if(string.IsNullOrEmpty(userId))
+                return Json(new { success = false,message = "Not logged in" });
 
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
-            if (candidate == null)
-                return Json(new { success = false, message = "Candidate not found" });
+            if(candidate == null)
+                return Json(new { success = false,message = "Candidate not found" });
 
             DateTime? start = null, end = null;
-            if (DateTime.TryParse(startDate, out var s)) start = s;
-            if (DateTime.TryParse(endDate, out var e)) end = e;
+            if(DateTime.TryParse(startDate,out var s)) start = s;
+            if(DateTime.TryParse(endDate,out var e)) end = e;
 
             var education = new Education
             {
@@ -317,27 +322,27 @@ namespace QQJob.Controllers
             _candidateRepository.Update(candidate);
             await _candidateRepository.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Education added successfully!" });
+            return Json(new { success = true,message = "Education added successfully!" });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateEducation(int educationId, string universityName, string startDate, string endDate, string description)
+        public async Task<IActionResult> UpdateEducation(int educationId,string universityName,string startDate,string endDate,string description)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
             var education = candidate?.Educations?.FirstOrDefault(e => e.EducationId == educationId);
-            if (education == null)
-                return Json(new { success = false, message = "Education not found" });
+            if(education == null)
+                return Json(new { success = false,message = "Education not found" });
 
             education.UniversityName = universityName;
-            education.StartDate = DateTime.TryParse(startDate, out var s) ? s : null;
-            education.EndDate = DateTime.TryParse(endDate, out var e) ? e : null;
+            education.StartDate = DateTime.TryParse(startDate,out var s) ? s : null;
+            education.EndDate = DateTime.TryParse(endDate,out var e) ? e : null;
             education.Description = description;
 
             _candidateRepository.Update(candidate);
             await _candidateRepository.SaveChangesAsync();
-            return Json(new { success = true, message = "Education updated!" });
+            return Json(new { success = true,message = "Education updated!" });
         }
 
         [HttpPost]
@@ -347,15 +352,84 @@ namespace QQJob.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
             var education = candidate?.Educations?.FirstOrDefault(e => e.EducationId == educationId);
-            if (education == null)
-                return Json(new { success = false, message = "Education not found" });
+            if(education == null)
+                return Json(new { success = false,message = "Education not found" });
 
             candidate.Educations.Remove(education);
             _candidateRepository.Update(candidate);
             await _candidateRepository.SaveChangesAsync();
-            return Json(new { success = true, message = "Education deleted!" });
+            return Json(new { success = true,message = "Education deleted!" });
         }
+        [HttpPost]
+        public async Task<IActionResult> Follow(string employerId)
+        {
+            var referer = Request.Headers.Referer.ToString();
+            if(!User.Identity.IsAuthenticated)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Please login!!",type = "warning" });
+                return Redirect(referer);
+            }
 
+            if(User.IsInRole("Employer"))
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Can't save employer as a employer!!",type = "warning" });
+                return Redirect(referer);
+            }
+
+            var employer = await _employerRepository.GetByIdAsync(employerId);
+            if(employer == null)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "This employer does not exist!!",type = "warning" });
+                return Redirect(referer);
+            }
+            object json = null;
+            var follow = await _followRepository.FindAsync(f => f.EmployerId == employerId);
+            if(!follow.Any())
+            {
+                await _followRepository.AddAsync(new Follow()
+                {
+                    CandidateId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    EmployerId = employerId,
+                    FollowOn = DateTime.Now,
+                });
+                json = new
+                {
+                    success = true,
+                    message = "Followed"
+                };
+            }
+            else
+            {
+                _followRepository.Delete(follow.FirstOrDefault());
+                json = new
+                {
+                    success = false,
+                    message = "Unfollow"
+                };
+            }
+            await _followRepository.SaveChangesAsync();
+            return Json(json);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Follow(int currentPage = 1,int pageSize = 5)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var referer = Request.Headers.Referer.ToString();
+            if(userId == null)
+            {
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Please login!!",type = "warning" });
+                return Redirect(referer);
+            }
+
+            var (follows, pagingModel) = await _followRepository.GetFollowsAsync(currentPage,pageSize,f => f.CandidateId == userId);
+            var viewModel = new FollowingEmployerListViewModel()
+            {
+                Follows = follows,
+                Paging = pagingModel
+            };
+            return View(viewModel);
+        }
         public IActionResult AppliedJob()
         {
             return View();
@@ -371,11 +445,6 @@ namespace QQJob.Controllers
         }
 
         public IActionResult Meeting()
-        {
-            return View();
-        }
-
-        public IActionResult Follow()
         {
             return View();
         }
