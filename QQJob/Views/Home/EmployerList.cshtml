@@ -14,6 +14,12 @@
         height: 20vh !important;
         overflow-y: scroll;
     }
+
+    .followed {
+        background-color: var(--rts-button-1) !important;
+        color: var(--rts-white) !important;
+    }
+
 </style>
 <!-- breadcrumb area end -->
 <!-- job list one -->
@@ -110,5 +116,39 @@
                 $(savedTab).addClass('show active');
             }
         }
+
+        $(document).on('click', '.follow-btn', function (e) {
+            e.preventDefault();
+
+            var $btn = $(this);
+            var employerId = $btn.data('employer-id');
+
+            $.ajax({
+                type: 'POST',
+                url: '/Candidate/Follow', // Change to your controller's route if different
+                data: { employerId: employerId },
+                success: function (response) {
+                    // Show feedback (you can use toast, alert, etc.)
+                    showToastMessage(response.message, "success");
+
+                    // Toggle icon based on follow/unfollow
+                    var $icon = $btn.find('i');
+                    if (response.success) {
+                        $btn.addClass('followed');
+                        $icon.removeClass('fa-light').addClass('fa-solid');
+                        $btn.attr('title', 'Unfollow');
+                    } else {
+                        $btn.removeClass('followed');
+                        $icon.removeClass('fa-solid').addClass('fa-light');
+                        $btn.attr('title', 'Follow');
+                    }
+                },
+                error: function (xhr) {
+                    // Optionally handle errors (login warning, etc.)
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+
     </script>
 }

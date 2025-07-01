@@ -15,5 +15,6 @@ namespace QQJob.ViewModels
         public string? Spending { get; set; }
         public string? Phone { get; set; }
         public string? Website { get; set; }
+        public bool IsFollowed { get; set; }
     }
 }

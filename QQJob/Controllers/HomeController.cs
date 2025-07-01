@@ -5,13 +5,15 @@ using QQJob.Models;
 using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
 using QQJob.ViewModels;
+using System.Security.Claims;
 
 namespace QQJob.Controllers
 {
     public class HomeController(
         UserManager<AppUser> userManager,
         IEmployerRepository employerRepository,
-        IJobRepository jobRepository
+        IJobRepository jobRepository,
+        IFollowRepository followRepository
         ):Controller
     {
 
@@ -50,20 +52,29 @@ namespace QQJob.Controllers
             }
 
             var (employers, paging) = await employerRepository.GetJobsAsync(employerListViewModel.Paging.CurrentPage,employerListViewModel.Paging.PageSize,employerListViewModel.SearchEmployerName,employerListViewModel.SearchField,date);
+            var userId = User.Identity.IsAuthenticated ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
+
+            var employerList = employers.Select(e => new EmployerViewModel
+            {
+                Id = e.EmployerId,
+                Name = e.User.FullName,
+                Slug = e.User.Slug,
+                Fields = e.CompanyField?.Split(",") ?? ["Not specify"],
+                PostedJobsCount = e.Jobs.Count,
+                AvatarUrl = e.User.Avatar,
+            }).ToList();
+
+            foreach(var e in employerList)
+            {
+                e.IsFollowed = userId != null && await followRepository.IsFollowedAsync(e.Id,userId);
+            }
 
             var viewModel = new EmployerListViewModel
             {
-                Employers = employers.Select(e => new EmployerViewModel
-                {
-                    Id = e.EmployerId,
-                    Name = e.User.FullName,
-                    Slug = e.User.Slug,
-                    Fields = e.CompanyField?.Split(",") ?? ["Not specify"],
-                    PostedJobsCount = e.Jobs.Count,
-                    AvatarUrl = e.User.Avatar
-                }),
+                Employers = employerList,
                 Paging = paging,
             };
+
             if(employerListViewModel.Searching)
             {
                 return PartialView("_EmployerList",viewModel);
@@ -108,7 +119,7 @@ namespace QQJob.Controllers
                 .ToList();
 
             string currencyLabel = currencies.Count > 0 ? string.Join("/",currencies) : "";
-
+            var userId = User.Identity.IsAuthenticated ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
             var employerDetailViewModel = new EmployerDetailViewModel
             {
                 Id = employer.EmployerId,
@@ -121,7 +132,8 @@ namespace QQJob.Controllers
                 FoundedDate = employer.FoundedDate,
                 Phone = employer.User.PhoneNumber ?? "Not specify",
                 Spending = $"{minimumSpending:N0} - {maximumSpending:N0}" + (string.IsNullOrEmpty(currencyLabel) ? "" : $" {currencyLabel}"),
-                Website = employer.Website
+                Website = employer.Website,
+                IsFollowed = userId != null && await followRepository.IsFollowedAsync(employer.EmployerId,userId)
             };
             return View(employerDetailViewModel);
         }

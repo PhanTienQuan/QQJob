@@ -17,5 +17,7 @@ namespace QQJob.ViewModels.EmployerViewModels
         public string CandidateName { get; set; }
         public string CandidateAvatarUrl { get; set; }
         public float AiRanking { get; set; }
+        public string ResumeUrl { get; set; }
+        public string FileName { get; set; }
     }
 }

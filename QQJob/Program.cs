@@ -60,6 +60,7 @@ namespace QQJob
             builder.Services.AddScoped<INotificationRepository,NotificationRepository>();
             builder.Services.AddScoped<IJobEmbeddingRepository,JobEmbeddingRepository>();
             builder.Services.AddScoped<IJobSimilarityMatrixRepository,JobSimilarityMatrixRepository>();
+            builder.Services.AddScoped<IFollowRepository,FollowRepository>();
             builder.Services.AddScoped<CustomRepository,CustomRepository>();
             builder.Services.AddScoped<EmbeddingAI>();
             builder.Services.AddScoped<TextCompletionAI>();

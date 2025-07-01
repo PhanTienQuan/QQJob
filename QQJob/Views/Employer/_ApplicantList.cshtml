@@ -27,14 +27,17 @@
             </div>
             <div class="action">
                 <!-- View Profile -->
-                <a asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId" class="action__btn" title="View Application">
+                <a style="color: black;" asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId" class="action__btn" title="View Application">
                     <i class="fa-solid fa-eye"></i>
                 </a>
 
                 <!-- Download CV -->
-                <button class="action__btn" title="Download CV">
-                    <i class="fa-solid fa-file-arrow-down"></i>
-                </button>
+                <a href="@applicant.ResumeUrl"
+                   download="@applicant.FileName"
+                   class="action__btn"
+                   title="Download CV">
+                    <i class="fa-solid fa-file-arrow-down" style="color: black;"></i>
+                </a>
 
                 <!-- Message -->
                 <a type="button" class="action__btn" title="Message Candidate" asp-action="ChatWith" asp-controller="Message" asp-route-chatUserId="@applicant.CandidateId">

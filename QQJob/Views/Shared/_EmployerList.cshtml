@@ -37,12 +37,17 @@
                                     <i class="fa-light fa-briefcase"></i> Posted @($"{e.PostedJobsCount} Job{(e.PostedJobsCount == 1 ? "" : "s")}")
                                 </div>
                             </div>
-                            <a href="#" class="rts__btn fill__btn rounded-2" title="View">
+                            <a asp-controller="Home" asp-action="EmployerDetail" aria-label="name" asp-route-id="@e.Id" asp-route-slug="@e.Slug" class="rts__btn fill__btn rounded-2" title="View">
                                 <i class="fa-light fa-eye"></i>
                             </a>
-                            <a href="#" class="rts__btn fill__btn rounded-2" title="Follow">
-                                <i class="fa-regulightlar fa-heart"></i>
-                            </a>
+                            @if (User.IsInRole("Candidate"))
+                            {              
+                                <a class="rts__btn fill__btn rounded-2 follow-btn @(e.IsFollowed ? "followed" : "")"
+                                   title="@(e.IsFollowed ? "Unfollow" : "Follow")"
+                                   data-employer-id="@e.Id">
+                                    <i class="@(e.IsFollowed ? "fa-solid" : "fa-light") fa-heart"></i>
+                                </a>
+                            }
                         </div>
                     </div>
                 }
@@ -80,12 +85,17 @@
 
                             </div>
                             <div class="flex-wrap d-flex gap-4 align-items-center">
-                                <a class="apply__btn style__two" title="View">
+                                <a asp-controller="Home" asp-action="EmployerDetail" aria-label="name" asp-route-id="@e.Id" asp-route-slug="@e.Slug" class="apply__btn style__two" title="View">
                                     <i class="fa-light fa-eye"></i>
                                 </a>
-                                <a class="apply__btn style__two" title="Follow">
-                                    <i class="fa-light fa-heart"></i>
-                                </a>
+                                @if (User.IsInRole("Candidate"))
+                                {
+                                    <a class="apply__btn style__two follow-btn @(e.IsFollowed ? "followed" : "")"
+                                       title="@(e.IsFollowed ? "Unfollow" : "Follow")"
+                                       data-employer-id="@e.Id">
+                                        <i class="@(e.IsFollowed ? "fa-solid" : "fa-light") fa-heart"></i>
+                                    </a>
+                                }
                             </div>
                         </div>
                     </div>
