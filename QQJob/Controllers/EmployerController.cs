@@ -26,7 +26,7 @@ namespace QQJob.Controllers
         IAppUserRepository appUserRepository,
         INotificationRepository notificationRepository,
         EmbeddingAI embeddingAI,
-        UserManager<AppUser> appUserManager
+        UserManager<AppUser> userManager
         ):Controller
     {
         [HttpGet]
@@ -505,7 +505,7 @@ namespace QQJob.Controllers
         public async Task<IActionResult> EditJob(int id)
         {
             var job = await jobRepository.GetByIdAsync(id);
-            var currentUser = await appUserManager.GetUserAsync(User);
+            var currentUser = await userManager.GetUserAsync(User);
 
             if(job.EmployerId != currentUser.Id)
             {
@@ -636,14 +636,23 @@ namespace QQJob.Controllers
         {
             var job = await jobRepository.GetByIdAsync(jobId);
             if(job == null) return NotFound();
+            var currentUser = await userManager.GetUserAsync(User);
+            if(currentUser == null) return NotFound();
 
-            job.Status = Status.Approved;
+            if(currentUser.IsVerified == UserStatus.Verified && job.Status != Status.Denied)
+            {
+                job.Status = Status.Approved;
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
+            }
+            else
+            {
+                job.Status = Status.Pending;
+                TempData["Message"] = JsonConvert.SerializeObject(new { message = "Your job will be pending until Admin approve the job posting!",type = "success" });
+            }
             job.PostDate = DateTime.Now;
             job.CloseDate = DateTime.Now.AddDays(1);
-
             await jobRepository.SaveChangesAsync();
 
-            TempData["Message"] = JsonConvert.SerializeObject(new { message = "Job re-opened for 1 days. Please update the job details.",type = "success" });
             return RedirectToAction("EditJob","Employer",new { id = jobId });
         }
         [HttpGet]
@@ -672,30 +681,12 @@ namespace QQJob.Controllers
                     JobSlug = applicant.Job.Slug,
                     JobTitle = applicant.Job.JobTitle,
                     Skills = applicant.Candidate.Skills ?? [],
-                    CandidateAvatarUrl = applicant.Candidate.User.Avatar
+                    CandidateAvatarUrl = applicant.Candidate.User.Avatar,
+                    ResumeUrl = applicant.ResumeUrl,
+                    FileName = $"{applicant.Candidate.User.Slug}_CV_{DateTime.Now:yyyyMMdd}.pdf",
+                    AiRanking = applicant.AIRanking ?? 0.00f
                 });
             }
-            var fakeApplicant = new ApplicantViewModel
-            {
-                ApplicationId = 0, // not real
-                JobId = 0,
-                CandidateId = "acksakcas",
-                ApplicationDate = DateTime.Now.AddDays(20),
-                Status = ApplicationStatus.Pending,
-                ApplicantSlug = "random-fake-applicant",
-                CandidateName = "John Doe",
-                JobSlug = "test-job",
-                JobTitle = "Senior QA Engineer",
-                Skills = new List<Skill>
-                {
-                    new Skill { SkillName = "Selenium" },
-                    new Skill { SkillName = "Cypress" },
-                    new Skill { SkillName = "Postman" }
-                },
-                AiRanking = 4.5f
-            };
-
-            model.Applicants.Add(fakeApplicant);
 
             model.Paging = pagingModel;
             return View(model);
@@ -717,6 +708,7 @@ namespace QQJob.Controllers
                 model.Applicants.Add(new ApplicantViewModel
                 {
                     ApplicationId = applicant.ApplicationId,
+                    CandidateAvatarUrl = applicant.Candidate.User.Avatar,
                     JobId = applicant.JobId,
                     CandidateId = applicant.CandidateId,
                     ApplicationDate = applicant.ApplicationDate,
@@ -725,7 +717,10 @@ namespace QQJob.Controllers
                     CandidateName = applicant.Candidate.User.FullName,
                     JobSlug = applicant.Job.Slug,
                     JobTitle = applicant.Job.JobTitle,
-                    Skills = applicant.Candidate.Skills ?? []
+                    Skills = applicant.Candidate.Skills ?? [],
+                    ResumeUrl = applicant.ResumeUrl,
+                    FileName = $"{applicant.Candidate.User.FullName.ToLower().Replace(' ','-')}_CV_{DateTime.Now:yyyyMMdd}.pdf",
+                    AiRanking = applicant.AIRanking ?? 0.00f
                 });
             }
 

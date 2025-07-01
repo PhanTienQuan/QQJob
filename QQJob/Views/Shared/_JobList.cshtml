@@ -1,9 +1,12 @@
 ﻿@model JobListViewModel
+@{
+    var total = Model.Paging.TotalItems;
+    var start = (Model.Jobs.Count() == 0) ? 0 : ((Model.Paging.CurrentPage - 1) * Model.Paging.PageSize) + 1;
+    var end = (Model.Jobs.Count() == 0) ? 0 : start + Model.Jobs.Count() - 1;
+}
 <div class="top__query mb-40 d-flex flex-wrap gap-4 gap-xl-0 justify-content-between align-items-center" id="top">
     <span class="text-dark font-20 fw-medium">
-        Showing @(((Model.Paging.CurrentPage - 1) * Model.Paging.PageSize) + 1)
-        -
-        @(Math.Min(Model.Paging.CurrentPage * Model.Paging.PageSize, Model.Paging.TotalItems)) of @Model.Paging.TotalItems results
+        Showing @start–@end of @total
     </span>
 </div>
 <div class="tab-content" id="myTabContent">
@@ -52,7 +55,7 @@
             }
             else
             {
-                <p>No applications have been received yet.</p>
+                <p>No jobs are available right now.</p>
             }
         </div>
     </div>

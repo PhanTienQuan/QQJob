@@ -68,37 +68,19 @@ namespace QQJob.Controllers
             {
                 var chatIntent = await textCompletionAI.GetChatIntent(chatHistory);
                 //Console.WriteLine($"[Chat Intent] {JsonConvert.SerializeObject(chatIntent)}");
-                switch(chatIntent.IntentType)
+                return chatIntent.IntentType switch
                 {
-                    case "GREETING":
-                    case "THANK_YOU":
-                    case "ACKNOWLEDGMENT":
-                    case "UNRELATED":
-                    case "ACTION":
-                    //switch(chatIntent.ActionType)
-                    //{
-                    //    case "POST_JOB":
-                    //        var response = await textCompletionAI.ExtractPostJobSession(chatHistory,session,[PrintPostJobSession,SaveProgress]);
-                    //        return Ok(new { Message = response });
-                    //    default:
-                    //        return Ok(new { Message = "Sorry, that action is not supported in chat yet." });
-                    //}
-                    default:
-                        return Ok(new { Message = await GenerateFriendlyReplyAsync(chatIntent.IntentType,userMessage) });
-
-                    case "INSTRUCTION":
-                        return Ok(new { Message = await GenerateInstructions(chatIntent.IntentType,userMessage,roles == null ? "anonymous" : roles.First()) });
-                    case "JOB_SEARCH":
-                        return Ok(new
-                        {
-                            Message = await SearchJobs(chatIntent)
-                        });
-                    case "EMPLOYER_SEARCH":
-                        return Ok(new
-                        {
-                            Message = await SearchEmployer(chatIntent)
-                        });
-                }
+                    "INSTRUCTION" => Ok(new { Message = await GenerateInstructions(chatIntent.IntentType,userMessage,roles == null ? "anonymous" : roles.First()) }),
+                    "JOB_SEARCH" => Ok(new
+                    {
+                        Message = await SearchJobs(chatIntent)
+                    }),
+                    "EMPLOYER_SEARCH" => Ok(new
+                    {
+                        Message = await SearchEmployer(chatIntent)
+                    }),
+                    _ => Ok(new { Message = await GenerateFriendlyReplyAsync(chatIntent.IntentType,userMessage) }),
+                };
             }
             catch(Exception ex)
             {

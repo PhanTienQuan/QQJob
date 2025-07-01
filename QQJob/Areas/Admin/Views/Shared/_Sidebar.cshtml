@@ -1,10 +1,10 @@
 ﻿@functions {
-    public string IsActive(string controller, string action = "")
+    public string IsActive(string controller, string action = "", string replace = "active", string replaceElse = "")
     {
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-        return (controller == currentController && (string.IsNullOrEmpty(action) || action == currentAction)) ? "active" : "";
+        return (controller == currentController && (string.IsNullOrEmpty(action) || action == currentAction)) ? replace : replaceElse;
     }
 }
 
@@ -48,14 +48,15 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="@IsActive("User", "Index")"><a asp-area="Admin" asp-controller="User" asp-action="Index"><i class="fa fa-circle-o"></i>All User</a></li>
-                    <li class="@IsActive("User", "VerificationRequestList")"><a asp-area="Admin" asp-controller="User" asp-action="VerificationRequestList"><i class="fa fa-circle-o"></i>Verification Request</a></li>
+                    <li class="@IsActive("User", "Index")"><a asp-area="Admin" asp-controller="User" asp-action="Index"><i class="@IsActive("User", "Index", "fa fa-circle", "fa fa-circle-o")"></i>All User</a></li>
+                    <li class="@IsActive("User", "VerificationRequestList")"><a asp-area="Admin" asp-controller="User" asp-action="VerificationRequestList"><i class="@IsActive("User", "VerificationRequestList", "fa fa-circle", "fa fa-circle-o")"></i>Verification Request</a></li>
                 </ul>
             </li>
 
             <li class="@IsActive("Role")"><a asp-area="Admin" asp-controller="Role" asp-action="Index"><i class="fa fa-dashboard"></i> <span>Manage Role</span></a></li>
             <li class="@IsActive("Job")"><a asp-area="Admin" asp-controller="Job" asp-action="Index"><i class="fa fa-dashboard"></i> <span>Manage Job</span></a></li>
             <li class="@IsActive("Skill")"><a asp-area="Admin" asp-controller="Skill" asp-action="Index"><i class="fa fa-dashboard"></i> <span>Manage Skill</span></a></li>
+            <li class="@IsActive("Applications")"><a asp-area="Admin" asp-controller="Applications" asp-action="Index"><i class="fa fa-dashboard"></i> <span>Manage Applications</span></a></li>
             <li class="header">LABELS</li>
             <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Important</span></a></li>
             <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Warning</span></a></li>

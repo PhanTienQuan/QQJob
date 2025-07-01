@@ -1,5 +1,4 @@
-﻿using QQJob.Models;
-using QQJob.Models.Enum;
+﻿using QQJob.Models.Enum;
 
 namespace QQJob.ViewModels
 {
@@ -15,7 +14,8 @@ namespace QQJob.ViewModels
         public required string JobTitle { get; set; }
         public required string JobSlug { get; set; }
         public string? CoverLetter { get; set; }
-        public required Resume Resume { get; set; }
+        public string? ResumeUrl { get; set; }
+        public string? ResumeSummary { get; set; }
         public required DateTime ApplicationDate { get; set; }
         public ApplicationStatus Status { get; set; }
         public required string CandidateAvatar { get; set; }

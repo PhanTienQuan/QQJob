@@ -58,6 +58,47 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="confirmCloseJobModal" tabindex="-1" aria-labelledby="confirmCloseJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmCloseJobModalLabel">Close Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to close this job? It will no longer be visible to candidates.
+            </div>
+            <div class="modal-footer">
+                <form asp-action="CloseJob" method="post">
+                    <input type="hidden" name="jobId" id="closeJobId" value="" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Close Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmReopenJobModal" tabindex="-1" aria-labelledby="confirmReopenJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmReopenJobModalLabel">Re-open Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to re-open this job? It will be visible to candidates again.
+            </div>
+            <div class="modal-footer">
+                <form asp-action="ReopenJob" method="post">
+                    <input type="hidden" name="jobId" id="reopenJobId" value="" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Yes, Re-open Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts{
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
     <script>
@@ -89,18 +130,19 @@
             $("#Paging_CurrentPage").val(selectedPage);
             searchForm.submit();
         }
-        var closeJobModal = document.getElementById('confirmCloseJobModal');
-        closeJobModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var jobId = button.getAttribute('data-job-id');
-            document.getElementById('closeJobId').value = jobId;
+        $('#confirmCloseJobModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget);
+          var id = button.data('job-id');
+          var modal = $(this);
+          modal.find('#closeJobId').val(id);
         });
 
-        var reopenJobModal = document.getElementById('confirmReopenJobModal');
-        reopenJobModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var jobId = button.getAttribute('data-job-id');
-            document.getElementById('reopenJobId').value = jobId;
+        $('#confirmReopenJobModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget);
+          var id = button.data('job-id');
+          console.log(id);
+          var modal = $(this);
+          modal.find('#reopenJobId').val(id);
         });
     </script>
 }

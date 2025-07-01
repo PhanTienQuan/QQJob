@@ -8,5 +8,6 @@
         public int PostedJobsCount { get; set; }
         public required string Slug { get; set; }
         public required string AvatarUrl { get; set; }
+        public bool IsFollowed { get; set; }
     }
 }

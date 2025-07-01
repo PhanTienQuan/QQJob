@@ -36,9 +36,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="breadcrumb__apply max-content">
-                        <a href="#" class="rts__btn apply__btn be-1 fill__btn">Follow</a>
-                    </div>
+                    @if (User.IsInRole("Candidate"))
+                    {
+                        <div class="breadcrumb__apply max-content">
+                            <a data-employer-id="@Model.Id" class="rts__btn apply__btn be-1 fill__btn follow-btn">@(Model.IsFollowed ? "Unfollow" : "Follow")</a>
+                        </div>
+                    }
                 </div>
                 <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
                     <div class="shape__one common">
@@ -176,4 +179,35 @@
     </div>
 </div>
 <!-- opening job end -->
- 
+ @section Scripts {
+     <script>
+         $(document).on('click', '.follow-btn', function (e) {
+            e.preventDefault();
+
+            var $btn = $(this);
+            var employerId = $btn.data('employer-id');
+
+            $.ajax({
+                type: 'POST',
+                url: '/Candidate/Follow', // Change to your controller's route if different
+                data: { employerId: employerId },
+                success: function (response) {
+                    // Show feedback (you can use toast, alert, etc.)
+                    showToastMessage(response.message, "success");
+
+                    if (response.success) {
+                        $btn.attr('title', 'Unfollow');
+                        $btn.text('Unfollow');
+                    } else {
+                        $btn.attr('title', 'Follow');
+                        $btn.text('Follow');
+                    }
+                },
+                error: function (xhr) {
+                    // Optionally handle errors (login warning, etc.)
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+     </script>
+ }
