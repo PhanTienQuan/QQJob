@@ -356,9 +356,33 @@ namespace QQJob.Controllers
         {
             return View();
         }
-        public IActionResult Details()
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
         {
-            return View();
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(id);
+            if (candidate == null || candidate.User == null)
+                return NotFound();
+
+            var model = new CandidateDetailViewModel
+            {
+                CandidateId = candidate.CandidateId,
+                FullName = candidate.User.FullName,
+                Avatar = candidate.User.Avatar,
+                JobTitle = candidate.JobTitle,
+                Description = candidate.Description,
+                Skills = candidate.Skills?.Select(s => s.SkillName).ToList() ?? new List<string>(),
+                Educations = candidate.Educations?.ToList() ?? new List<Education>(),
+                Experiences = candidate.CandidateExps?.ToList() ?? new List<CandidateExp>(),
+                Awards = candidate.Awards?.ToList() ?? new List<Award>(),
+                ResumeUrl = candidate.Resume?.Url
+            };
+
+            return View(model);
         }
 
         public IActionResult Message()
