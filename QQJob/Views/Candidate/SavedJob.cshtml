@@ -1,12 +1,12 @@
-﻿@model QQJob.ViewModels.CandidateViewModels.AppliedJobListViewModel
+@model QQJob.ViewModels.CandidateViewModels.AppliedJobListViewModel
 @{
-    ViewBag.Title = "Applied Jobs";
+    ViewBag.Title = "Saved Jobs";
 }
 <div class="dashboard__content d-flex template-dashboard ">
     <partial name="_LeftMenu" />
     <div class="dashboard__right">
         <div class="dash__content" id="content-area">
-            <h6 class="fw-medium mb-30">Jobs You've Applied</h6>
+            <h6 class="fw-medium mb-30">Jobs You've Saved</h6>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active list__style" role="tabpanel" id="list">
                     <div class="row g-30">
@@ -57,11 +57,11 @@
                         }
                         else
                         {
-                            <p>No applied jobs found.</p>
+                            <p>No saved jobs found.</p>
                         }
                     </div>
                 </div>
-                <pagination current-page="@Model.Paging.CurrentPage" total-pages="@Model.Paging.TotalPages" action-name="AppliedJob" controller-name="Candidate"></pagination>
+                <pagination current-page="@Model.Paging.CurrentPage" total-pages="@Model.Paging.TotalPages" action-name="SavedJob" controller-name="Candidate"></pagination>
             </div>
         </div>
     </div>

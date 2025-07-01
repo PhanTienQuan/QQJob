@@ -5,7 +5,9 @@ using Newtonsoft.Json;
 using QQJob.AIs;
 using QQJob.Helper;
 using QQJob.Models;
+using QQJob.Models.Enum;
 using QQJob.Repositories.Interfaces;
+using QQJob.ViewModels;
 using QQJob.ViewModels.CandidateViewModels;
 using System.Security.Claims;
 
@@ -430,9 +432,115 @@ namespace QQJob.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult AppliedJob()
+
+        [HttpGet]
+        public async Task<IActionResult> AppliedJob(int currentPage = 1, int pageSize = 10)
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
+
+            if (candidate == null || candidate.Applications == null)
+                return View(new AppliedJobListViewModel());
+
+            // Lấy danh sách Application, phân trang
+            var applications = candidate.Applications
+                .OrderByDescending(a => a.ApplicationDate)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var jobs = applications
+                .Where(a => a.Job != null)
+                .Select(a => new JobViewModel
+                {
+                    Id = a.Job.JobId,
+                    JobTitle = a.Job.JobTitle,
+                    City = a.Job.City,
+                    Open = a.Job.PostDate,
+                    Close = a.Job.CloseDate,
+                    AppliedCount = a.Job.Applications?.Count ?? 0,
+                    Status = a.Job.Status,
+                    Skills = a.Job.Skills?.ToList() ?? new List<Skill>(),
+                    ExperienceLevel = a.Job.ExperienceLevel,
+                    JobType = a.Job.JobType,
+                    LocationRequirement = a.Job.LocationRequirement,
+                    Salary = a.Job.Salary,
+                    SalaryType = a.Job.SalaryType,
+                    AvatarUrl = a.Job.Employer?.User?.Avatar,
+                    Slug = a.Job.Slug
+                })
+                .ToList();
+
+            var totalItems = candidate.Applications.Count;
+            var paging = new PagingModel
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            var model = new AppliedJobListViewModel
+            {
+                Jobs = jobs,
+                Paging = paging
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SavedJob(int currentPage = 1, int pageSize = 10)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
+
+            if (candidate == null || candidate.SavedJobs == null)
+                return View(new AppliedJobListViewModel());
+
+            // Lấy danh sách SavedJob, phân trang
+            var savedJobs = candidate.SavedJobs
+                .Where(sj => sj.Job != null)
+                .OrderByDescending(sj => sj.SaveDate)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var jobs = savedJobs
+                .Select(sj => new JobViewModel
+                {
+                    Id = sj.Job.JobId,
+                    JobTitle = sj.Job.JobTitle ?? "No Title",
+                    City = sj.Job.City ?? "N/A",
+                    Open = sj.Job.PostDate,
+                    Close = sj.Job.CloseDate,
+                    AppliedCount = sj.Job.Applications?.Count ?? 0,
+                    Status = sj.Job.Status,
+                    Skills = sj.Job.Skills?.ToList() ?? new List<Skill>(),
+                    ExperienceLevel = sj.Job.ExperienceLevel,
+                    JobType = sj.Job.JobType,
+                    LocationRequirement = sj.Job.LocationRequirement,
+                    Salary = sj.Job.Salary,
+                    SalaryType = sj.Job.SalaryType,
+                    AvatarUrl = sj.Job.Employer?.User?.Avatar ?? "/assets/img/avatars/default-avatar.jpg",
+                    Slug = sj.Job.Slug
+                })
+                .ToList();
+
+            var totalItems = candidate.SavedJobs.Count;
+            var paging = new PagingModel
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            var model = new AppliedJobListViewModel
+            {
+                Jobs = jobs,
+                Paging = paging
+            };
+
+            return View(model);
         }
 
         [AllowAnonymous]
