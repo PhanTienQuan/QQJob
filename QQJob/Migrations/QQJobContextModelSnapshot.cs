@@ -210,11 +210,14 @@ namespace QQJob.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsPremium")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("bit");
+                    b.Property<int>("IsVerified")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime2");
@@ -224,6 +227,9 @@ namespace QQJob.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTime?>("MarkedForDeletionAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -246,6 +252,9 @@ namespace QQJob.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SocialLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -276,6 +285,9 @@ namespace QQJob.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApplicationId"));
 
+                    b.Property<float?>("AIRanking")
+                        .HasColumnType("real");
+
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("datetime2");
 
@@ -288,6 +300,13 @@ namespace QQJob.Migrations
 
                     b.Property<int>("JobId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ResumeSummary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResumeUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -336,20 +355,10 @@ namespace QQJob.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("CandidateId");
 
-                    b.Property<string>("CandidateName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResumePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SocialLink")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WorkingType")
@@ -395,6 +404,81 @@ namespace QQJob.Migrations
                     b.ToTable("CandidateExps");
                 });
 
+            modelBuilder.Entity("QQJob.Models.ChatMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ChatId", "SentAt");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("QQJob.Models.ChatSession", b =>
+                {
+                    b.Property<Guid>("ChatId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("User1Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("User2Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ChatId");
+
+                    b.HasIndex("User1Id");
+
+                    b.HasIndex("User2Id");
+
+                    b.ToTable("ChatSessions");
+                });
+
+            modelBuilder.Entity("QQJob.Models.CompanyEvident", b =>
+                {
+                    b.Property<string>("EmployerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EmployerId");
+
+                    b.ToTable("CompanyEvidents");
+                });
+
             modelBuilder.Entity("QQJob.Models.Education", b =>
                 {
                     b.Property<int>("EducationId")
@@ -433,17 +517,13 @@ namespace QQJob.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("EmployerId");
 
-                    b.Property<string>("CompanyFiled")
+                    b.Property<string>("CompanyField")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanySize")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmployerName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FoundedDate")
@@ -493,58 +573,155 @@ namespace QQJob.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JobId"));
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Benefits")
+                    b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CloseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("EmployerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Experience")
-                        .HasColumnType("int");
-
-                    b.Property<string>("JobDescription")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OpenPosition")
+                    b.Property<string>("EmployerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ExperienceLevel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("JobType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LocationRequirement")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Opening")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Qualification")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Salary")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
+                    b.Property<string>("SalaryType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
-                    b.Property<long>("ViewCount")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
 
                     b.HasKey("JobId");
 
                     b.HasIndex("EmployerId");
 
                     b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("QQJob.Models.JobEmbedding", b =>
+                {
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Embedding")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("JobId");
+
+                    b.ToTable("JobEmbeddings");
+                });
+
+            modelBuilder.Entity("QQJob.Models.JobSimilarityMatrix", b =>
+                {
+                    b.Property<int>("JobId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobId2")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SimilarityScore")
+                        .HasColumnType("float");
+
+                    b.HasKey("JobId1", "JobId2");
+
+                    b.ToTable("JobSimilarityMatrix");
+                });
+
+            modelBuilder.Entity("QQJob.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsReaded")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReceiverId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.ToTable("NotificationHistories");
+                });
+
+            modelBuilder.Entity("QQJob.Models.Resume", b =>
+                {
+                    b.Property<Guid>("ResumeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AiSumary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CandidateId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Embedding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ResumeId");
+
+                    b.HasIndex("CandidateId")
+                        .IsUnique();
+
+                    b.ToTable("Resume");
                 });
 
             modelBuilder.Entity("QQJob.Models.SavedJob", b =>
@@ -716,7 +893,7 @@ namespace QQJob.Migrations
                     b.HasOne("QQJob.Models.Job", "Job")
                         .WithMany("Applications")
                         .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Candidate");
@@ -755,6 +932,49 @@ namespace QQJob.Migrations
                         .IsRequired();
 
                     b.Navigation("Candidate");
+                });
+
+            modelBuilder.Entity("QQJob.Models.ChatMessage", b =>
+                {
+                    b.HasOne("QQJob.Models.ChatSession", "ChatSession")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QQJob.Models.AppUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("ChatSession");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("QQJob.Models.ChatSession", b =>
+                {
+                    b.HasOne("QQJob.Models.AppUser", "User1")
+                        .WithMany()
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QQJob.Models.AppUser", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
+            modelBuilder.Entity("QQJob.Models.CompanyEvident", b =>
+                {
+                    b.HasOne("QQJob.Models.Employer", null)
+                        .WithOne("CompanyEvident")
+                        .HasForeignKey("QQJob.Models.CompanyEvident", "EmployerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("QQJob.Models.Education", b =>
@@ -803,10 +1023,27 @@ namespace QQJob.Migrations
                     b.HasOne("QQJob.Models.Employer", "Employer")
                         .WithMany("Jobs")
                         .HasForeignKey("EmployerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Employer");
+                });
+
+            modelBuilder.Entity("QQJob.Models.Notification", b =>
+                {
+                    b.HasOne("QQJob.Models.AppUser", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId");
+
+                    b.Navigation("Receiver");
+                });
+
+            modelBuilder.Entity("QQJob.Models.Resume", b =>
+                {
+                    b.HasOne("QQJob.Models.Candidate", null)
+                        .WithOne("Resume")
+                        .HasForeignKey("QQJob.Models.Resume", "CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("QQJob.Models.SavedJob", b =>
@@ -818,9 +1055,9 @@ namespace QQJob.Migrations
                         .IsRequired();
 
                     b.HasOne("QQJob.Models.Job", "Job")
-                        .WithMany()
+                        .WithMany("SavedJobs")
                         .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Candidate");
@@ -868,13 +1105,22 @@ namespace QQJob.Migrations
 
                     b.Navigation("Follows");
 
+                    b.Navigation("Resume");
+
                     b.Navigation("SavedJobs");
 
                     b.Navigation("ViewJobHistories");
                 });
 
+            modelBuilder.Entity("QQJob.Models.ChatSession", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("QQJob.Models.Employer", b =>
                 {
+                    b.Navigation("CompanyEvident");
+
                     b.Navigation("Follows");
 
                     b.Navigation("Jobs");
@@ -883,6 +1129,8 @@ namespace QQJob.Migrations
             modelBuilder.Entity("QQJob.Models.Job", b =>
                 {
                     b.Navigation("Applications");
+
+                    b.Navigation("SavedJobs");
                 });
 #pragma warning restore 612, 618
         }
