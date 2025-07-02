@@ -413,7 +413,7 @@ namespace QQJob.Controllers
             return Json(json);
         }
         [HttpGet]
-        public async Task<IActionResult> Follow(int currentPage = 1,int pageSize = 5)
+        public async Task<IActionResult> Follow(PagingModel paging,string search = "")
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -424,22 +424,29 @@ namespace QQJob.Controllers
                 return Redirect(referer);
             }
 
-            var (follows, pagingModel) = await _followRepository.GetFollowsAsync(currentPage,pageSize,f => f.CandidateId == userId);
+            var (follows, pagingModel) = await _followRepository.GetFollowsAsync(paging.CurrentPage,paging.PageSize,f => f.CandidateId == userId && f.Employer.User.FullName.ToLower().Contains(search.ToLower()));
             var viewModel = new FollowingEmployerListViewModel()
             {
                 Follows = follows,
                 Paging = pagingModel
             };
+
+            if(Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                // Return partial view (only the list, for AJAX update)
+                return PartialView("_Follow",viewModel);
+            }
+
             return View(viewModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> AppliedJob(int currentPage = 1, int pageSize = 10)
+        public async Task<IActionResult> AppliedJob(int currentPage = 1,int pageSize = 10)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
 
-            if (candidate == null || candidate.Applications == null)
+            if(candidate == null || candidate.Applications == null)
                 return View(new AppliedJobListViewModel());
 
             // Lấy danh sách Application, phân trang
@@ -489,12 +496,12 @@ namespace QQJob.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SavedJob(int currentPage = 1, int pageSize = 10)
+        public async Task<IActionResult> SavedJob(int currentPage = 1,int pageSize = 10)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(userId);
 
-            if (candidate == null || candidate.SavedJobs == null)
+            if(candidate == null || candidate.SavedJobs == null)
                 return View(new AppliedJobListViewModel());
 
             // Lấy danh sách SavedJob, phân trang
@@ -547,11 +554,11 @@ namespace QQJob.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            if(string.IsNullOrEmpty(id))
                 return NotFound();
 
             var candidate = await _candidateRepository.GetCandidateWithDetailsAsync(id);
-            if (candidate == null || candidate.User == null)
+            if(candidate == null || candidate.User == null)
                 return NotFound();
 
             var model = new CandidateDetailViewModel
