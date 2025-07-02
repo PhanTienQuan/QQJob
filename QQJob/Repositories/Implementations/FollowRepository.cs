@@ -21,6 +21,8 @@ namespace QQJob.Repositories.Implementations
             var totalItems = await query.CountAsync();
 
             var follows = await query
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
                 .Include(f => f.Employer)
                 .ThenInclude(e => e.User)
                 .Include(f => f.Employer.Jobs)

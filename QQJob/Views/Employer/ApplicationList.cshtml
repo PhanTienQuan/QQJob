@@ -3,6 +3,9 @@
     ViewBag.Title = "Applicant List";
     var statuses = Enum.GetValues(typeof(ApplicationStatus)).Cast<ApplicationStatus>();
 }
+<style>
+
+</style>
 <!-- content area -->
 <div class="dashboard__content d-flex">
     <partial name="_LeftMenu" />
@@ -14,7 +17,7 @@
             </div>
             <!-- sidebar menu end -->
             <div class="applied__job__info radius-16">
-                <form id="searchForm" method="get" data-ajax="true" data-ajax-method="get" data-ajax-update=".applied__job__list" data-ajax-mode='replace' data-ajax-url="@Url.Action("GetApplicationListPartial","Employer")">
+                <form id="searchForm" method="get" data-ajax="true" data-ajax-method="get" data-ajax-complete="updateStarRatings()" data-ajax-update=".applied__job__list" data-ajax-mode='replace' data-ajax-url="@Url.Action("GetApplicationListPartial","Employer")">
                     <div class="job__filter">
                         <div class="search__job">
                             <div class="position-relative">
@@ -55,6 +58,18 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
     <script>
+        function updateStarRatings() {
+            document.querySelectorAll('.star-rating').forEach(el => {
+                const rating = parseFloat(el.getAttribute('data-rating')) || 0;
+                const width = (rating / 5) * 100;
+                var front = el.querySelector('.star-rating__front');
+                if(front) front.style.width = width + '%';
+            });
+        }
+
+        // Initial run (for first page load)
+        updateStarRatings();
+
         const searchForm = $("#searchForm");
         $("#SearchValue").on("input", function() {
             $("#Paging_CurrentPage").val(1);

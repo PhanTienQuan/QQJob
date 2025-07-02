@@ -6,14 +6,31 @@
         <div class="single__applied__job">
             <div class="single__applied__job__content">
                 <div class="icon">
-                    <img src="@applicant.CandidateAvatarUrl" alt="">
+                    <a asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId"><img src="@applicant.CandidateAvatarUrl" alt=""></a>
                 </div>
                 <div class="content__flex">
                     <div class="content">
-                        <a href="#"> <h6>@applicant.CandidateName</h6></a>
+                        <a asp-action="Detail" asp-controller="Application" asp-route-id="@applicant.ApplicationId"> <h6>@applicant.CandidateName</h6></a>
                         <div class="content__info">
                             <span><i class="fa-light fa-location-dot"></i> Applied for<a style="font-weight: bold">@applicant.JobTitle</a></span>
-                            <span><i class="fa-light fa-star"></i>AI Rank @applicant.AiRanking / 5</span>
+                            <span>AI Rank
+                                <div class="star-rating" data-rating="@applicant.AiRanking">
+                                    <div class="star-rating__back">
+                                        <i class="fa-light fa-star"></i>
+                                        <i class="fa-light fa-star"></i>
+                                        <i class="fa-light fa-star"></i>
+                                        <i class="fa-light fa-star"></i>
+                                        <i class="fa-light fa-star"></i>
+                                    </div>
+                                    <div class="star-rating__front">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                    </div>
+                                </div>
+                            </span>
                             <span><i class="fa-light fa-clock"></i> @Helper.DisplayTime(applicant.ApplicationDate)</span>
                         </div>
                     </div>
@@ -33,7 +50,7 @@
 
                 <!-- Download CV -->
                 <a href="@applicant.ResumeUrl"
-                   download="@applicant.FileName"
+                   target="_blank"
                    class="action__btn"
                    title="Download CV">
                     <i class="fa-solid fa-file-arrow-down" style="color: black;"></i>

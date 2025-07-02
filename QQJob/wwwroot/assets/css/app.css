@@ -273,3 +273,23 @@ body {
     max-height: 250px;
     overflow-y: scroll;
 }
+
+.star-rating {
+    position: relative;
+    display: inline-block;
+    color: #ccc; /* color of "empty" stars */
+}
+
+.star-rating__back i {
+    color: #ccc;
+}
+
+.star-rating__front {
+    color: #f7c948; /* gold for filled stars */
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+}
