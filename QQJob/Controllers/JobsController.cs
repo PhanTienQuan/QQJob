@@ -94,7 +94,7 @@ namespace QQJob.Controllers
                 City = j.City,
                 JobType = j.JobType,
                 Title = j.JobTitle,
-                Skills = j.Skills.Select(s => s.SkillName).Take(3).ToList() ?? [],
+                Skills = j.Skills.Select(s => s.SkillName).ToList() ?? [],
                 Opening = j.Opening,
                 Slug = j.Slug
             }).ToList();
@@ -111,6 +111,7 @@ namespace QQJob.Controllers
             {
                 Id = job.JobId,
                 EmployerId = job.EmployerId,
+                EmployerSlug = job.Employer.User.Slug,
                 JobTitle = job.JobTitle,
                 City = job.City,
                 Description = job.Description,
@@ -186,7 +187,7 @@ namespace QQJob.Controllers
                     {
                         JobId = id,
                         CandidateId = userId,
-                        SaveDate = DateTime.UtcNow
+                        SaveDate = DateTime.Now
                     });
                     candidateRepository.Update(candidate);
                     await candidateRepository.SaveChangesAsync();

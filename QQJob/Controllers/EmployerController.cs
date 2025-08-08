@@ -26,7 +26,8 @@ namespace QQJob.Controllers
         IAppUserRepository appUserRepository,
         INotificationRepository notificationRepository,
         EmbeddingAI embeddingAI,
-        UserManager<AppUser> userManager
+        UserManager<AppUser> userManager,
+        IFollowRepository followRepository
         ):Controller
     {
         [HttpGet]
@@ -47,10 +48,10 @@ namespace QQJob.Controllers
             {
                 return View(dashboardViewModel);
             }
-
+            var followers = await followRepository.FindAsync(fl => fl.EmployerId == userId);
             dashboardViewModel.PostedJobCount = user.Jobs.Count;
             dashboardViewModel.ApplicationCount = user.Jobs.Sum(j => j.Applications.Count());
-            dashboardViewModel.FollowerCount = user.Follows.Count();
+            dashboardViewModel.FollowerCount = followers.Count();
             dashboardViewModel.ViewCount = user.Jobs.Sum(j => j.ViewCount);
             dashboardViewModel.RecentApplicants = await applicationRepository.GetApplicationsByEmployerId(userId);
 
@@ -346,7 +347,7 @@ namespace QQJob.Controllers
                     Description = job.Description,
                     Open = job.PostDate,
                     Close = job.CloseDate,
-                    AppliedCount = job.Applications != null ? job.Applications.Count() : 0,
+                    AppliedCount = job.Applications != null ? job.Applications.Count : 0,
                     Status = job.Status,
                     Slug = job.Slug
                 });

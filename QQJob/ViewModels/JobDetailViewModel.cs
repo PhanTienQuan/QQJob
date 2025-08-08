@@ -7,6 +7,7 @@ namespace QQJob.ViewModels
     {
         public int Id { get; set; }
         public string EmployerId { get; set; }
+        public string EmployerSlug { get; set; }
         public string JobTitle { get; set; }
         public string City { get; set; }
         public string Description { get; set; }

@@ -32,64 +32,64 @@
     }
 </style>
 
-<!-- breadcrumb area -->
 <div class="rts__section breadcrumb__background">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 position-relative d-flex justify-content-between align-items-center">
-                <div class="breadcrumb__area max-content breadcrumb__padding">
+                <div class="breadcrumb__area max-content breadcrumb__padding" style="z-index: 2;">
                     <div class="rts__job__card__big bg-transparent p-0 position-relative z-1 flex-wrap justify-content-between d-flex gap-4 align-items-center">
-                        <div class="d-flex gap-4 align-items-center flex-md-row flex-column mx-auto mx-md-0 w-100">
+                        <div class="d-flex gap-4 align-items-center flex-md-row flex-column mx-auto mx-md-0">
                             <div class="company__icon rounded-2 bg-white">
-                                <img class="" src="@Model.ImgUrl" alt="">
+                                <a asp-action="EmployerDetail" asp-controller="Home" asp-route-id="@Model.EmployerId" asp-route-id="@Model.EmployerSlug"><img class="" src="@Model.ImgUrl" alt=""></a>
                             </div>
                             <div class="job__meta w-100 d-flex text-center text-md-start flex-column gap-2">
                                 <div class="">
                                     <h3 class="job__title h3 mb-0">@Model.JobTitle</h3>
                                 </div>
-                                <div class="breadcrumb__apply max-content d-flex align-items-center gap-2 position-relative">
-                                    <div class="justify-content-md-start">
-                                        <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <i class="fa-light fa-location-dot"></i> @Model.City
-                                            </div>
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <i class="fa-light fa-clock"></i> @Helper.DisplayTime(Model.PostDate)
-                                            </div>
-                                            <div class="d-flex gap-2 fw-medium align-items-center">
-                                                <i class="fa-light rt-price-tag"></i> @Model.Salary / @Model.SalaryType
-                                            </div>
-                                        </div>
-                                        <div class="job__tags d-flex justify-content-center justify-content-md-start flex-wrap gap-3">
-                                            @foreach (var skill in Model.Skills)
-                                            {
-                                                <a href="#">@skill.SkillName</a>
-                                            }
-                                        </div>
+                                <div class="d-flex gap-3 justify-content-center justify-content-md-start flex-wrap mb-3 mt-2">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-location-dot"></i> @Model.City
                                     </div>
-                                    @if (User.IsInRole("Candidate"))
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light rt-briefcase"></i> @Model.JobType
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <i class="fa-light fa-clock"></i> @Helper.DisplayTime(Model.PostDate)
+                                    </div>
+                                    <div class="d-flex gap-2 fw-medium align-items-center">
+                                        <i class="fa-light rt-price-tag"></i> @Model.Salary / @Model.SalaryType
+                                    </div>
+                                </div>
+                                <div class="job__tags d-flex justify-content-center justify-content-md-start flex-wrap gap-3">
+                                    @foreach (var skill in Model.Skills)
                                     {
-                                        <div class="d-flex justify-content-md-end">
-                                            <div class="button-group d-flex flex justify-content-md-end align-items-center gap-2">
-                                                <button type="button"
-                                                        id="saveJobBtn"
-                                                        class="bookmark__btn @(Model.IsSaved ? "saved" : "")"
-                                                        title="Bookmark this job"
-                                                        style="height:48px;display:flex;align-items:center;justify-content:center;">
-                                                    <i class="rt-bookmark"></i>
-                                                </button>
-                                                <a href="#" class="rts__btn apply__btn be-1 fill__btn" data-bs-toggle="modal" data-bs-target="#applyModal">
-                                                    Apply This Position
-                                                </a>
-                                            </div>
-                                        </div>
+                                        <a href="#">@skill.SkillName</a>
                                     }
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="breadcrumb__apply max-content">
+                        @if (User.IsInRole("Candidate"))
+                        {
+                            <div class="d-flex justify-content-md-end">
+                                <div class="button-group be-1 d-flex flex justify-content-md-end align-items-center gap-2">
+                                    <button type="button"
+                                            id="saveJobBtn"
+                                            class="bookmark__btn @(Model.IsSaved ? "saved" : "")"
+                                            title="Bookmark this job"
+                                            style="height:48px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="rt-bookmark"></i>
+                                    </button>
+                                    <a href="#" class="rts__btn apply__btn be-1 fill__btn" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                        Apply This Position
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
-                <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center">
+                <div class="breadcrumb__area__shape d-flex gap-4 justify-content-end align-items-center" style="z-index: 1;">
                     <div class="shape__one common">
                     </div>
                     <div class="shape__two common">
@@ -103,6 +103,7 @@
         </div>
     </div>
 </div>
+
 <!-- breadcrumb area end -->
 <!-- job list one -->
 <div class="rts__section section__padding">
@@ -303,9 +304,13 @@
                                     </a>
                                 </div>
                                 <div class="job__tags d-flex flex-wrap gap-2 mt-4">
-                                    @foreach (var skill in job.Skills)
+                                    @foreach (var skill in job.Skills.Take(3))
                                     {
                                         <a href="#">@skill</a>
+                                    }
+                                    @if (job.Skills.Count() > 3)
+                                    {
+                                        <a href="#">...</a>
                                     }
                                 </div>
                             </div>

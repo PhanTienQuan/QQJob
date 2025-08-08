@@ -5,10 +5,15 @@
 <style>
 
     #description h1,
+    .coverletter_wrapper h1,
     #description h2,
+    .coverletter_wrapper h2,
     #description h3,
+    .coverletter_wrapper h3,
     #description h4,
+    .coverletter_wrapper h4,
     #description h5,
+    .coverletter_wrapper h5,
     #description h6 {
         font-weight: 600 !important;
         margin-top: 20px;
@@ -18,7 +23,8 @@
         line-height: 30px;
     }
 
-    #summary > ul > li {
+    #summary > ul > li,
+    .coverletter_wrapper > ul > li {
         list-style: none;
         padding-left: 30px;
         margin-bottom: 15px;
@@ -26,7 +32,8 @@
         position: relative;
     }
 
-    #summary > ul > li::before {
+    #summary > ul > li::before,
+    .coverletter_wrapper > ul > li::before {
         position: absolute;
         left: 0;
         top: 6px; /* fixed top spacing */
@@ -40,7 +47,9 @@
 
     /* NEW — Reset inner lists */
     #summary ul li ul,
-    #summary ul li ol {
+    .coverletter_wrapper ul li ul,
+    #summary ul li ol,
+    .coverletter_wrapper ul li ol {
         padding-left: 20px; /* smaller indent */
         margin-top: 10px;
         margin-bottom: 10px;
@@ -48,9 +57,15 @@
     }
 
     #summary ul li ul li::before,
-    #summary ul li ol li::before {
+    .coverletter_wrapper ul li ul li::before,
+    #summary ul li ol li::before,
+    .coverletter_wrapper ul li ol li::before {
         /* content: none !important; /* remove dot bullet from inner li */
         background: gray;
+    }
+
+    .coverletter_content * {
+        all: revert !important;
     }
 </style>
 <!-- breadcrumb area -->
@@ -105,12 +120,21 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="employer__details" id="description">
                     <h4>Applied Job: <a asp-action="Detail" asp-controller="Jobs" asp-route-id="@Model.JobId" asp-route-slug="@Model.JobSlug">@Model.JobTitle</a></h4>
-                    @if (!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>")
+                    @if (!string.IsNullOrEmpty(Model.CoverLetter) && !(Model.CoverLetter == "<br>"))
+                    {
+                        <div class="coverletter_wrapper">
+                            <h5 class="p-3 bg-info bg-opacity-10 border border-info rounded-start rounded-end">Cover Letter:</h5>
+                            <div class="border p-3 rounded-start rounded-end coverletter_content">
+                                @Html.Raw(Model.CoverLetter.Replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"))
+                            </div>
+                        </div>
+                    }
+                    else
                     {
                         <div class="coverletter_wrapper">
                             <h5 class="p-3 bg-info bg-opacity-10 border border-info rounded-start rounded-end">Cover Letter:</h5>
                             <div class="border p-3 rounded-start rounded-end">
-                                @Html.Raw(!string.IsNullOrEmpty(Model.CoverLetter) && Model.CoverLetter == "<br>" ? Model.CoverLetter : "<p>Unavailable</p>")
+                                @Html.Raw("<p>Unavailable</p>")
                             </div>
                         </div>
                     }

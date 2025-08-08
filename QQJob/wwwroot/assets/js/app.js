@@ -95,11 +95,12 @@ function register(element) {
                 showLoginModal(response.message, response.email, response.password);
             } else {
                 $.each(response.errors, function (key, messages) {
-                    if (key == "ALL") {
-                        $("divx").text(messages)
+                    if (key === "ALL") {
+                        $("divx").text(Array.isArray(messages) ? messages.join(', ') : messages);
                     } else {
                         let errorPlaceholder = $('span[data-valmsg-for="' + key + '"]');
-                        errorPlaceholder.text(messages.join(', '));
+                        let msgs = Array.isArray(messages) ? messages : [messages];
+                        errorPlaceholder.text(msgs.join(', '));
                     }
                 });
                 onRegisterLoading.attr("hidden", true);

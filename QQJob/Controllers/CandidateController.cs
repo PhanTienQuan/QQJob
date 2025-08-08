@@ -506,7 +506,6 @@ namespace QQJob.Controllers
 
             // Lấy danh sách SavedJob, phân trang
             var savedJobs = candidate.SavedJobs
-                .Where(sj => sj.Job != null)
                 .OrderByDescending(sj => sj.SaveDate)
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)

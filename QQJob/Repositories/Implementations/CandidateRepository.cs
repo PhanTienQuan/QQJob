@@ -5,7 +5,7 @@ using QQJob.Repositories.Interfaces;
 
 namespace QQJob.Repositories.Implementations
 {
-    public class CandidateRepository : GenericRepository<Candidate>, ICandidateRepository
+    public class CandidateRepository:GenericRepository<Candidate>, ICandidateRepository
     {
         public CandidateRepository(QQJobContext context) : base(context)
         {
@@ -21,6 +21,7 @@ namespace QQJob.Repositories.Implementations
                 .Include(c => c.CandidateExps)
                 .Include(c => c.Resume)
                 .Include(c => c.SavedJobs)
+                .ThenInclude(sj => sj.Job)
                 .Include(c => c.Applications)
                 .ThenInclude(a => a.Job)
                 .ThenInclude(j => j.Employer)

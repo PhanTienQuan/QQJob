@@ -119,14 +119,7 @@
                                 </div>
                             </div>
                             <div class="row row-cols-sm-2 row-cols-1 g-3">
-                                <div class="position-relative">
-                                    <div class="rt-input-group">
-                                        <label asp-for="Close">End Time</label>
-                                        <input type="date" asp-for="Close" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
-                                    </div>
-                                    <span asp-validation-for="Close" class="text-danger"></span>
-                                </div>
-                                <!-- End Time -->
+                                
                                 <div class="position-relative mb-3">
                                     <div class="rt-input-group">
                                         <label asp-for="LocationRequirement">Location Requirement</label>
@@ -141,6 +134,14 @@
                                     </div>
                                     <span asp-validation-for="LocationRequirement" class="text-danger"></span>
                                 </div>
+                                <div class="position-relative">
+                                    <div class="rt-input-group">
+                                        <label asp-for="Close">End Time</label>
+                                        <input type="date" asp-for="Close" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                                    </div>
+                                    <span asp-validation-for="Close" class="text-danger"></span>
+                                </div>
+                                <!-- End Time -->
                                 <div class="position-relative">
                                     <div class="rt-input-group">
                                         <label for="skills">Skills</label>
@@ -175,11 +176,11 @@
                     </div>
                 </div>
 
-                <h6 class="fw-medium mt-30 mb-20" id="posttime">Post time</h6>
-                <div class="social__links radius-16 p-30 bg-white">
+                @* <h6 class="fw-medium  mb-20" id="posttime">Post time</h6> *@
+                <div class="social__links radius-16 p-30 bg-white mt-30">
                     <div class="info__field">
                         <div class="row row-cols-sm-1 row-cols-1 g-3">
-                            <div class="info__field">
+                            @* <div class="info__field">
                                 <div class="row row-cols-sm-2 row-cols-1 g-3">
                                     <!-- End Time -->
                                     <div class="position-relative">
@@ -190,7 +191,7 @@
                                         <span asp-validation-for="Close" class="text-danger"></span>
                                     </div>
                                 </div>
-                            </div>
+                            </div> *@
                             <button type="submit" class="rts__btn fill__btn">
                                 Save
                             </button>

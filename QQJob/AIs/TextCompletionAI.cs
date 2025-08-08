@@ -120,7 +120,7 @@ namespace QQJob.AIs
                     "LocationRequirement": string // Remote, Hybrid, Onsite, Flexible, Client Site
                 }
                 Normalize the following city name to its official English name if possible.
-                Only consider the following as valid skills: {{skillsList}}. Chose skill that user may likely refer to in that list.
+                Only consider the following as valid skills: {{skillsList}}. If a user's skill could reasonably refer to multiple skills in the list, include all relevant skills.
                 Consider user query to use StrictSearch or not.
                 If the value is not specified, return null or an empty array.
                 ONLY return exact JSON. No explanation.
