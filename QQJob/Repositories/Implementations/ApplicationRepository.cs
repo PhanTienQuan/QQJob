@@ -30,7 +30,6 @@ namespace QQJob.Repositories.Implementations
             .Include(a => a.Job)
             .Include(a => a.Candidate)
             .ThenInclude(c => c.User)
-            .Where(a => a.Status == ApplicationStatus.Pending)
             .ToListAsync();
         }
         public async Task<(IEnumerable<Application> applications, PagingModel pagingModel)> GetApplicationsAsync(int currentPage,int pageSize,Expression<Func<Application,bool>>? predicate,string? searchValue = null,ApplicationStatus? searchStatus = null,DateTime? appliedDate = null)
@@ -94,7 +93,7 @@ namespace QQJob.Repositories.Implementations
                 .Include(a => a.Job)
                 .ThenInclude(j => j.Employer)
                 .ThenInclude(e => e.User)
-                .FirstAsync();
+                .FirstOrDefaultAsync();
         }
 
         public void UpdateAppplicantRank(int jobId,string candidateId,float rank)

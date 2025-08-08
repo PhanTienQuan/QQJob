@@ -36,6 +36,10 @@
     .select__evidence {
         margin-top: 30px;
     }
+
+    #view-evident-btn{
+        cursor: pointer;
+    }
 </style>
 <!-- content area -->
 <div class="dashboard__content d-flex template-dashboard">
@@ -181,7 +185,7 @@
                             var url = Model.CompanyEvidentUrl.ToLower();
                             
                             <div class="info__field mb-3">
-                                <a id="view-evident-btn" class="mx-0" data-url="@Model.CompanyEvidentUrl" data-type="@(url.EndsWith(".pdf") ? "pdf" : (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp")) ? "img" : "file")">
+                                <a id="view-evident-btn" class="mx-0 text-wrap" data-url="@Model.CompanyEvidentUrl" data-type="@(url.EndsWith(".pdf") ? "pdf" : (url.EndsWith(".jpg") || url.EndsWith(".jpeg") || url.EndsWith(".png") || url.EndsWith(".gif") || url.EndsWith(".webp")) ? "img" : "file")">
                                     View Evidence
                                 </a>
                             </div>
@@ -189,7 +193,9 @@
                         }
                         else
                         {
-                            
+                            <div class="info__field mb-3">
+                                No Evident Added Yet
+                            </div>
                         }
                     </div>
                     <div class="info__field">
@@ -304,37 +310,6 @@
         const socialLinks = @Html.Raw(JsonConvert.SerializeObject(Model.SocialLinks ?? new List<SocialLink>()));
         const companyField = @Html.Raw(Json.Serialize(Model.CompanyField?.Split(',') ?? new string[0]));
         document.addEventListener("DOMContentLoaded", () => {
-            const btn = document.getElementById("view-evident-btn");
-
-            btn.addEventListener("click", function () {
-                const preview = document.getElementById("evident");
-                const url = btn.getAttribute("data-url");
-                const type = btn.getAttribute("data-type");
-                preview.innerHTML = ""; // Clear previous preview
-
-                if (type === "pdf") {
-                    const iframe = document.createElement("iframe");
-                    iframe.src = url;
-                    iframe.style.width = "100%";
-                    iframe.style.height = "600px";
-                    iframe.style.border = "none";
-                    preview.appendChild(iframe);
-                } else if (type === "img") {
-                    const img = document.createElement("img");
-                    img.src = url;
-                    img.style.maxWidth = "100%";
-                    img.style.borderRadius = "8px";
-                    preview.appendChild(img);
-                } else {
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.textContent = "Download Evidence";
-                    a.download = "";
-                    a.target = "_blank";
-                    a.rel = "noopener noreferrer";
-                    preview.appendChild(a);
-                }
-            });
             initializeSocialLinksManager({
                 socialLinksContainerSelector: "#socialLinksContainer",
                 addSocialLinkBtnSelector: "#addSocialLinkBtn",
@@ -378,6 +353,37 @@
             if (html && html.trim() !== "") {
                 quill.root.innerHTML = html;
             }
+            const btn = document.getElementById("view-evident-btn");
+
+            btn?.addEventListener("click", function () {
+                const preview = document.getElementById("evident");
+                const url = btn.getAttribute("data-url");
+                const type = btn.getAttribute("data-type");
+                preview.innerHTML = ""; // Clear previous preview
+
+                if (type === "pdf") {
+                    const iframe = document.createElement("iframe");
+                    iframe.src = url;
+                    iframe.style.width = "100%";
+                    iframe.style.height = "600px";
+                    iframe.style.border = "none";
+                    preview.appendChild(iframe);
+                } else if (type === "img") {
+                    const img = document.createElement("img");
+                    img.src = url;
+                    img.style.maxWidth = "100%";
+                    img.style.borderRadius = "8px";
+                    preview.appendChild(img);
+                } else {
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.textContent = "Download Evidence";
+                    a.download = "";
+                    a.target = "_blank";
+                    a.rel = "noopener noreferrer";
+                    preview.appendChild(a);
+                }
+            });
         });
         document.getElementById('AvatarFile').addEventListener('change', function(event) {
             const fileInput = event.target;

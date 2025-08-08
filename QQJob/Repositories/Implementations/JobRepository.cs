@@ -62,6 +62,7 @@ namespace QQJob.Repositories.Implementations
                 .Include(j => j.Skills)
                 .Include(j => j.Employer)
                 .ThenInclude(e => e.User)
+                .Include(j => j.Applications)
                 .ToListAsync();
 
             var pagingModel = new PagingModel
